@@ -41,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  int get _childCount => kIsWeb ? 2000 : 6000;
+  int get _childCount => 6000;
 
   @override
   Widget build(BuildContext context) {

@@ -136,16 +136,13 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
       childManager.didFinishLayout();
     }
 
-    // Estimated extent is never need at the beginning of viewport
-    final needExtent = scrollOffset != 0;
-
     // There are no children, nothing to estimate extent for.
-    if (firstChild == null && needExtent) {
+    if (firstChild == null) {
       if (!addInitialChild(index: 0, layoutOffset: 0)) {
         return zeroGeometry();
       }
       layoutChild(firstChild!);
-      for (var i = 1; i < 20; i++) {
+      for (var i = 1; i < 30; i++) {
         if (!addTrailingChild()) {
           break;
         }
@@ -154,7 +151,7 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
 
     // Estimate extent from currently available children.
     final extent = _estimateExtent() ?? 0.0;
-    if (needExtent && extent < precisionErrorTolerance) {
+    if (extent < precisionErrorTolerance) {
       return zeroGeometry();
     }
 
