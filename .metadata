@@ -1,0 +1,10 @@
+# This file tracks properties of this Flutter project.
+# Used by Flutter tool to assess capabilities and perform upgrades etc.
+#
+# This file should be version controlled and should not be manually edited.
+
+version:
+  revision: 508ba5eb759dff09de5014b8e717a7bd0129c8a1
+  channel: revert-111250-drag_scrollbar_desktop
+
+project_type: package
