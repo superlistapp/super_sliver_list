@@ -149,12 +149,6 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
       }
     }
 
-    // Estimate extent from currently available children.
-    final extent = _estimateExtent() ?? 0.0;
-    if (extent < precisionErrorTolerance) {
-      return zeroGeometry();
-    }
-
     // First go through all children, remove those that are no longer
     // in cache area and layout those that are in the cache area.
     int leadingGarbage = 0;
@@ -183,6 +177,15 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
           }
         }
       }
+    }
+
+    // Estimate extent from currently available children. This must be done
+    // after children have been laid-out in previous step, but before
+    // collecting garbage. It is possible that we'll end-up with no children
+    // after collecting garbage but still need to estimate index after jump.
+    final extent = _estimateExtent() ?? 0.0;
+    if (extent < precisionErrorTolerance) {
+      return zeroGeometry();
     }
 
     collectGarbage(leadingGarbage, trailingGarbage);
