@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -28,15 +29,19 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
   /// of cached area.
   bool _layoutOffsetIsEstimated = false;
 
+  /// When sliver is scrolled away completely we rely on cached extent
+  /// to provide consistent scrollExtent to viewport.
+  double? _cachedExtent;
+
   double? _estimateExtent() {
     for (var child = lastChild; child != null; child = childBefore(child)) {
       final offset = childScrollOffset(child);
       if (offset != null) {
         final extent = (offset + paintExtentOf(child)) / (indexOf(child) + 1);
-        return extent.roundToDouble();
+        return _cachedExtent = extent;
       }
     }
-    return null;
+    return _cachedExtent;
   }
 
   int? _estimatedOffsetChildIndex;
@@ -61,7 +66,7 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
 
   @override
   void performLayout() {
-    // Moves the layout offset of this and subsequent children by the given delta.
+    /// Moves the layout offset of this and subsequent children by the given delta.
     void shiftLayoutOffsets(RenderBox? child, double delta) {
       while (child != null) {
         final data = child.parentData! as SliverMultiBoxAdaptorParentData;
@@ -110,14 +115,22 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
     final double scrollOffset =
         constraints.scrollOffset + constraints.cacheOrigin;
 
-    final double remainingExtent = constraints.remainingCacheExtent;
+    // Inflate remaining extent when scrolling from beginning. This is
+    // to reduce extent estimation error, which can be large when estimating
+    // from first child only.
+    final double remainingExtent = math.max(
+        constraints.remainingCacheExtent,
+        constraints.viewportMainAxisExtent +
+            2 * constraints.cacheOrigin -
+            constraints.scrollOffset);
 
     bool addTrailingChild() {
       if (indexOf(lastChild!) < totalChildCount - 1 &&
-          childScrollOffset(lastChild!)! + paintExtentOf(lastChild!) <
-              scrollOffset + remainingExtent) {
+          (childScrollOffset(lastChild!)! + paintExtentOf(lastChild!) <
+              scrollOffset + remainingExtent)) {
         final newLayoutOffset =
             childScrollOffset(lastChild!)! + paintExtentOf(lastChild!);
+
         final box = insertAndLayoutChild(childConstraints,
             after: lastChild, parentUsesSize: true);
         if (box == null) {
@@ -136,13 +149,16 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
       childManager.didFinishLayout();
     }
 
-    // There are no children, nothing to estimate extent for.
-    if (firstChild == null) {
+    // There are no children, nothing to estimate extent for. This will create
+    // up to 10 initial children. If scrollOffset is 0, these children will be
+    // reused later. If scroll extent large, these will likely be scraped in
+    // next step, but we should at least be able to estimate jump position.
+    if (firstChild == null && _cachedExtent == null) {
       if (!addInitialChild(index: 0, layoutOffset: 0)) {
         return zeroGeometry();
       }
       layoutChild(firstChild!);
-      for (var i = 1; i < 30; i++) {
+      for (var i = 1; i < 10; ++i) {
         if (!addTrailingChild()) {
           break;
         }
@@ -190,6 +206,17 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
 
     collectGarbage(leadingGarbage, trailingGarbage);
 
+    // This sliver is not visible yet. Provide cached extent to be consistent.
+    if (constraints.scrollOffset == 0 &&
+        constraints.remainingPaintExtent == 0) {
+      geometry = SliverGeometry(
+        paintOrigin: 0,
+        maxPaintExtent: 0,
+        scrollExtent: childManager.childCount * extent,
+      );
+      return;
+    }
+
     // We're jumping completely over the cache area. All children have been
     // removed.
     if (firstChild == null) {
@@ -205,7 +232,8 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
         int firstChildIndex = firstChildScrollOffset ~/ extent;
 
         if (firstChildIndex >= totalChildCount) {
-          // we didn't reach scroll offset
+          // We didn't reach scroll offset. It means user scrolled past this
+          // sliver.
           geometry = SliverGeometry(
             paintExtent: 0,
             maxPaintExtent: totalChildCount * extent,
@@ -225,6 +253,16 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
         _layoutOffsetIsEstimated = true;
       }
       firstChild!.layout(childConstraints, parentUsesSize: true);
+
+      // First child added is the last child. In this case align the new child
+      // to estimated extent. There may be sliver after this one, in which case
+      // we hold on to the estimated extent until user scrolls far enough to
+      // remove last child.
+      if (indexOf(firstChild!) == totalChildCount - 1) {
+        final data = firstChild!.parentData! as SliverMultiBoxAdaptorParentData;
+        data.layoutOffset =
+            totalChildCount * extent - paintExtentOf(firstChild!);
+      }
     }
 
     // At this point there is at least one child.
@@ -241,7 +279,11 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
         break;
       }
       final data = box.parentData as SliverMultiBoxAdaptorParentData;
-      if (!_layoutOffsetIsEstimated) {
+      // Avoid scroll offset correction if layout offset is not estimated
+      // or if we're adding from last child, which means the sliver after
+      // may be visible.
+      if (!_layoutOffsetIsEstimated ||
+          indexOf(lastChild!) == totalChildCount - 1) {
         data.layoutOffset = prevOffset - paintExtentOf(box);
       } else {
         data.layoutOffset = prevOffset - extent;
