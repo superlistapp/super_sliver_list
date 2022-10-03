@@ -316,7 +316,7 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
       scrollCorrection += correction;
     }
 
-    if (scrollCorrection != 0) {
+    if (scrollCorrection.abs() > precisionErrorTolerance) {
       if (_estimatedOffset != null) {
         _estimatedOffset = _estimatedOffset! + scrollCorrection;
       }
@@ -341,7 +341,7 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
       for (var c = firstChild; c != null; c = childAfter(c)) {
         if (_estimatedOffsetChildIndex == indexOf(c)) {
           final o = childScrollOffset(c)!;
-          if (o != _estimatedOffset) {
+          if ((o - _estimatedOffset!).abs() > precisionErrorTolerance) {
             geometry =
                 SliverGeometry(scrollOffsetCorrection: o - _estimatedOffset!);
             childManager.didFinishLayout();
