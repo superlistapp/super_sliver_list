@@ -209,6 +209,10 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
     // This sliver is not visible yet. Provide cached extent to be consistent.
     if (constraints.scrollOffset == 0 &&
         constraints.remainingPaintExtent == 0) {
+      // Remove items added initially to determine average extent. If this
+      // Sliver is far away this can get rid of quite a lot of state that would
+      // be kept unecessarily.
+      collectGarbage(childCount, 0);
       geometry = SliverGeometry(
         paintOrigin: 0,
         maxPaintExtent: 0,
