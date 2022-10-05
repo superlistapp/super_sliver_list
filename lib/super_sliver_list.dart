@@ -231,11 +231,9 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
         // Layout offset of first child is always 0. No estimation necessary.
         _layoutOffsetIsEstimated = false;
       } else {
-        // Put first child at the scroll offset, not the beginning of cached area
-        double firstChildScrollOffset = constraints.scrollOffset;
-        int firstChildIndex = firstChildScrollOffset ~/ extent;
+        int firstChildInCacheAreaIndex = scrollOffset ~/ extent;
 
-        if (firstChildIndex >= totalChildCount) {
+        if (firstChildInCacheAreaIndex >= totalChildCount) {
           // We didn't reach scroll offset. It means user scrolled past this
           // sliver.
           geometry = SliverGeometry(
@@ -246,6 +244,11 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
           childManager.didFinishLayout();
           return;
         }
+
+        // Put first child at the scroll offset, not the beginning of cache area
+        double firstChildScrollOffset = constraints.scrollOffset;
+        int firstChildIndex =
+            math.min(firstChildScrollOffset ~/ extent, totalChildCount - 1);
 
         if (!addInitialChild(
           index: firstChildIndex,
