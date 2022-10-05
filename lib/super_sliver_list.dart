@@ -379,7 +379,8 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
     // If remaining paint extent is consumed, make sure to use the *exact* value.
     // Otherwise, even if the delta is extremely small, Flutter will consider
     // next sliver visible, which means that our layoutOffset will be used
-    // determine paint position in render boxes inside next sliver. That leads
+    // determine paint position of render boxes inside next sliver (even if
+    // invisie these affects directional focus for example). That leads
     // to incorrect results if we're in the middle of sliver.
     if ((constraints.remainingPaintExtent - paintExtent).abs() <
         precisionErrorTolerance) {
