@@ -337,7 +337,7 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
     while (addTrailingChild()) {}
 
     // Assume this is viewport trying to reveal particular child that was out of
-    // cached are originally. We provided estimated offset for the child, but
+    // cache area originally. We provided estimated offset for the child, but
     // the actual one might be different. If that's the case, correct the
     // position now.
     if (_estimatedOffsetChildIndex != null) {
