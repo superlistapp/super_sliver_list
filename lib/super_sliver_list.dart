@@ -208,7 +208,7 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
 
     // This sliver is not visible yet. Provide cached extent to be consistent.
     if (constraints.scrollOffset == 0 &&
-        constraints.remainingPaintExtent < precisionErrorTolerance) {
+        constraints.remainingCacheExtent < precisionErrorTolerance) {
       // Remove items added initially to determine average extent. If this
       // Sliver is far away this can get rid of quite a lot of state that would
       // be kept unecessarily.
@@ -364,13 +364,18 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
     _estimatedOffsetChildIndex = null;
     _estimatedOffset = null;
 
+    final cacheStart = constraints.scrollOffset + constraints.cacheOrigin;
+    final lastChildEnd =
+        childScrollOffset(lastChild!)! + paintExtentOf(lastChild!);
+    final cacheConsumed = (lastChildEnd - cacheStart)
+        .clamp(0.0, constraints.remainingCacheExtent);
+
     geometry = SliverGeometry(
       scrollExtent: endScrollOffset,
       paintExtent: calculatePaintOffset(constraints,
           from: childScrollOffset(firstChild!)!, to: endScrollOffset),
       maxPaintExtent: endScrollOffset,
-      cacheExtent: calculateCacheOffset(constraints,
-          from: childScrollOffset(firstChild!)!, to: endScrollOffset),
+      cacheExtent: cacheConsumed,
       hasVisualOverflow: endScrollOffset > constraints.remainingPaintExtent,
     );
 
