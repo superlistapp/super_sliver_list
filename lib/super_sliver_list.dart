@@ -35,6 +35,11 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
 
   double? _estimateExtent() {
     for (var child = lastChild; child != null; child = childBefore(child)) {
+      // It is possible that child has no layout and will be removed by
+      // collectGarbage.
+      if (!child.hasSize) {
+        continue;
+      }
       final offset = childScrollOffset(child);
       if (offset != null) {
         final extent = (offset + paintExtentOf(child)) / (indexOf(child) + 1);
