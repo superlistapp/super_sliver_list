@@ -43,7 +43,8 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
       final offset = childScrollOffset(child);
       if (offset != null) {
         final extent = (offset + paintExtentOf(child)) / (indexOf(child) + 1);
-        return _cachedExtent = extent;
+        _cachedExtent = extent > 0 ? extent : null;
+        return extent;
       }
     }
     return _cachedExtent;
