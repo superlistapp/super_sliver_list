@@ -1,6 +1,6 @@
 name: super_sliver_list
 description: Drop-in replacement for SliverList that can handle arbitrary number of items with variable extents.
-version: 0.0.5
+version: 0.0.6
 homepage: https://github.com/superlistapp/super_sliver_list
 
 environment:
