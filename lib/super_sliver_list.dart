@@ -401,6 +401,10 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
       hasVisualOverflow: endScrollOffset > constraints.remainingPaintExtent,
     );
 
+    if (paintExtent < constraints.remainingPaintExtent) {
+      childManager.setDidUnderflow(true);
+    }
+
     childManager.didFinishLayout();
   }
 }
