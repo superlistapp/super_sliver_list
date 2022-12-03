@@ -55,20 +55,16 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
 
   @override
   double? childScrollOffset(covariant RenderObject child) {
-    for (var c = firstChild; c != null; c = childAfter(c)) {
-      if (child == c) {
-        return super.childScrollOffset(child);
-      }
+    // If the child's layout offset is estimated, return the estimated scroll offset.
+    if (_layoutOffsetIsEstimated) {
+      final estimatedExtent = _estimateExtent();
+      return (indexOf(child) * estimatedExtent!)!;
     }
-    // Trying to query child offset of child that's not currently visible;
-    // Assume this is from viewPort.getOffsetToReveal, in which case we'll
-    // estimate the offset, but also remember the index and offset so that
-    // we can possibly correct scrollOffset in next performLayout call.
-    final offset = indexOf(child as RenderBox) * (_estimateExtent() ?? 0.0);
-    _estimatedOffsetChildIndex = indexOf(child);
-    _estimatedOffset = offset;
-    return offset;
+
+    // Otherwise, return the child's actual scroll offset.
+    return super.childScrollOffset(child);
   }
+
 
   @override
   void performLayout() {
@@ -93,23 +89,19 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
       RenderBox? lastChildWithScrollOffset,
     }) {
       // If child offset can't be determined, there's no point laying out the child.
-      if (childScrollOffset(child) == null &&
-          lastChildWithScrollOffset == null) {
+      if (lastChildWithScrollOffset == null) {
         return null;
       }
       child.layout(childConstraints, parentUsesSize: true);
-      if (childScrollOffset(child) == null) {
+      if (lastChildWithScrollOffset == null) {
         final data = child.parentData! as SliverMultiBoxAdaptorParentData;
-        data.layoutOffset = childScrollOffset(lastChildWithScrollOffset!)! +
-            paintExtentOf(lastChildWithScrollOffset);
+        data.layoutOffset = data.layoutOffset! + paintExtentOf(child);
+        return null;
       }
-      final nextChild = childAfter(child);
-      if (nextChild != null) {
-        final nextChildData =
-            nextChild.parentData! as SliverMultiBoxAdaptorParentData;
-        nextChildData.layoutOffset = null;
-      }
-      return childScrollOffset(child);
+      // Calculate the child's scroll offset using the index of the child
+      // and the estimated extent of the list.
+      final estimatedExtent = _estimateExtent();
+      return (indexOf(child) * estimatedExtent!)!;
     }
 
     childManager.didStartLayout();
