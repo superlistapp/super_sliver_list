@@ -177,11 +177,26 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
     int trailingGarbage = 0;
     RenderBox? lastChildWithScrollOffset;
 
+    RenderBox? previousChild;
+    int index = firstChild != null ? indexOf(firstChild!) : 0;
     for (var child = firstChild; child != null; child = childAfter(child)) {
       // all items after first trailing garbage are automatically garbage
       if (trailingGarbage > 0) {
         ++trailingGarbage;
       } else {
+        if (indexOf(child) != index) {
+          final newChild =
+              insertAndLayoutChild(childConstraints, after: previousChild);
+          // This should not normally happen. If there is GAP between children we should be
+          // able to fill it, otherwise it would be an inconsistency in childManager.
+          assert(newChild != null, 'Unexpected trailing child.');
+          if (newChild == null) {
+            ++trailingGarbage;
+            continue;
+          } else {
+            child = newChild;
+          }
+        }
         final offset = layoutChild(
           child,
           lastChildWithScrollOffset: lastChildWithScrollOffset,
@@ -199,6 +214,8 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
           }
         }
       }
+      previousChild = child;
+      ++index;
     }
 
     // Estimate extent from currently available children. This must be done
