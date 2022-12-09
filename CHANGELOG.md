@@ -1,3 +1,7 @@
+## 0.0.7
+
+* Fix inserted children not being build properly.
+
 ## 0.0.6
 
 * Bug fixes
