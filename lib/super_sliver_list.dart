@@ -85,7 +85,7 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
     final BoxConstraints childConstraints = constraints.asBoxConstraints();
 
     /// Layouts single child. Will return scrollOffset of the child, or `null`
-    /// if scroll ofset couldn't have been determined.
+    /// if scroll offset couldn't have been determined.
     ///
     /// Resets the layoutOffset of the child after.
     double? layoutChild(
@@ -234,7 +234,7 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
         constraints.remainingCacheExtent < precisionErrorTolerance) {
       // Remove items added initially to determine average extent. If this
       // Sliver is far away this can get rid of quite a lot of state that would
-      // be kept unecessarily.
+      // be kept unnecessarily.
       collectGarbage(childCount, 0);
       geometry = SliverGeometry(
         paintOrigin: 0,
@@ -403,7 +403,7 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
     // Otherwise, even if the delta is extremely small, Flutter will consider
     // next sliver visible, which means that our layoutOffset will be used
     // determine paint position of render boxes inside next sliver (even if
-    // invisie these affects directional focus for example). That leads
+    // invisible these affects directional focus for example). That leads
     // to incorrect results if we're in the middle of sliver.
     if ((constraints.remainingPaintExtent - paintExtent).abs() <
         precisionErrorTolerance) {
