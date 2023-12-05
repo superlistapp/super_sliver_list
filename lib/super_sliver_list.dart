@@ -97,12 +97,12 @@ class _RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
           lastChildWithScrollOffset == null) {
         return null;
       }
-      child.layout(childConstraints, parentUsesSize: true);
       if (childScrollOffset(child) == null) {
         final data = child.parentData! as SliverMultiBoxAdaptorParentData;
         data.layoutOffset = childScrollOffset(lastChildWithScrollOffset!)! +
             paintExtentOf(lastChildWithScrollOffset);
       }
+      child.layout(childConstraints, parentUsesSize: true);
       final nextChild = childAfter(child);
       if (nextChild != null) {
         final nextChildData =
