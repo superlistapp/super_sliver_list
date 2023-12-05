@@ -4,7 +4,7 @@ version: 0.0.8
 homepage: https://github.com/superlistapp/super_sliver_list
 
 environment:
-  sdk: '>=2.17.0 <3.0.0'
+  sdk: '>=2.17.0 <4.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
