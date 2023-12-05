@@ -1,6 +1,6 @@
 name: super_sliver_list
 description: Drop-in replacement for SliverList that can handle arbitrary number of items with variable extents.
-version: 0.0.7
+version: 0.0.8
 homepage: https://github.com/superlistapp/super_sliver_list
 
 environment:
@@ -17,7 +17,7 @@ dev_dependencies:
   flutter_lints: ^2.0.0
 
 # For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
+# folqwing page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
 flutter:

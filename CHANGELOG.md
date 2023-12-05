@@ -1,3 +1,7 @@
+## 0.0.8
+
+* Fixed problem when accessing layout offset from a LayoutBuilder child widget.
+
 ## 0.0.7
 
 * Fix inserted children not being build properly.
