@@ -286,6 +286,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
       layoutPass.isNew = false;
     }
 
+    // State for this sliver (will be same instance for all layout attempts).
     final layoutState = layoutPass.getLayoutState(this);
 
     final SliverConstraints constraints = this.constraints;
@@ -324,7 +325,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
         constraints.scrollOffset > 0;
 
     // This sliver ends in visible area of viewport and viewport is scrolled.
-    // When this is true the smart sliver list will try to keep the bottom of the
+    // When this is true the SuperSliverList will try to keep the bottom of the
     // list at the same position when updating the extents by adjusting the scroll
     // offset.
     final anchoredAtEnd = viewportIsScrolled &&
@@ -641,10 +642,10 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
       }
     }
 
-    // When extent change during resizing while anchored at the end, keep the
+    // When extent changes during resizing while anchored at the end, keep the
     // trailing edge in place. Also when anchored at the end while adding initial
     // child. Note that it may take multiple layout tries to reach the final layout
-    // so sliversAddedInitialChild must be tracked through entire layout pass.
+    // so didAddInitialChild must be tracked through entire layout pass.
     if (anchoredAtEnd &&
         (crossAxisResizing || layoutState.didAddInitialChild) &&
         _totalExtent() != initialExtent) {

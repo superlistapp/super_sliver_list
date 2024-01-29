@@ -15,7 +15,7 @@ class LayoutPass {
     required this.slivers,
     required this.initialScrollPosition,
     required this.childScrollOffsetEstimation,
-    required this.sliverWithExtentEstimation,
+    required this.sliverWithOffsetEstimation,
   });
 
   bool isNew = true;
@@ -23,16 +23,19 @@ class LayoutPass {
   final List<RenderSuperSliverList> slivers;
   final double initialScrollPosition;
   final bool childScrollOffsetEstimation;
-  final RenderSuperSliverList? sliverWithExtentEstimation;
+  final RenderSuperSliverList? sliverWithOffsetEstimation;
 
   final sliversDuringLayout = <RenderSuperSliverList>[];
 
+  /// Returns whether provided sliver is laid out before a sliver with active
+  /// scroll offset estimation. If there is no sliver with active scroll offset
+  /// estimation, returns false.
   bool sliverIsBeforeSliverWithOffsetEstimation(RenderSuperSliverList s) {
     assert(sliversDuringLayout.contains(s));
-    if (sliverWithExtentEstimation == null) {
+    if (sliverWithOffsetEstimation == null) {
       return false;
     }
-    final index = sliversDuringLayout.indexOf(sliverWithExtentEstimation!);
+    final index = sliversDuringLayout.indexOf(sliverWithOffsetEstimation!);
     return index == -1 // not reached yet
         ||
         index > sliversDuringLayout.indexOf(s);
@@ -99,7 +102,7 @@ extension RenderSliverLayoutPass on RenderSliver {
         // way in Flutter to get the original (uncorrected) scroll position.
         initialScrollPosition: viewport.offset.pixels,
         childScrollOffsetEstimation: sliverWithOffsetEstimation != null,
-        sliverWithExtentEstimation: sliverWithOffsetEstimation,
+        sliverWithOffsetEstimation: sliverWithOffsetEstimation,
       );
       _viewportToLayoutPass[viewport] = pass;
       Future.microtask(() {

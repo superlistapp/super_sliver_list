@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 /// Regular [RangeMaintainingScrollPhysics] will not keep the scroll position in range
 /// when scroll position was corrected during the layout pass. That means removing
 /// elements from the list will cause the scroll position to animate when it normally
-/// wouldn't. As a workaround add [SmartRangeMaintainingScrollPhysics] to the physics
+/// wouldn't. As a workaround add [SuperRangeMaintainingScrollPhysics] to the physics
 /// chain.
 ///
 /// For example
@@ -15,7 +15,7 @@ import 'package:flutter/widgets.dart';
 ///
 ///  @override
 ///  ScrollPhysics getScrollPhysics(BuildContext context) {
-///    return SmartRangeMaintainingScrollPhysics(
+///    return SuperRangeMaintainingScrollPhysics(
 ///        parent: super.getScrollPhysics(context));
 ///  }
 /// }
@@ -23,12 +23,12 @@ import 'package:flutter/widgets.dart';
 ///
 /// You can add use the [ScrollConfiguration] widget to apply the scroll behavior
 /// to a subtree.
-class SmartRangeMaintainingScrollPhysics extends ScrollPhysics {
-  const SmartRangeMaintainingScrollPhysics({super.parent});
+class SuperRangeMaintainingScrollPhysics extends ScrollPhysics {
+  const SuperRangeMaintainingScrollPhysics({super.parent});
 
   @override
-  SmartRangeMaintainingScrollPhysics applyTo(ScrollPhysics? ancestor) {
-    return SmartRangeMaintainingScrollPhysics(parent: buildParent(ancestor));
+  SuperRangeMaintainingScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return SuperRangeMaintainingScrollPhysics(parent: buildParent(ancestor));
   }
 
   @override
