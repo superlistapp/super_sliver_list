@@ -629,8 +629,6 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
           final extentDifference = paintExtentOf(c) - estimation.extent;
           correction += extentDifference * childAlignmentWithinViewport;
 
-          _log.info('Estimation $correction ${paintExtentOf(c)}');
-
           if (correction.abs() > precisionErrorTolerance) {
             _log.fine('Scroll offset correction: ${correction.format()} '
                 '(reason: jumping to estimated offset, index ${estimation.index})');
