@@ -53,9 +53,11 @@ class _FuzzerConfiguration {
         (minItemHeight ?? 0);
   }
 
+  static const int _kFuzzerIterations = 100;
+
   static final List<_FuzzerConfiguration> testConfigurations = [
     _FuzzerConfiguration(
-      iterations: 100,
+      iterations: _kFuzzerIterations,
       maxSlivers: 10,
       seed: 256,
       maxItemsPerSliver: 30,
@@ -63,7 +65,7 @@ class _FuzzerConfiguration {
       viewportHeight: 500,
     ),
     _FuzzerConfiguration(
-      iterations: 100,
+      iterations: _kFuzzerIterations,
       maxSlivers: 20,
       seed: 256,
       maxItemsPerSliver: 30,
@@ -72,7 +74,7 @@ class _FuzzerConfiguration {
       viewportHeight: 500,
     ),
     _FuzzerConfiguration(
-      iterations: 100,
+      iterations: _kFuzzerIterations,
       maxSlivers: 30,
       seed: 256,
       maxItemsPerSliver: 1,
@@ -629,11 +631,23 @@ void main() async {
           }
 
           if (controller.initialScrollOffset > 0) {
-            // Ensure it's scrolled to the end
+            // Ensure it's scrolled to the end. Note that this depends on an behavior
+            // in SuperSliverList where it keeps the sliver aligned to the end
+            // through scroll correction when anchoredAtEnd && didAddInitialChild.
             expect(controller.position.pixels,
                 roughlyEquals(controller.position.maxScrollExtent));
           } else {
             expect(controller.position.pixels, isZero);
+
+            // After first layout the extent might have increased enough so that
+            // we can scroll at the end. There is better way to do this
+            // (extentManager.getOffsetToReveal) but we don't want that to be part
+            // of the test.
+            while (controller.position.pixels <
+                controller.position.maxScrollExtent) {
+              controller.jumpTo(controller.position.maxScrollExtent);
+              await tester.pump();
+            }
           }
         }
 
@@ -674,9 +688,7 @@ void main() async {
             continue;
           }
           for (final layoutMode in _LayoutMode.values) {
-            // const layoutMode = _LayoutMode.preciseWaitUntilComplete;
             await testConfiguration(configuration, layoutMode: layoutMode);
-            // return;
           }
         }
       }
