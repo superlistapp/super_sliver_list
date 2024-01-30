@@ -103,11 +103,11 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
         return super.childScrollOffset(child);
       }
     }
+
     // Trying to query child offset of child that's not currently visible;
     // Assume this is from viewPort.getOffsetToReveal, in which case we'll
     // estimate the offset, but also remember the index and offset so that
     // we can possibly correct scrollOffset in next performLayout call.
-
     final index = indexOf(child as RenderBox);
     _childScrollOffsetEstimation = _ChildScrollOffsetEstimation(
       index: index,

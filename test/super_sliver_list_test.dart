@@ -22,7 +22,8 @@ enum _LayoutMode {
   /// Wait until entire layout is complete before doing the test.
   preciseWaitUntilComplete,
 
-  /// Run the test while layout is still in progress.
+  /// Run the test while layout is still in progress. Extent precalculation
+  /// and testing will run in parallel.
   preciseNoWait,
 
   /// No extent precalculation.
