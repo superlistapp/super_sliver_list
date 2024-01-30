@@ -741,10 +741,9 @@ void main() async {
           if (configuration.totalExtent == 0) {
             continue;
           }
-          // for (final mode in _LayoutMode.values) {
-          const mode = _LayoutMode.preciseWaitUntilComplete;
-          await testConfiguration(configuration, layoutMode: mode);
-          // }
+          for (final mode in _LayoutMode.values) {
+            await testConfiguration(configuration, layoutMode: mode);
+          }
         }
       }
     });
@@ -821,15 +820,14 @@ void main() async {
           if (configuration.totalExtent == 0) {
             continue;
           }
-          // for (final mode in _LayoutMode.values) {
-          const mode = _LayoutMode.preciseWaitUntilComplete;
-          await testConfiguration(
-            configuration,
-            layoutMode: mode,
-            random: r,
-            fuzzerConfiguration: fc,
-          );
-          // }
+          for (final mode in _LayoutMode.values) {
+            await testConfiguration(
+              configuration,
+              layoutMode: mode,
+              random: r,
+              fuzzerConfiguration: fc,
+            );
+          }
         }
       }
     });
