@@ -467,7 +467,7 @@ void main() async {
                 controller: controller,
                 slivers: <Widget>[
                   SuperSliverList(
-                    precalculateExtents: () => true,
+                    extentsPrecalculationPolicy: (_) => true,
                     delegate: SliverChildListDelegate(
                       [
                         if (isShow)
@@ -1142,7 +1142,8 @@ Widget _buildSliverList(
             for (final sliver in configuration.slivers)
               SuperSliverList(
                 key: sliver.key,
-                precalculateExtents: preciseLayout ? () => true : () => false,
+                extentsPrecalculationPolicy: (_) =>
+                    preciseLayout ? true : false,
                 extentController: extentController ?? sliver.extentController,
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int i) {

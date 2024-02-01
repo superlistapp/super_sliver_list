@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:logging/logging.dart';
 
+import '../super_sliver_list.dart';
 import 'element.dart';
 import 'extent_manager.dart';
 import 'layout_budget.dart';
@@ -43,7 +44,8 @@ class _ChildScrollOffsetEstimation {
   double? viewportScrollOffset;
 }
 
-class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
+class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
+    implements ExtentPrecalculationContext {
   RenderSuperSliverList({
     required super.childManager,
     required this.precalculateExtents,
@@ -54,12 +56,12 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
   SuperSliverMultiBoxAdaptorElement get childManager =>
       super.childManager as SuperSliverMultiBoxAdaptorElement;
 
-  ValueGetter<bool> precalculateExtents;
+  ExtentsPrecalculationPolicy precalculateExtents;
   ExtentEstimationProvider estimateExtent;
 
   bool _shouldPrecalculateExtents(LayoutPass pass) {
     final state = pass.getLayoutState(this);
-    state.precalculateExtents ??= precalculateExtents();
+    state.precalculateExtents ??= precalculateExtents(this);
     return state.precalculateExtents!;
   }
 
@@ -775,6 +777,14 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor {
 
     return offset ?? 0.0;
   }
+
+  @override
+  void valueDidChange() {
+    markNeedsLayout();
+  }
+
+  @override
+  RenderViewport? get viewport => getViewport();
 }
 
 // This is little bit hacky way to reuse logic of RenderViewport.getOffsetToReveal in case

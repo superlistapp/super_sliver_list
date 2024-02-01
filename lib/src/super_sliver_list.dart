@@ -6,11 +6,6 @@ import 'extent_manager.dart';
 import 'layout_budget.dart';
 import 'render_object.dart';
 
-typedef ExtentEstimationProvider = double Function(
-  int index,
-  double crossAxisExtent,
-);
-
 class ExtentController extends ChangeNotifier {
   ExtentController({
     this.onAttached,
@@ -37,9 +32,9 @@ class ExtentController extends ChangeNotifier {
     return _delegate!.totalExtent;
   }
 
-  double get fractionComplete {
+  int get estimatedExtentsCount {
     assert(_delegate != null, 'ExtentController is not attached.');
-    return _delegate!.fractionComplete;
+    return _delegate!.estimatedExtentsCount;
   }
 
   bool get isLocked {
@@ -101,26 +96,32 @@ class ExtentController extends ChangeNotifier {
   }
 }
 
-double _defaultEstimateExtent(int index, double crossAxisExtent) {
-  return 100.0;
+typedef ExtentEstimationProvider = double Function(
+  int index,
+  double crossAxisExtent,
+);
+
+abstract class ExtentPrecalculationContext {
+  RenderViewport? get viewport;
+  void valueDidChange();
 }
 
-bool _defaultPrecalculateExtents() {
-  return false;
-}
+typedef ExtentsPrecalculationPolicy = bool Function(
+  ExtentPrecalculationContext,
+);
 
 class SuperSliverList extends SliverMultiBoxAdaptorWidget {
   const SuperSliverList({
     super.key,
     required super.delegate,
-    this.precalculateExtents,
+    this.extentsPrecalculationPolicy,
     this.extentController,
     this.extentEstimation,
   });
 
   final ExtentController? extentController;
   final ExtentEstimationProvider? extentEstimation;
-  final ValueGetter<bool>? precalculateExtents;
+  final ExtentsPrecalculationPolicy? extentsPrecalculationPolicy;
 
   static SuperSliverListLayoutBudget layoutBudget =
       _TimeSuperSliverListLayoutBudget(
@@ -136,7 +137,8 @@ class SuperSliverList extends SliverMultiBoxAdaptorWidget {
     final element = context as SuperSliverMultiBoxAdaptorElement;
     return RenderSuperSliverList(
       childManager: element,
-      precalculateExtents: precalculateExtents ?? _defaultPrecalculateExtents,
+      precalculateExtents:
+          extentsPrecalculationPolicy ?? _defaultPrecalculateExtents,
       estimateExtent: extentEstimation ?? _defaultEstimateExtent,
     );
   }
@@ -147,7 +149,7 @@ class SuperSliverList extends SliverMultiBoxAdaptorWidget {
     super.updateRenderObject(context, renderObject);
     final renderSliverList = renderObject as RenderSuperSliverList;
     renderSliverList.precalculateExtents =
-        precalculateExtents ?? _defaultPrecalculateExtents;
+        extentsPrecalculationPolicy ?? _defaultPrecalculateExtents;
     renderSliverList.estimateExtent =
         extentEstimation ?? _defaultEstimateExtent;
   }
@@ -181,4 +183,12 @@ class _TimeSuperSliverListLayoutBudget extends SuperSliverListLayoutBudget {
   final _stopwatch = Stopwatch();
 
   final Duration budget;
+}
+
+double _defaultEstimateExtent(int index, double crossAxisExtent) {
+  return 100.0;
+}
+
+bool _defaultPrecalculateExtents(ExtentPrecalculationContext _) {
+  return false;
 }

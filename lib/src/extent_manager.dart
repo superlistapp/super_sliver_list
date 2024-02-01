@@ -56,8 +56,6 @@ class ExtentManager with ChangeNotifier {
     _extentList.resize(newSize, delegate.estimateExtentForItem);
   }
 
-  double get layoutProgress => _extentList.layoutProgress;
-
   final _extentList = ExtentList();
 
   int? indexForOffset(double offset) {
@@ -105,7 +103,7 @@ class ExtentManager with ChangeNotifier {
 
   int get numberOfItems => _extentList.length;
 
-  double get fractionComplete => _extentList.layoutProgress;
+  int get estimatedExtentsCount => _extentList.estimatedExtentsCount;
 
   void addItem(int index) {
     _extentList.insertAt(index, delegate.estimateExtentForItem);

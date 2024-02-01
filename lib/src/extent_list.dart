@@ -233,12 +233,6 @@ class ExtentList {
     }
   }
 
-  /// Returns percent (0.0 - 1.0) of items with valid extents.
-  double get layoutProgress {
-    assert(_extents.length == _dirty.length);
-    if (_extents.isEmpty) {
-      return 0;
-    }
-    return (_extents.length - _dirtyCount) / _extents.length;
-  }
+  /// Returns number of estimated extents.
+  int get estimatedExtentsCount => _dirty.length;
 }
