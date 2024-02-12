@@ -4,7 +4,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:logging/logging.dart';
 
-import '../super_sliver_list.dart';
 import 'element.dart';
 import 'extent_manager.dart';
 import 'layout_budget.dart';
@@ -566,6 +565,10 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
         // If there is child scroll offset estimation active produce as many children
         // as necessary. These will be removed after correcting scroll offset during
         // garbage collection.
+        if (_childScrollOffsetEstimation != null &&
+            _childScrollOffsetEstimation!.index < lastChildIndex) {
+          return false;
+        }
         if (layoutPass.childScrollOffsetEstimation == false) {
           return false;
         }
@@ -703,7 +706,8 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       paintExtent: paintExtent,
       maxPaintExtent: endScrollOffset,
       cacheExtent: cacheConsumed,
-      hasVisualOverflow: endScrollOffset > constraints.remainingPaintExtent,
+      hasVisualOverflow: endScrollOffset > constraints.remainingPaintExtent ||
+          constraints.scrollOffset > 0.0,
     );
     _log.fine(
       'Have geometry for $_logIdentifier (scroll extent: $endScrollOffset, paint extent, $paintExtent, cache consumed: $cacheConsumed, dirty extents: ${_extentManager.hasDirtyItems})',

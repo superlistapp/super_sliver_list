@@ -41,14 +41,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
-  cupertino_icons:
+  context_watch:
     dependency: "direct main"
     description:
-      name: cupertino_icons
-      sha256: e35129dc44c9118cee2a5603506d823bab99c68393879edb440e0090d07586be
+      name: context_watch
+      sha256: b5866eb15168c024e60a4530931ec5e6b31ec34cb86d93d488bdf01a605e5c05
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.5"
+    version: "2.0.0-dev.5"
+  context_watch_base:
+    dependency: transitive
+    description:
+      name: context_watch_base
+      sha256: feb53887dda91f7cae03a730a49e416931d13b85730506e13ba7bfcc973a8447
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0-dev.5"
   fake_async:
     dependency: transitive
     description:
@@ -66,10 +74,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: aeb0b80a8b3709709c9cc496cdc027c5b3216796bc0af0ce1007eaf24464fd4c
+      sha256: e2a421b7e59244faef694ba7b30562e489c2b489866e505074eb005cd7060db7
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "3.0.1"
   flutter_lorem:
     dependency: "direct main"
     description:
@@ -83,6 +91,15 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  headless_widgets:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: c702189e54b24405da244724987fbc32b4da0051
+      resolved-ref: c702189e54b24405da244724987fbc32b4da0051
+      url: "https://github.com/widgetbakery/headless_widgets.git"
+    source: git
+    version: "0.0.3"
   leak_tracker:
     dependency: transitive
     description:
@@ -111,12 +128,12 @@ packages:
     dependency: transitive
     description:
       name: lints
-      sha256: "5e4a9cd06d447758280a8ac2405101e0e2094d2a1dbdd3756aec3fe7775ba593"
+      sha256: cbf8d4b858bb0134ef3ef87841abdf8d63bfc255c266b7bf6b39daa1085c4290
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "3.0.0"
   logging:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: logging
       sha256: "623a88c9594aa774443aa3eb2d41807a48486b5613e67599fb4c41c0ad47c340"
@@ -147,6 +164,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.0"
+  nested:
+    dependency: transitive
+    description:
+      name: nested
+      sha256: "03bac4c528c64c95c722ec99280375a6f2fc708eec17c7b3f07253b626cd2a20"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   path:
     dependency: transitive
     description:
@@ -155,6 +180,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.0"
+  pixel_snap:
+    dependency: "direct main"
+    description:
+      name: pixel_snap
+      sha256: d31591a4f4aa8ed5dc6fc00b8d027338a5614dfbf5ca658b69d1faa7aba80af7
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.4"
+  provider:
+    dependency: "direct main"
+    description:
+      name: provider
+      sha256: "9a96a0a19b594dbc5bf0f1f27d2bc67d5f95957359b461cd9feb44ed6ae75096"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.1.1"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      sha256: "0c7c0cedd93788d996e33041ffecda924cc54389199cde4e6a34b440f50044cb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.27.7"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -232,5 +281,5 @@ packages:
     source: hosted
     version: "13.0.0"
 sdks:
-  dart: ">=3.2.0 <4.0.0"
+  dart: ">=3.3.0-273.0.dev <4.0.0"
   flutter: ">=3.18.0-18.0.pre.54"

@@ -46,7 +46,11 @@ class SuperSliverMultiBoxAdaptorElement extends SliverMultiBoxAdaptorElement
 
   @override
   void update(covariant SuperSliverList newWidget) {
+    final childCountBefore = childCount;
     super.update(newWidget);
+    if (childCountBefore != childCount) {
+      renderObject.markNeedsLayout();
+    }
     if (_currentController != newWidget.extentController) {
       _currentController?.unsetDelegate(_extentManager);
       _currentController = newWidget.extentController;
