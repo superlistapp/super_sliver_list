@@ -77,6 +77,15 @@ extension RenderSliverLayoutPass on RenderSliver {
     }
   }
 
+  List<RenderSuperSliverList> getSuperSliverLists() {
+    final slivers = <RenderSuperSliverList>[];
+    final viewport = getViewport();
+    if (viewport != null) {
+      _gatherSliverList(slivers, viewport);
+    }
+    return slivers;
+  }
+
   LayoutPass? getLayoutPass(RenderSuperSliverList self) {
     final viewport = getViewport();
     if (viewport == null) {
@@ -84,8 +93,7 @@ extension RenderSliverLayoutPass on RenderSliver {
     }
     var pass = _viewportToLayoutPass[viewport];
     if (pass == null) {
-      final slivers = <RenderSuperSliverList>[];
-      _gatherSliverList(slivers, viewport);
+      final slivers = getSuperSliverLists();
       var sliverWithOffsetEstimation = slivers.firstWhereOrNull(
           (element) => element.hasChildScrollOffsetEstimation);
       if (sliverWithOffsetEstimation != null) {

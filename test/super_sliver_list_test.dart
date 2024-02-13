@@ -59,6 +59,22 @@ class _FuzzerConfiguration {
   static final List<_FuzzerConfiguration> testConfigurations = [
     _FuzzerConfiguration(
       iterations: _kFuzzerIterations,
+      maxSlivers: 2,
+      seed: 256,
+      maxItemsPerSliver: 10,
+      maxItemHeight: 700,
+      viewportHeight: 500,
+    ),
+    _FuzzerConfiguration(
+      iterations: _kFuzzerIterations,
+      maxSlivers: 2,
+      seed: 256,
+      maxItemsPerSliver: 100,
+      maxItemHeight: 700,
+      viewportHeight: 500,
+    ),
+    _FuzzerConfiguration(
+      iterations: _kFuzzerIterations,
       maxSlivers: 10,
       seed: 256,
       maxItemsPerSliver: 30,
@@ -752,7 +768,8 @@ void main() async {
       Future<void> testConfiguration(
         _SliverListConfiguration configuration, {
         required _LayoutMode layoutMode,
-        required math.Random random,
+        required List<(int, int)> offsets,
+        required double alignment,
         required _FuzzerConfiguration fuzzerConfiguration,
       }) async {
         final ScrollController controller = ScrollController();
@@ -761,41 +778,49 @@ void main() async {
           controller: controller,
           preciseLayout: layoutMode != _LayoutMode.estimated,
         ));
+        expect(controller.position.pixels, 0);
         if (layoutMode == _LayoutMode.preciseWaitUntilComplete) {
           await tester.pumpAndSettle();
         }
-        final sliverIndex = random.nextInt(configuration.slivers.length);
-        final sliver = configuration.slivers[sliverIndex];
-        final itemIndex = random.nextInt(sliver.items.length);
-        final item = sliver.items[itemIndex];
-        final alignment = random.nextDouble();
-        final offset = sliver.extentController.getOffsetToReveal(
-          itemIndex,
-          alignment,
-        );
-        if (offset < 0) {
-          return;
-        }
-        controller.jumpTo(offset);
-        await tester.pump();
+        for (final (sliverIndex, itemIndex) in offsets) {
+          final sliver = configuration.slivers[sliverIndex];
+          final item = sliver.items[itemIndex];
+          final offset = sliver.extentController.getOffsetToReveal(
+            itemIndex,
+            alignment,
+          );
+          if (offset >= 0) {
+            final overscroll = offset > controller.position.maxScrollExtent;
 
-        final widget = find.text('Tile ${item.value}');
-        expect(widget, findsOneWidget);
-        final RenderBox box = tester.renderObject(widget);
-        final viewport = tester.renderObject(find.byType(Viewport));
-        final transform = box.getTransformTo(viewport);
-        final position = MatrixUtils.transformPoint(transform, Offset.zero);
+            _log.info('Jumping to offset $offset');
+            controller.jumpTo(offset);
+            await tester.pump();
 
-        // If item height is less than viewport it must not start above the top.
-        if (fuzzerConfiguration.maxItemHeight <=
-            fuzzerConfiguration.viewportHeight) {
-          expect(position.dy >= 0, isTrue);
-        }
+            final widget = find.text('Tile ${item.value}');
+            expect(widget, findsOneWidget);
+            final RenderBox box = tester.renderObject(widget);
+            final viewport = tester.renderObject(find.byType(Viewport));
+            final transform = box.getTransformTo(viewport);
+            final position = MatrixUtils.transformPoint(transform, Offset.zero);
 
-        if (controller.position.pixels < controller.position.maxScrollExtent) {
-          final expectedTop =
-              (configuration.viewportHeight - item.height) * alignment;
-          expect(position.dy, roughlyEquals(expectedTop));
+            // If item height is less than viewport it must not start above the top.
+            if (fuzzerConfiguration.maxItemHeight <=
+                fuzzerConfiguration.viewportHeight) {
+              expect(position.dy >= 0, isTrue);
+            }
+
+            // When out of bounds we have at least checked that the item is present
+            // but the position is not guaranteed.
+            if (!overscroll &&
+                controller.position.pixels <
+                    controller.position.maxScrollExtent) {
+              final expectedTop =
+                  (configuration.viewportHeight - item.height) * alignment;
+              expect(position.dy, roughlyEquals(expectedTop));
+            }
+          } else {
+            _log.info('Skipping jump to offset $offset');
+          }
         }
 
         controller.dispose();
@@ -807,8 +832,6 @@ void main() async {
         final seedRandom = math.Random(fc.seed);
         for (int i = 0; i < fc.iterations; ++i) {
           final seed = seedRandom.nextInt(0xFFFFFFFF);
-          resetTestLog();
-          _log.info('Starting test $i with seed $seed');
           final r = math.Random(seed);
           final configuration = _SliverListConfiguration.generate(
             slivers: fc.maxSlivers,
@@ -821,11 +844,25 @@ void main() async {
           if (configuration.totalExtent == 0) {
             continue;
           }
+
+          final alignment = r.nextDouble();
+          const int maxOffsetsToJump = 5;
+          final offsets = List.generate(
+            maxOffsetsToJump,
+            (_) => r.nextInt(configuration.slivers.length),
+          ).map((sliverIndex) {
+            final sliver = configuration.slivers[sliverIndex];
+            return (sliverIndex, r.nextInt(sliver.items.length));
+          }).toList();
+
           for (final mode in _LayoutMode.values) {
+            resetTestLog();
+            _log.info('\n\nStarting test $i with seed $seed layoutMode $mode');
             await testConfiguration(
               configuration,
               layoutMode: mode,
-              random: r,
+              offsets: offsets,
+              alignment: alignment,
               fuzzerConfiguration: fc,
             );
           }
@@ -1142,8 +1179,7 @@ Widget _buildSliverList(
             for (final sliver in configuration.slivers)
               SuperSliverList(
                 key: sliver.key,
-                extentsPrecalculationPolicy: (_) =>
-                    preciseLayout ? true : false,
+                extentsPrecalculationPolicy: (_) => preciseLayout,
                 extentController: extentController ?? sliver.extentController,
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int i) {
