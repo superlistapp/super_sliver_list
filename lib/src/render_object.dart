@@ -104,6 +104,58 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
         return super.childScrollOffset(child);
       }
     }
+    // This should be as simple as querying precedingScrollExtent from the constraints,
+    // but it is not. precedingScrollExtent is not included in SliverConstraints operator==
+    // which means that all other fields being same the constraints will not be updated.
+    // As a workaround, the preceding scroll extent is estimated by summing all preceding
+    // sliver scroll extents and the difference between preceding scroll extent of top
+    // level parent of this sliver (viewport) and this sliver precedingScrollExtent.
+    double getActualPrecedingScrollExtent() {
+      final viewport = getViewport()!;
+      bool isParent(RenderObject object) {
+        var parent = this.parent;
+        while (parent != null && parent != viewport) {
+          if (parent == object) {
+            return true;
+          }
+          parent = parent.parent;
+        }
+        return false;
+      }
+
+      double offset = 0;
+      bool finished = false;
+      viewport.visitChildren((child) {
+        if (finished) {
+          return;
+        }
+        if (child is! RenderSliver) {
+          assert(false, 'Unexpected non-sliver child of viewport');
+          return;
+        }
+        if (isParent(child)) {
+          final difference = constraints.precedingScrollExtent -
+              child.constraints.precedingScrollExtent;
+          offset += difference;
+          finished = true;
+          return;
+        }
+        if (child == this) {
+          finished = true;
+          return;
+        }
+        offset += child.geometry!.scrollExtent;
+      });
+      assert(finished, "Viewport doesn't seem to contain current sliver?");
+      return offset;
+    }
+
+    final precedingScrollExtent = getActualPrecedingScrollExtent();
+    if (constraints.precedingScrollExtent != precedingScrollExtent) {
+      _log.fine(
+        'Constraints have outdated preceding scroll extent ${constraints.precedingScrollExtent.format()}, actual is ${precedingScrollExtent.format()}',
+      );
+    }
 
     // Trying to query child offset of child that's not currently visible;
     // Assume this is from viewPort.getOffsetToReveal, in which case we'll
@@ -114,7 +166,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       index: index,
       offset: _extentManager.offsetForIndex(index),
       extent: _extentManager.getExtent(index),
-      precedingScrollExtent: constraints.precedingScrollExtent,
+      precedingScrollExtent: precedingScrollExtent,
     );
     _log.fine(
       '$_logIdentifier remembering estimated offset ${_childScrollOffsetEstimation!.offset} for child $index (preceding extent ${constraints.precedingScrollExtent})',
@@ -125,6 +177,8 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       if (sliver != this) {
         // Only one sliver should have active estimation.
         sliver._childScrollOffsetEstimation = null;
+      } else if (sliver == this) {
+        break;
       }
     }
     final offset = _childScrollOffsetEstimation!.offset;
