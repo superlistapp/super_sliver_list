@@ -1,7 +1,7 @@
 import "dart:math" as math;
 
 import "package:context_watch/context_watch.dart";
-import "package:example/shell/buttons.dart";
+
 import "package:flutter/services.dart";
 import "package:flutter/widgets.dart";
 import "package:flutter/material.dart" show Colors;
@@ -9,7 +9,11 @@ import "package:flutter_lorem/flutter_lorem.dart";
 import "package:provider/provider.dart";
 import "package:super_sliver_list/super_sliver_list.dart";
 
-import "../shell/slider.dart";
+import "../shell/buttons.dart";
+import "../shell/sidebar.dart";
+import "../widgets/labeled_slider.dart";
+import "../widgets/number_picker.dart";
+import "../widgets/slider.dart";
 import "../util/show_on_screen.dart";
 import "../shell/app_settings.dart";
 import "../shell/example_page.dart";
@@ -27,8 +31,9 @@ class SuperReadingOrderTraversalPolicy extends ReadingOrderTraversalPolicy {
 }
 
 class _ItemListSettings {
-  final sliverCount = ValueNotifier(1);
-  final itemsPerSliver = ValueNotifier(_kItemsPerSliver.last);
+  final sliverCount = ValueNotifier(5);
+  final itemsPerSliver = ValueNotifier(1000);
+  final maxLength = ValueNotifier(10);
 }
 
 class Item extends StatefulWidget {
@@ -122,13 +127,15 @@ class ItemListPage extends StatefulWidget {
 class _Item {
   _Item({
     required this.index,
+    required this.maxLength,
   });
 
   final int index;
+  final int maxLength;
 
   String get text {
     // final random = math.Random(index).nextInt(100);
-    final length = (Object.hash(index, null) % 20 * 10) + 2;
+    final length = (Object.hash(index, null) % 20 * maxLength) + 2;
     return _text ??= lorem(paragraphs: 1, words: length);
   }
 
@@ -143,12 +150,22 @@ class _SliverData {
     required this.title,
   });
 
-  void ensureItemCount(int count) {
-    while (items.length > count) {
-      items.removeLast();
+  int? _maxLength;
+
+  void ensureItemCount(int count, int maxLength) {
+    if (_maxLength != maxLength) {
+      _maxLength = maxLength;
+      items.clear();
+    } else {
+      while (items.length > count) {
+        items.removeLast();
+      }
     }
     while (items.length < count) {
-      items.add(_Item(index: items.length));
+      items.add(_Item(
+        index: items.length,
+        maxLength: maxLength,
+      ));
     }
   }
 }
@@ -159,7 +176,7 @@ class _ItemListPageState extends ExamplePageState {
   final List<ExtentController> _extentControllers = [];
   late ScrollController _scrollController;
 
-  void _updateSliverData(int sliverCount, int itemsPerSliver) {
+  void _updateSliverData(int sliverCount, int itemsPerSliver, int maxLength) {
     while (_sliverData.length > sliverCount) {
       _sliverData.removeLast();
     }
@@ -167,7 +184,7 @@ class _ItemListPageState extends ExamplePageState {
       _sliverData.add(_SliverData(title: "Sliver ${_sliverData.length}"));
     }
     for (final sliver in _sliverData) {
-      sliver.ensureItemCount(itemsPerSliver);
+      sliver.ensureItemCount(itemsPerSliver, maxLength);
     }
   }
 
@@ -202,12 +219,15 @@ class _ItemListPageState extends ExamplePageState {
   Widget build(BuildContext context) {
     final sliverCount = _settings.sliverCount.watch(context);
     final itemsPerSliver = _settings.itemsPerSliver.watch(context);
-    _updateSliverData(sliverCount, itemsPerSliver);
+    final int maxLength = _settings.maxLength.watch(context);
+    _updateSliverData(
+      sliverCount,
+      itemsPerSliver,
+      maxLength,
+    );
 
     final options = context.watch<AppSettings>();
     final showSliverList = options.showSliverList.watch(context);
-    // final preciseLayout = options.preciseLayout.watch(context);
-    bool preciseLayout = false;
 
     SliverChildBuilderDelegate delegate(int sliverIndex) {
       final sliver = _sliverData[sliverIndex];
@@ -320,67 +340,58 @@ class _JumpWidgetState extends State<_JumpWidget> {
   }
 
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return SidebarSection(
+      title: const Text("Jump to Item"),
       children: [
-        Row(
-          children: [
-            const Text("Sliver"),
-            const Spacer(),
-            Text("Sliver: $sliver"),
-          ],
+        LabeledSlider(
+          label: const Text("Sliver Index"),
+          value: Text("$sliver"),
+          slider: Slider(
+            min: 0,
+            max: widget.numSlivers - 1,
+            value: sliver.toDouble(),
+            onChanged: (value) {
+              final sliver = value.round();
+              if (sliver != this.sliver) {
+                setState(() {
+                  this.sliver = sliver;
+                });
+              }
+            },
+          ),
         ),
-        Slider(
-          min: 0,
-          max: widget.numSlivers - 1,
-          value: sliver.toDouble(),
-          onChanged: (value) {
-            final sliver = value.round();
-            if (sliver != this.sliver) {
-              setState(() {
-                this.sliver = sliver;
-              });
-            }
-          },
+        LabeledSlider(
+          label: const Text("Item Index"),
+          value: Text("$item"),
+          slider: Slider(
+            min: 0,
+            max: widget.numItemsPerSliver - 1,
+            value: item.toDouble(),
+            onChanged: (value) {
+              final item = value.round();
+              if (item != this.item) {
+                setState(() {
+                  this.item = item;
+                });
+              }
+            },
+          ),
         ),
-        Row(
-          children: [
-            const Text("Item"),
-            const Spacer(),
-            Text("$item"),
-          ],
-        ),
-        Slider(
-          min: 0,
-          max: widget.numItemsPerSliver - 1,
-          value: item.toDouble(),
-          onChanged: (value) {
-            final item = value.round();
-            if (item != this.item) {
-              setState(() {
-                this.item = item;
-              });
-            }
-          },
-        ),
-        Row(
-          children: [
-            const Text("Alignment"),
-            const Spacer(),
-            Text(alignment.toStringAsPrecision(2)),
-          ],
-        ),
-        Slider(
-          min: 0,
-          max: 1,
-          value: alignment,
-          onChanged: (value) {
-            if (value != alignment) {
-              setState(() {
-                alignment = value;
-              });
-            }
-          },
+        LabeledSlider(
+          label: const Text("Alignment in Viewport"),
+          value: Text(alignment.toStringAsPrecision(2)),
+          slider: Slider(
+            min: 0,
+            max: 1,
+            value: alignment,
+            onChanged: (value) {
+              if (value != alignment) {
+                setState(() {
+                  alignment = value;
+                });
+              }
+            },
+          ),
         ),
         Row(
           children: [
@@ -414,7 +425,6 @@ class _SidebarWidget extends StatelessWidget {
   final _ItemListSettings settings;
 
   const _SidebarWidget({
-    super.key,
     required this.onJumpRequested,
     required this.settings,
   });
@@ -423,87 +433,48 @@ class _SidebarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final sliverCount = settings.sliverCount.watch(context);
     final itemPerSliver = settings.itemsPerSliver.watch(context);
+    final maxLength = settings.maxLength.watch(context);
 
-    return Column(
-      children: [
-        _NumberPicker(
-          title: const Text("Slivers"),
-          options: List.generate(_kMaxSlivers - 1, (index) => index + 1),
-          value: sliverCount,
-          onChanged: (value) {
-            settings.sliverCount.value = value;
-          },
-        ),
-        SizedBox(
-          height: 8,
-        ),
-        _NumberPicker(
-          title: const Text("Items per Sliver"),
-          options: _kItemsPerSliver,
-          value: itemPerSliver,
-          onChanged: (value) {
-            settings.itemsPerSliver.value = value;
-          },
-        ),
-        _JumpWidget(
-          numSlivers: sliverCount,
-          numItemsPerSliver: itemPerSliver,
-          onJumpRequested: onJumpRequested,
-        ),
-      ],
-    );
-  }
-}
-
-class _NumberPicker extends StatelessWidget {
-  final Widget title;
-  final int value;
-  final List<int> options;
-  final ValueChanged<int> onChanged;
-
-  const _NumberPicker({
-    super.key,
-    required this.title,
-    required this.value,
-    required this.options,
-    required this.onChanged,
-  });
-
-  int _getIndexForNearestValue() {
-    int index = 0;
-    int minDiff = (options.first - value).abs();
-    for (int i = 1; i < options.length; ++i) {
-      final diff = (options[i] - value).abs();
-      if (diff < minDiff) {
-        minDiff = diff;
-        index = i;
-      }
-    }
-    return index;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            title,
-            const Spacer(),
-            Text(value.toString()),
-          ],
-        ),
-        Slider(
-          min: 0,
-          max: options.length - 1,
-          value: _getIndexForNearestValue().toDouble(),
-          onChanged: (value) {
-            int v = options[value.round()];
-            onChanged(v);
-          },
-        ),
-      ],
+    return Container(
+      child: SidebarOptions(
+        sections: [
+          SidebarSection(
+            title: Text("Content"),
+            children: [
+              NumberPicker(
+                title: const Text("Slivers"),
+                options: List.generate(_kMaxSlivers - 1, (index) => index + 1),
+                value: sliverCount,
+                onChanged: (value) {
+                  settings.sliverCount.value = value;
+                },
+              ),
+              NumberPicker(
+                title: const Text("Items per Sliver"),
+                options: _kItemsPerSliver,
+                value: itemPerSliver,
+                onChanged: (value) {
+                  settings.itemsPerSliver.value = value;
+                },
+              ),
+              NumberPicker(
+                title: const Text("Maximum Item Length"),
+                options: List.generate(15, (index) => index + 1),
+                value: maxLength,
+                onChanged: (value) {
+                  settings.maxLength.value = value;
+                },
+              ),
+            ],
+          ),
+          _JumpWidget(
+            numSlivers: sliverCount,
+            numItemsPerSliver: itemPerSliver,
+            onJumpRequested: onJumpRequested,
+          ),
+          const AppSettingsWidget(),
+        ],
+      ),
     );
   }
 }

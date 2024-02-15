@@ -1,3 +1,5 @@
+import "dart:ui";
+
 import "package:super_sliver_list/src/extent_manager.dart";
 import "package:test/test.dart";
 
@@ -10,7 +12,7 @@ class _TestExtentManagerDelegate extends ExtentManagerDelegate {
   }
 
   @override
-  double getOffsetToReveal(int index, double alignment) {
+  double getOffsetToReveal(int index, double alignment, {Rect? rect}) {
     return 0;
   }
 

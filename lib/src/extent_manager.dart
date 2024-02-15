@@ -1,3 +1,5 @@
+import "dart:ui";
+
 import "package:flutter/foundation.dart";
 
 import "extent_list.dart";
@@ -7,7 +9,7 @@ abstract class ExtentManagerDelegate {
 
   void onMarkNeedsLayout();
   double estimateExtentForItem(int index);
-  double getOffsetToReveal(int index, double alignment);
+  double getOffsetToReveal(int index, double alignment, {Rect? rect});
 }
 
 class ExtentManager with ChangeNotifier {
@@ -122,8 +124,8 @@ class ExtentManager with ChangeNotifier {
 
   bool get isLocked => _layoutInProgress;
 
-  double getOffsetToReveal(int index, double alignment) {
-    return delegate.getOffsetToReveal(index, alignment);
+  double getOffsetToReveal(int index, double alignment, {Rect? rect}) {
+    return delegate.getOffsetToReveal(index, alignment, rect: rect);
   }
 
   @override

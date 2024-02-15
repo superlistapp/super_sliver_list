@@ -1,14 +1,14 @@
 import "package:context_watch/context_watch.dart";
-import "package:example/shell/app_settings.dart";
-import "package:example/shell/check_box.dart";
-import "package:example/shell/example_page.dart";
 import "package:flutter/material.dart" show Colors;
-import "package:flutter/rendering.dart";
-import "package:flutter/widgets.dart";
+import "package:pixel_snap/widgets.dart";
 import "package:headless_widgets/headless_widgets.dart";
 import "package:provider/provider.dart";
 
+import "../util/intersperse.dart";
+import "app_settings.dart";
 import "buttons.dart";
+import "check_box.dart";
+import "example_page.dart";
 import "routes.dart";
 
 class Sidebar extends StatefulWidget {
@@ -42,13 +42,8 @@ class _SidebarState extends State<Sidebar> {
     } else {
       _rebuildScheduled = false;
     }
-    final settings = context.watch<AppSettings>();
-    final showSliverList = settings.showSliverList.watch(context);
-    final precomputeExtentPolicy =
-        settings.precomputeExtentPolicy.watch(context);
 
-    return Container(
-      padding: const EdgeInsets.all(8),
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.white,
         border: BorderDirectional(
@@ -58,46 +53,24 @@ class _SidebarState extends State<Sidebar> {
           ),
         ),
       ),
-      child: IntrinsicWidth(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ...allRoutes.map(
-              (route) =>
-                  _NavigationButton(uri: route.fullPath, title: route.title),
-            ),
-            const SizedBox(
-              height: 14,
-            ),
-            if (pageWidget != null) pageWidget,
-            CheckBox(
-              checked: showSliverList,
-              child: const Text(
-                "Compare with SliverList",
-                maxLines: 5,
-                overflow: TextOverflow.ellipsis,
-              ),
-              onChanged: (value) => settings.showSliverList.value = value,
-            ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: IntrinsicWidth(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text("Precompute extents"),
-                SegmentedButton(
-                  selectedIndex: precomputeExtentPolicy.index,
-                  onSelected: (selected) {
-                    settings.precomputeExtentPolicy.value =
-                        PrecomputeExtentPolicy.values[selected];
-                  },
-                  children: const [
-                    Text("None"),
-                    Text("All"),
-                    Text("Automatic"),
-                  ],
-                )
+                ...allRoutes.map(
+                  (route) => _NavigationButton(
+                      uri: route.fullPath, title: route.title),
+                ),
+                const SizedBox(
+                  height: 14,
+                ),
+                if (pageWidget != null) pageWidget,
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -143,26 +116,126 @@ class _NavigationButton extends StatelessWidget {
   }
 }
 
-class _DisableIntrinsicWidth extends SingleChildRenderObjectWidget {
-  const _DisableIntrinsicWidth({
+class SidebarOptions extends StatelessWidget {
+  const SidebarOptions({
     super.key,
-    required Widget child,
-  }) : super(child: child);
+    required this.sections,
+  });
+
+  final List<Widget> sections;
 
   @override
-  RenderObject createRenderObject(BuildContext context) {
-    return _RenderDisableIntrinsicWidth();
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: sections
+          .intersperse(
+            const SizedBox(
+              height: 8,
+            ),
+          )
+          .toList(growable: false),
+    );
   }
 }
 
-class _RenderDisableIntrinsicWidth extends RenderProxyBox {
-  @override
-  double computeMinIntrinsicWidth(double height) {
-    return 0;
-  }
+class SidebarSection extends StatelessWidget {
+  const SidebarSection({
+    super.key,
+    required this.title,
+    required this.children,
+  });
+
+  final Widget title;
+  final List<Widget> children;
 
   @override
-  double computeMaxIntrinsicWidth(double height) {
-    return 0;
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.blueGrey.shade50,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(8),
+              topRight: Radius.circular(8),
+            ),
+            border: BorderDirectional(
+              bottom: BorderSide(
+                color: Colors.white,
+                width: 1,
+              ),
+            ),
+          ),
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.blueGrey.shade800,
+              fontWeight: FontWeight.bold,
+            ),
+            child: title,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.blueGrey.shade50,
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(8),
+              bottomRight: Radius.circular(8),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ...children.intersperse(const SizedBox(height: 8)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class AppSettingsWidget extends StatelessWidget {
+  const AppSettingsWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = context.watch<AppSettings>();
+    final showSliverList = settings.showSliverList.watch(context);
+    final precomputeExtentPolicy =
+        settings.precomputeExtentPolicy.watch(context);
+    return SidebarSection(title: Text("Settings"), children: [
+      CheckBox(
+        checked: showSliverList,
+        child: const Text(
+          "Compare with SliverList",
+          maxLines: 5,
+          overflow: TextOverflow.ellipsis,
+        ),
+        onChanged: (value) => settings.showSliverList.value = value,
+      ),
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text("Precompute extents"),
+          SegmentedButton(
+            selectedIndex: precomputeExtentPolicy.index,
+            onSelected: (selected) {
+              settings.precomputeExtentPolicy.value =
+                  PrecomputeExtentPolicy.values[selected];
+            },
+            children: const [
+              Text("None"),
+              Text("All"),
+              Text("Automatic"),
+            ],
+          )
+        ],
+      ),
+    ]);
   }
 }

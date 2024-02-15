@@ -40,7 +40,11 @@ class _ChildScrollOffsetEstimation {
   /// for change in preceding sliver extent change during layout.
   final double precedingScrollExtent;
 
+  /// Scroll offset of viewport when estimation was made.
   double? viewportScrollOffset;
+
+  /// Whether the entire element or only a rect should be revealed.
+  bool revealingRect = false;
 }
 
 class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
@@ -711,26 +715,28 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
           correction +=
               layoutPass.initialScrollPosition - currentScrollPosition;
 
-          final double distanceFromViewportStart =
-              estimation.precedingScrollExtent +
-                  -layoutPass.initialScrollPosition +
-                  estimation.offset;
+          if (!estimation.revealingRect) {
+            final double distanceFromViewportStart =
+                estimation.precedingScrollExtent +
+                    -layoutPass.initialScrollPosition +
+                    estimation.offset;
 
-          // Use extent during estimation because distanceFromViewportStart is calculated
-          // with correction to adjusted for extent difference.
-          final distanceFromViewportStartMax =
-              constraints.viewportMainAxisExtent - estimation.extent;
+            // Use extent during estimation because distanceFromViewportStart is calculated
+            // with correction to adjusted for extent difference.
+            final distanceFromViewportStartMax =
+                constraints.viewportMainAxisExtent - estimation.extent;
 
-          final childAlignmentWithinViewport =
-              (distanceFromViewportStart / distanceFromViewportStartMax)
-                  .clamp(0.0, 1.0);
+            final childAlignmentWithinViewport =
+                (distanceFromViewportStart / distanceFromViewportStartMax)
+                    .clamp(0.0, 1.0);
 
-          // Depending on child alignment within viewport the scroll offset correction
-          // needs to account for extent difference. When child is aligned at the start
-          // of viewport, the correction is 0. When child is aligned at the end of viewport,
-          // the correction is equal to extent difference.
-          final extentDifference = paintExtentOf(c) - estimation.extent;
-          correction += extentDifference * childAlignmentWithinViewport;
+            // Depending on child alignment within viewport the scroll offset correction
+            // needs to account for extent difference. When child is aligned at the start
+            // of viewport, the correction is 0. When child is aligned at the end of viewport,
+            // the correction is equal to extent difference.
+            final extentDifference = paintExtentOf(c) - estimation.extent;
+            correction += extentDifference * childAlignmentWithinViewport;
+          }
 
           if (correction.abs() > precisionErrorTolerance) {
             _log.fine("Scroll offset correction: ${correction.format()} "
@@ -866,14 +872,19 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
     return res;
   }
 
-  double getOffsetToReveal(int index, double alignment) {
+  double getOffsetToReveal(int index, double alignment, {Rect? rect}) {
     final renderObject = _FakeRenderObject(
       parent: this,
       index: index,
       extent: _extentManager.getExtent(index),
     );
-    final offset =
-        getViewport()?.getOffsetToReveal(renderObject, alignment).offset;
+    final offset = getViewport()
+        ?.getOffsetToReveal(
+          renderObject,
+          alignment,
+          rect: rect,
+        )
+        .offset;
 
     if (offset != null) {
       final position = getViewport()!.offset as ScrollPosition;
@@ -883,6 +894,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
           offset <= position.maxScrollExtent) {
         _childScrollOffsetEstimation?.viewportScrollOffset = offset;
       }
+      _childScrollOffsetEstimation?.revealingRect = rect != null;
     }
 
     return offset ?? 0.0;

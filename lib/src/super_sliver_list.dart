@@ -42,9 +42,9 @@ class ExtentController extends ChangeNotifier {
     return _delegate!.isLocked;
   }
 
-  double getOffsetToReveal(int index, double alignment) {
+  double getOffsetToReveal(int index, double alignment, {Rect? rect}) {
     assert(_delegate != null, "ExtentController is not attached.");
-    return _delegate!.getOffsetToReveal(index, alignment);
+    return _delegate!.getOffsetToReveal(index, alignment, rect: rect);
   }
 
   void invalidateExtent(int index) {
