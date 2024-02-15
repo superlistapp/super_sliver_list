@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:headless_widgets/headless_widgets.dart';
+import "package:flutter/material.dart";
+import "package:headless_widgets/headless_widgets.dart";
 
 class FlatButton extends StatelessWidget {
   final Widget child;
@@ -16,6 +16,7 @@ class FlatButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Button(
+      selected: selected ? SelectionState.on : SelectionState.off,
       hitTestBehavior: HitTestBehavior.opaque,
       onPressed: onPressed,
       builder: buildFlatButton,
@@ -40,4 +41,32 @@ Widget buildFlatButton(BuildContext context, ButtonState state, Widget? child) {
     padding: const EdgeInsets.all(4),
     child: child!,
   );
+}
+
+class SegmentedButton extends StatelessWidget {
+  final List<Widget> children;
+  final int selectedIndex;
+  final ValueChanged<int>? onSelected;
+
+  const SegmentedButton({
+    super.key,
+    required this.children,
+    required this.selectedIndex,
+    this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < children.length; i++)
+          FlatButton(
+            onPressed: () => onSelected?.call(i),
+            selected: i == selectedIndex,
+            child: children[i],
+          ),
+      ],
+    );
+  }
 }

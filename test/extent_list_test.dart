@@ -1,9 +1,9 @@
-import 'package:super_sliver_list/src/extent_list.dart';
-import 'package:test/test.dart';
+import "package:super_sliver_list/src/extent_list.dart";
+import "package:test/test.dart";
 
 void main() {
-  group('ResizableFloat64List', () {
-    test('operations', () {
+  group("ResizableFloat64List", () {
+    test("operations", () {
       final test = ResizableFloat64List();
       expect(test.length, equals(0));
 
@@ -40,7 +40,7 @@ void main() {
       expect(test.length, equals(4));
       expect(test[3], equals(30.0));
     });
-    test('resize', () {
+    test("resize", () {
       final list = ResizableFloat64List();
       list.resize(300, (index) => 10);
       expect(list.length, equals(300));
@@ -48,8 +48,8 @@ void main() {
       expect(list[299], equals(10));
     });
   });
-  group('ExtentList', () {
-    test('empty', () {
+  group("ExtentList", () {
+    test("empty", () {
       final extentList = ExtentList();
       expect(extentList.totalExtent, equals(0.0));
       expect(extentList.cleanRangeStart, isNull);
@@ -57,7 +57,7 @@ void main() {
       expect(extentList.hasDirtyItems, isFalse);
       expect(extentList.estimatedExtentsCount, 0.0);
     });
-    test('resize', () {
+    test("resize", () {
       final extentList = ExtentList();
 
       extentList.resize(3, (_) => 100.0);
@@ -84,7 +84,7 @@ void main() {
       expect(extentList.hasDirtyItems, isFalse);
       expect(extentList.totalExtent, equals(100 + 70 + 80));
     });
-    test('cleanRange', () {
+    test("cleanRange", () {
       final extentList = ExtentList();
 
       extentList.resize(10, (_) => 100.0);
@@ -122,7 +122,7 @@ void main() {
       expect(extentList.cleanRangeStart, isNull);
       expect(extentList.cleanRangeEnd, isNull);
     });
-    test('cleanRange reset', () {
+    test("cleanRange reset", () {
       final extentList = ExtentList();
 
       extentList.resize(4, (_) => 100.0);
@@ -139,7 +139,7 @@ void main() {
       expect(extentList.cleanRangeEnd, isNull);
       expect(extentList.hasDirtyItems, isTrue);
     });
-    test('cleanRange after markDirty', () {
+    test("cleanRange after markDirty", () {
       final extentList = ExtentList();
 
       extentList.resize(4, (_) => 100.0);
@@ -156,7 +156,7 @@ void main() {
       expect(extentList.cleanRangeEnd, isNull);
       expect(extentList.hasDirtyItems, isTrue);
     });
-    test('cleanRange after markDirty is preserved', () {
+    test("cleanRange after markDirty is preserved", () {
       final extentList = ExtentList();
 
       extentList.resize(4, (_) => 100.0);
@@ -174,7 +174,7 @@ void main() {
       expect(extentList.hasDirtyItems, isTrue);
     });
   });
-  test('addItem', () async {
+  test("addItem", () async {
     final extentList = ExtentList();
     extentList.resize(4, (_) => 100.0);
     for (int i = 0; i < 4; ++i) {
@@ -201,7 +201,7 @@ void main() {
 
     expect(extentList.length, equals(7));
   });
-  test('removeItem', () async {
+  test("removeItem", () async {
     final extentList = ExtentList();
     extentList.resize(4, (_) => 100.0);
     for (int i = 0; i < 3; ++i) {

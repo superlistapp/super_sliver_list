@@ -1,5 +1,5 @@
-import 'package:super_sliver_list/src/extent_manager.dart';
-import 'package:test/test.dart';
+import "package:super_sliver_list/src/extent_manager.dart";
+import "package:test/test.dart";
 
 class _TestExtentManagerDelegate extends ExtentManagerDelegate {
   const _TestExtentManagerDelegate();
@@ -19,8 +19,8 @@ class _TestExtentManagerDelegate extends ExtentManagerDelegate {
 }
 
 void main() {
-  group('ExtentList', () {
-    test('indexForOffset', () {
+  group("ExtentList", () {
+    test("indexForOffset", () {
       final extentManager =
           ExtentManager(delegate: const _TestExtentManagerDelegate());
       expect(extentManager.indexForOffset(0), equals(null));
@@ -38,7 +38,7 @@ void main() {
       expect(extentManager.indexForOffset(120), equals(2));
       expect(extentManager.indexForOffset(500), equals(null));
     });
-    test('offsetForIndex', () {
+    test("offsetForIndex", () {
       final extentManager =
           ExtentManager(delegate: const _TestExtentManagerDelegate());
 

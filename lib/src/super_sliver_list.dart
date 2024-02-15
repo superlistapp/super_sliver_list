@@ -1,10 +1,10 @@
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
+import "package:flutter/rendering.dart";
+import "package:flutter/widgets.dart";
 
-import 'element.dart';
-import 'extent_manager.dart';
-import 'layout_budget.dart';
-import 'render_object.dart';
+import "element.dart";
+import "extent_manager.dart";
+import "layout_budget.dart";
+import "render_object.dart";
 
 class ExtentController extends ChangeNotifier {
   ExtentController({
@@ -18,47 +18,47 @@ class ExtentController extends ChangeNotifier {
   bool get isAttached => _delegate != null;
 
   int get numberOfItems {
-    assert(_delegate != null, 'ExtentController is not attached.');
+    assert(_delegate != null, "ExtentController is not attached.");
     return _delegate!.numberOfItems;
   }
 
   (double, bool isEstimated) extentForIndex(int index) {
-    assert(_delegate != null, 'ExtentController is not attached.');
+    assert(_delegate != null, "ExtentController is not attached.");
     return _delegate!.extentForIndex(index);
   }
 
   double get totalExtent {
-    assert(_delegate != null, 'ExtentController is not attached.');
+    assert(_delegate != null, "ExtentController is not attached.");
     return _delegate!.totalExtent;
   }
 
   int get estimatedExtentsCount {
-    assert(_delegate != null, 'ExtentController is not attached.');
+    assert(_delegate != null, "ExtentController is not attached.");
     return _delegate!.estimatedExtentsCount;
   }
 
   bool get isLocked {
-    assert(_delegate != null, 'ExtentController is not attached.');
+    assert(_delegate != null, "ExtentController is not attached.");
     return _delegate!.isLocked;
   }
 
   double getOffsetToReveal(int index, double alignment) {
-    assert(_delegate != null, 'ExtentController is not attached.');
+    assert(_delegate != null, "ExtentController is not attached.");
     return _delegate!.getOffsetToReveal(index, alignment);
   }
 
   void invalidateExtent(int index) {
-    assert(_delegate != null, 'ExtentController is not attached.');
+    assert(_delegate != null, "ExtentController is not attached.");
     _delegate!.invalidateExtent(index);
   }
 
   void addItem(int index) {
-    assert(_delegate != null, 'ExtentController is not attached.');
+    assert(_delegate != null, "ExtentController is not attached.");
     _delegate!.addItem(index);
   }
 
   void removeItem(int index) {
-    assert(_delegate != null, 'ExtentController is not attached.');
+    assert(_delegate != null, "ExtentController is not attached.");
     _delegate!.removeItem(index);
   }
 
@@ -101,27 +101,71 @@ typedef ExtentEstimationProvider = double Function(
   double crossAxisExtent,
 );
 
-abstract class ExtentPrecalculationContext {
-  RenderViewport? get viewport;
+abstract class ExtentPrecalculationPolicyDelegate {
   void valueDidChange();
 }
 
-typedef ExtentsPrecalculationPolicy = bool Function(
-  ExtentPrecalculationContext,
-);
+class ExtentPrecalculationContext {
+  ExtentPrecalculationContext({
+    required this.viewportMainAxisExtent,
+    required this.contentTotalExtent,
+    required this.numberOfItem,
+    required this.estimatedExtentsCount,
+  });
+
+  /// The main axis extent of the viewport.
+  final double viewportMainAxisExtent;
+
+  /// The main axis extent of the content. May not be available initially.
+  final double? contentTotalExtent;
+
+  /// Number of items in the sliver.
+  final int numberOfItem;
+
+  /// Number of items in the sliver with estimated extents.
+  final int estimatedExtentsCount;
+}
+
+abstract class ExtentPrecalculationPolicy {
+  void onAttached() {}
+  void onDetached() {}
+  bool shouldPrecaculateExtents(ExtentPrecalculationContext context);
+
+  void valueDidChange() {
+    for (final delegate in _delegates) {
+      delegate.valueDidChange();
+    }
+  }
+
+  void addDelegate(ExtentPrecalculationPolicyDelegate? value) {
+    _delegates.add(value!);
+    if (_delegates.length == 1) {
+      onAttached();
+    }
+  }
+
+  void removeDelegate(ExtentPrecalculationPolicyDelegate? value) {
+    _delegates.remove(value);
+    if (_delegates.isEmpty) {
+      onDetached();
+    }
+  }
+
+  final _delegates = <ExtentPrecalculationPolicyDelegate>{};
+}
 
 class SuperSliverList extends SliverMultiBoxAdaptorWidget {
   const SuperSliverList({
     super.key,
     required super.delegate,
-    this.extentsPrecalculationPolicy,
+    this.extentPrecalculationPolicy,
     this.extentController,
     this.extentEstimation,
   });
 
   final ExtentController? extentController;
   final ExtentEstimationProvider? extentEstimation;
-  final ExtentsPrecalculationPolicy? extentsPrecalculationPolicy;
+  final ExtentPrecalculationPolicy? extentPrecalculationPolicy;
 
   static SuperSliverListLayoutBudget layoutBudget =
       _TimeSuperSliverListLayoutBudget(
@@ -137,19 +181,19 @@ class SuperSliverList extends SliverMultiBoxAdaptorWidget {
     final element = context as SuperSliverMultiBoxAdaptorElement;
     return RenderSuperSliverList(
       childManager: element,
-      precalculateExtents:
-          extentsPrecalculationPolicy ?? _defaultPrecalculateExtents,
+      extentPrecalculationPolicy: extentPrecalculationPolicy,
       estimateExtent: extentEstimation ?? _defaultEstimateExtent,
     );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, covariant RenderObject renderObject) {
+    BuildContext context,
+    covariant RenderObject renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     final renderSliverList = renderObject as RenderSuperSliverList;
-    renderSliverList.precalculateExtents =
-        extentsPrecalculationPolicy ?? _defaultPrecalculateExtents;
+    renderSliverList.extentPrecalculationPolicy = extentPrecalculationPolicy;
     renderSliverList.estimateExtent =
         extentEstimation ?? _defaultEstimateExtent;
   }
@@ -187,8 +231,4 @@ class _TimeSuperSliverListLayoutBudget extends SuperSliverListLayoutBudget {
 
 double _defaultEstimateExtent(int index, double crossAxisExtent) {
   return 100.0;
-}
-
-bool _defaultPrecalculateExtents(ExtentPrecalculationContext _) {
-  return false;
 }

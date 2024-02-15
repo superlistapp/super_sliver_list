@@ -12,3 +12,7 @@ linter:
     require_trailing_commas: false
     prefer_constructors_over_static_methods: false
     sort_pub_dependencies: false
+    avoid_setters_without_getters: false
+    prefer_double_quotes: true
+    prefer_single_quotes: false
+

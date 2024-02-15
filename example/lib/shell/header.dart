@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart' show Icons, Colors;
-import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
+import "package:flutter/material.dart" show Icons, Colors;
+import "package:flutter/widgets.dart";
+import "package:provider/provider.dart";
 
-import 'buttons.dart';
-import 'theme.dart';
+import "buttons.dart";
+import "theme.dart";
 
 class Header extends StatelessWidget {
   const Header({
@@ -36,7 +36,7 @@ class Header extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Center(
               child: Text(
-                'SuperSliverList',
+                "SuperSliverList",
                 style: TextStyle(fontSize: 16),
                 // style: theme.textTheme.headline6!.copyWith(color: Colors.white),
               ),

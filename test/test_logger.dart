@@ -1,6 +1,6 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:logging/logging.dart';
+import "package:logging/logging.dart";
 
 class _TestLogger {
   void log(LogRecord r) {
@@ -15,14 +15,14 @@ class _TestLogger {
   }
 
   void printLog() {
-    Zone.current.print('Complete log from failed test:');
+    Zone.current.print("Complete log from failed test:");
     for (final e in _entries) {
       _printMessage(e);
     }
   }
 
   void _printMessage(LogRecord e) {
-    Zone.current.print('${e.level.name.padRight(7)} ${e.message}');
+    Zone.current.print("${e.level.name.padRight(7)} ${e.message}");
   }
 
   final _entries = <LogRecord>[];

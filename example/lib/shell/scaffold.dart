@@ -1,5 +1,5 @@
-import 'package:example/shell/buttons.dart';
-import 'package:flutter/widgets.dart';
+import "package:example/shell/buttons.dart";
+import "package:flutter/widgets.dart";
 
 class Scaffold extends StatefulWidget {
   final Widget body;
@@ -54,7 +54,7 @@ class ScaffoldState extends State<Scaffold>
       reverseCurve: Curves.easeInCubic,
     );
     return FocusScope(
-      debugLabel: 'Scaffold',
+      debugLabel: "Scaffold",
       child: Stack(
         fit: StackFit.passthrough,
         children: [

@@ -1,14 +1,15 @@
-import 'package:context_watch/context_watch.dart';
-import 'package:example/shell/app_settings.dart';
-import 'package:example/shell/check_box.dart';
-import 'package:example/shell/example_page.dart';
-import 'package:flutter/material.dart' show Colors;
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
-import 'package:headless_widgets/headless_widgets.dart';
-import 'package:provider/provider.dart';
+import "package:context_watch/context_watch.dart";
+import "package:example/shell/app_settings.dart";
+import "package:example/shell/check_box.dart";
+import "package:example/shell/example_page.dart";
+import "package:flutter/material.dart" show Colors;
+import "package:flutter/rendering.dart";
+import "package:flutter/widgets.dart";
+import "package:headless_widgets/headless_widgets.dart";
+import "package:provider/provider.dart";
 
-import 'routes.dart';
+import "buttons.dart";
+import "routes.dart";
 
 class Sidebar extends StatefulWidget {
   final void Function()? onCloseDrawer;
@@ -43,6 +44,8 @@ class _SidebarState extends State<Sidebar> {
     }
     final settings = context.watch<AppSettings>();
     final showSliverList = settings.showSliverList.watch(context);
+    final precomputeExtentPolicy =
+        settings.precomputeExtentPolicy.watch(context);
 
     return Container(
       padding: const EdgeInsets.all(8),
@@ -70,11 +73,29 @@ class _SidebarState extends State<Sidebar> {
             CheckBox(
               checked: showSliverList,
               child: const Text(
-                'Compare with SliverList',
+                "Compare with SliverList",
                 maxLines: 5,
                 overflow: TextOverflow.ellipsis,
               ),
               onChanged: (value) => settings.showSliverList.value = value,
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("Precompute extents"),
+                SegmentedButton(
+                  selectedIndex: precomputeExtentPolicy.index,
+                  onSelected: (selected) {
+                    settings.precomputeExtentPolicy.value =
+                        PrecomputeExtentPolicy.values[selected];
+                  },
+                  children: const [
+                    Text("None"),
+                    Text("All"),
+                    Text("Automatic"),
+                  ],
+                )
+              ],
             ),
           ],
         ),

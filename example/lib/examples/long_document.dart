@@ -1,15 +1,15 @@
-import 'package:context_watch/context_watch.dart';
-import 'package:example/shell/app_settings.dart';
-import 'package:example/shell/buttons.dart';
-import 'package:example/shell/check_box.dart';
-import 'package:example/shell/example_page.dart';
-import 'package:flutter/material.dart' show Icons, Colors;
-import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
-import 'package:super_sliver_list/super_sliver_list.dart';
+import "package:context_watch/context_watch.dart";
+import "package:example/shell/app_settings.dart";
+import "package:example/shell/buttons.dart";
+import "package:example/shell/check_box.dart";
+import "package:example/shell/example_page.dart";
+import "package:flutter/material.dart" show Icons, Colors;
+import "package:flutter/widgets.dart";
+import "package:provider/provider.dart";
+import "package:super_sliver_list/super_sliver_list.dart";
 
-import '../data/sherlock.dart' as sherlock;
-import 'layout_info_overlay.dart';
+import "../data/sherlock.dart" as sherlock;
+import "layout_info_overlay.dart";
 
 class LongDocumentPage extends StatefulWidget {
   const LongDocumentPage({super.key});
@@ -41,7 +41,6 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
   Widget build(BuildContext context) {
     final options = context.watch<AppSettings>();
     final showSliverList = options.showSliverList.watch(context);
-    final preciseLayout = options.preciseLayout.watch(context);
     final sliverCount = this.sliverCount.watch(context);
     final removeTraling = removeTrailingItemCount.watch(context);
     const paragraphs = sherlock.paragraphs;
@@ -69,7 +68,7 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
                 for (int i = 0; i < sliverCount; ++i)
                   SuperSliverList(
                     extentController: _extentControllers[i],
-                    extentsPrecalculationPolicy: (_) => preciseLayout,
+                    extentPrecalculationPolicy: options.extentPrecalculationPolicy,
                     delegate: delegate(i),
                   ),
               ],
@@ -122,20 +121,13 @@ class _SidebarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final preciseLayout = appSettings.preciseLayout.watch(context);
+
     return Column(
       children: [
-        CheckBox(
-          checked: preciseLayout,
-          onChanged: (value) {
-            appSettings.preciseLayout.value = value;
-          },
-          child: const Text('Precise Layout'),
-        ),
         _NumberPicker(value: sliverCount, min: 1, max: 10),
         _NumberPicker(value: removeTrailingItemCount, min: 0, max: 100),
         FlatButton(
-            child: Text('Invalidate'),
+            child: Text("Invalidate"),
             onPressed: () {
               onInvalidateLayout();
             })
@@ -172,7 +164,7 @@ class _NumberPicker extends StatelessWidget {
             valueListenable: value,
             builder: (context, value, child) {
               return Text(
-                '$value',
+                "$value",
                 textAlign: TextAlign.center,
               );
             },
@@ -210,7 +202,7 @@ class _ParagraphWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Sliver $sliver, Paragraph $index',
+            "Sliver $sliver, Paragraph $index",
             style: TextStyle(
               fontSize: 11,
               color: Colors.grey.shade600,

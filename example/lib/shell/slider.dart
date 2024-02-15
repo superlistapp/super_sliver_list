@@ -1,7 +1,32 @@
-import 'package:flutter/material.dart' show Colors;
-import 'package:headless_widgets/headless_widgets.dart' hide Slider;
-import 'package:headless_widgets/headless_widgets.dart' as w show Slider;
-import 'package:pixel_snap/widgets.dart';
+import "package:flutter/material.dart" show Colors;
+import "package:headless_widgets/headless_widgets.dart" hide Slider;
+import "package:headless_widgets/headless_widgets.dart" as w show Slider;
+import "package:pixel_snap/widgets.dart";
+
+class _TrackClipper extends CustomClipper<Rect> {
+  final double value;
+  final bool inverse;
+
+  _TrackClipper({
+    super.reclip,
+    required this.value,
+    required this.inverse,
+  });
+
+  @override
+  Rect getClip(Size size) {
+    if (inverse) {
+      return Rect.fromLTWH(size.width * value, 0, size.width, size.height);
+    } else {
+      return Rect.fromLTWH(0, 0, size.width * value, size.height);
+    }
+  }
+
+  @override
+  bool shouldReclip(covariant _TrackClipper oldClipper) {
+    return oldClipper.value != value;
+  }
+}
 
 class Slider extends StatelessWidget {
   const Slider({
@@ -35,8 +60,8 @@ class Slider extends StatelessWidget {
           return BoxConstraints.tight(Size.zero);
         }
         return BoxConstraints(
-          minWidth: constraints.maxWidth - thumbSize.width,
-          maxWidth: constraints.maxWidth - thumbSize.width,
+          minWidth: constraints.maxWidth,
+          maxWidth: constraints.maxWidth,
           minHeight: thumbSize.height,
           maxHeight: thumbSize.height,
         );
@@ -60,21 +85,53 @@ class Slider extends StatelessWidget {
           decoration: BoxDecoration(
             color: backgroundColor,
             border: Border.all(
-              color: Colors.blueGrey,
+              color: Colors.blueGrey.shade300,
               width: 1,
             ),
-            shape: BoxShape.circle,
+            borderRadius: BorderRadius.circular(4),
           ),
         );
       },
       trackBuilder: (context, state) {
         return Center(
-          child: Container(
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey,
-              borderRadius: BorderRadius.circular(2),
-            ),
+          child: Stack(
+            fit: StackFit.passthrough,
+            children: [
+              ClipRect(
+                clipper: _TrackClipper(
+                  value: state.effectiveFraction,
+                  inverse: false,
+                ),
+                child: Container(
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey.shade100,
+                    borderRadius: BorderRadius.circular(3),
+                    border: Border.all(
+                      color: Colors.blueGrey.shade300,
+                      width: 1,
+                    ),
+                  ),
+                ),
+              ),
+              ClipRect(
+                clipper: _TrackClipper(
+                  value: state.effectiveFraction,
+                  inverse: true,
+                ),
+                child: Container(
+                  height: 8,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(3),
+                    // color: Colors.blueGrey.shade50.withOpacity(0.5),
+                    border: Border.all(
+                      color: Colors.blueGrey.shade300,
+                      width: 1,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -90,7 +147,7 @@ class Slider extends StatelessWidget {
   ) {
     return SliderGeometry(
       sliderSize: Size(constraints.maxWidth, thumbSize.height),
-      trackPosition: Offset(thumbSize.width / 2.0, 0),
+      trackPosition: Offset.zero,
       thumbPosition: Offset(
         ps(
           (constraints.maxWidth - thumbSize.width) * (state.effectiveFraction),

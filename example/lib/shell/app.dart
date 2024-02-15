@@ -1,7 +1,7 @@
-import 'package:context_watch/context_watch.dart';
-import 'package:example/shell/app_settings.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart'
+import "package:context_watch/context_watch.dart";
+import "package:example/shell/app_settings.dart";
+import "package:flutter/foundation.dart";
+import "package:flutter/material.dart"
     show
         Colors,
         Typography,
@@ -10,16 +10,16 @@ import 'package:flutter/material.dart'
         ScrollbarThemeData,
         MaterialState,
         MaterialStateProperty;
-import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
-import 'package:super_sliver_list/super_sliver_list.dart';
+import "package:flutter/widgets.dart";
+import "package:provider/provider.dart";
+import "package:super_sliver_list/super_sliver_list.dart";
 
-import 'example_page.dart';
-import 'header.dart';
-import 'routes.dart';
-import 'scaffold.dart';
-import 'sidebar.dart';
-import 'theme.dart';
+import "example_page.dart";
+import "header.dart";
+import "routes.dart";
+import "scaffold.dart";
+import "sidebar.dart";
+import "theme.dart";
 
 class ExampleApp extends StatefulWidget {
   const ExampleApp({super.key});
@@ -41,7 +41,7 @@ class _ExampleAppState extends State<ExampleApp> {
           color: const Color(0xFF000000),
           routes: {
             // Why is this necessary if there is initial route?
-            '/': (context) => const SizedBox.shrink(),
+            "/": (context) => const SizedBox.shrink(),
             for (final route in allRoutes)
               route.fullPath: (context) => route.builder(_currentPageKey),
           },

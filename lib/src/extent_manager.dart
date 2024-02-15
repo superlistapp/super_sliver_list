@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
+import "package:flutter/foundation.dart";
 
-import 'extent_list.dart';
+import "extent_list.dart";
 
 abstract class ExtentManagerDelegate {
   const ExtentManagerDelegate();
@@ -128,6 +128,6 @@ class ExtentManager with ChangeNotifier {
 
   @override
   String toString() {
-    return 'ExtentManager ${identityHashCode(this).toRadixString(16)}';
+    return "ExtentManager ${identityHashCode(this).toRadixString(16)}";
   }
 }

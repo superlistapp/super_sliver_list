@@ -15,11 +15,12 @@ dependencies:
   headless_widgets:
     git:
       url: https://github.com/widgetbakery/headless_widgets.git
-      ref: c702189e54b24405da244724987fbc32b4da0051
+      ref: 18ad55062559aec485c59a383b81569b54f0da09
   provider: ^6.1.1
   context_watch: ^2.0.0-dev.5
   flutter_lorem: ^2.0.0
   pixel_snap: ^0.1.4
+  url_launcher: ^6.2.4
 
 dev_dependencies:
   flutter_test:

@@ -1,7 +1,7 @@
-import 'package:collection/collection.dart';
-import 'package:flutter/rendering.dart';
+import "package:collection/collection.dart";
+import "package:flutter/rendering.dart";
 
-import 'render_object.dart';
+import "render_object.dart";
 
 class SliverLayoutState {
   bool didAddInitialChild = false;
@@ -65,7 +65,9 @@ extension RenderSliverLayoutPass on RenderSliver {
   }
 
   static void _gatherSliverList(
-      List<RenderSuperSliverList> slivers, RenderObject sliver) {
+    List<RenderSuperSliverList> slivers,
+    RenderObject sliver,
+  ) {
     if (sliver is RenderSuperSliverList) {
       slivers.add(sliver);
     } else {

@@ -1,22 +1,22 @@
-import 'dart:math' as math;
+import "dart:math" as math;
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:logging/logging.dart';
-import 'package:super_sliver_list/super_sliver_list.dart';
+import "package:flutter/foundation.dart";
+import "package:flutter/material.dart";
+import "package:flutter/rendering.dart";
+import "package:flutter_test/flutter_test.dart";
+import "package:logging/logging.dart";
+import "package:super_sliver_list/super_sliver_list.dart";
 
 // ignore: deprecated_member_use
-import 'package:test_api/src/backend/invoker.dart' as invoker;
+import "package:test_api/src/backend/invoker.dart" as invoker;
 
-import 'test_logger.dart';
+import "test_logger.dart";
 
 Matcher roughlyEquals(double value) {
   return closeTo(value, precisionErrorTolerance);
 }
 
-final _log = Logger('magic_sliver_list_test');
+final _log = Logger("magic_sliver_list_test");
 
 enum _LayoutMode {
   /// Wait until entire layout is complete before doing the test.
@@ -28,6 +28,15 @@ enum _LayoutMode {
 
   /// No extent precalculation.
   estimated,
+}
+
+class _SimpleExtentPrecalculatePolicy extends ExtentPrecalculationPolicy {
+  final bool precalculate;
+
+  _SimpleExtentPrecalculatePolicy({required this.precalculate});
+
+  @override
+  bool shouldPrecaculateExtents(_) => precalculate;
 }
 
 class _FuzzerConfiguration {
@@ -136,8 +145,8 @@ void main() async {
     });
   });
 
-  group('SliverList', () {
-    testWidgets('reverse children (with keys)', (tester) async {
+  group("SliverList", () {
+    testWidgets("reverse children (with keys)", (tester) async {
       final configuration = _SliverListConfiguration.generate(
         slivers: 1,
         itemsPerSliver: (_) => 20,
@@ -157,10 +166,10 @@ void main() async {
       await tester.pumpAndSettle();
 
       expect(controller.offset, roughlyEquals(configuration.maxScrollExtent));
-      expect(find.text('Tile 0'), findsNothing);
-      expect(find.text('Tile 1'), findsNothing);
-      expect(find.text('Tile 18'), findsOneWidget);
-      expect(find.text('Tile 19'), findsOneWidget);
+      expect(find.text("Tile 0"), findsNothing);
+      expect(find.text("Tile 1"), findsNothing);
+      expect(find.text("Tile 18"), findsOneWidget);
+      expect(find.text("Tile 19"), findsOneWidget);
 
       final reversed = configuration.copyWith(
         slivers: [
@@ -181,22 +190,22 @@ void main() async {
       expect(frames, 1);
 
       expect(controller.offset, roughlyEquals(configuration.maxScrollExtent));
-      expect(find.text('Tile 19'), findsNothing);
-      expect(find.text('Tile 18'), findsNothing);
-      expect(find.text('Tile 1'), findsOneWidget);
-      expect(find.text('Tile 0'), findsOneWidget);
+      expect(find.text("Tile 19"), findsNothing);
+      expect(find.text("Tile 18"), findsNothing);
+      expect(find.text("Tile 1"), findsOneWidget);
+      expect(find.text("Tile 0"), findsOneWidget);
 
       controller.jumpTo(0.0);
       await tester.pumpAndSettle();
 
       expect(controller.offset, 0.0);
-      expect(find.text('Tile 19'), findsOneWidget);
-      expect(find.text('Tile 18'), findsOneWidget);
-      expect(find.text('Tile 1'), findsNothing);
-      expect(find.text('Tile 0'), findsNothing);
+      expect(find.text("Tile 19"), findsOneWidget);
+      expect(find.text("Tile 18"), findsOneWidget);
+      expect(find.text("Tile 1"), findsNothing);
+      expect(find.text("Tile 0"), findsNothing);
     });
 
-    testWidgets('replace children (with keys)', (tester) async {
+    testWidgets("replace children (with keys)", (tester) async {
       final configuration = _SliverListConfiguration.generate(
         slivers: 1,
         itemsPerSliver: (_) => 20,
@@ -217,10 +226,10 @@ void main() async {
       await tester.pumpAndSettle();
 
       expect(controller.offset, roughlyEquals(configuration.maxScrollExtent));
-      expect(find.text('Tile 0'), findsNothing);
-      expect(find.text('Tile 1'), findsNothing);
-      expect(find.text('Tile 18'), findsOneWidget);
-      expect(find.text('Tile 19'), findsOneWidget);
+      expect(find.text("Tile 0"), findsNothing);
+      expect(find.text("Tile 1"), findsNothing);
+      expect(find.text("Tile 18"), findsOneWidget);
+      expect(find.text("Tile 19"), findsOneWidget);
 
       final configuration2 = _SliverListConfiguration.generate(
         slivers: 1,
@@ -240,27 +249,27 @@ void main() async {
       expect(frames, 1);
 
       expect(controller.offset, roughlyEquals(configuration2.maxScrollExtent));
-      expect(find.text('Tile 0'), findsNothing);
-      expect(find.text('Tile 1'), findsNothing);
-      expect(find.text('Tile 18'), findsNothing);
-      expect(find.text('Tile 19'), findsNothing);
+      expect(find.text("Tile 0"), findsNothing);
+      expect(find.text("Tile 1"), findsNothing);
+      expect(find.text("Tile 18"), findsNothing);
+      expect(find.text("Tile 19"), findsNothing);
 
-      expect(find.text('Tile 100'), findsNothing);
-      expect(find.text('Tile 101'), findsNothing);
-      expect(find.text('Tile 118'), findsOneWidget);
-      expect(find.text('Tile 119'), findsOneWidget);
+      expect(find.text("Tile 100"), findsNothing);
+      expect(find.text("Tile 101"), findsNothing);
+      expect(find.text("Tile 118"), findsOneWidget);
+      expect(find.text("Tile 119"), findsOneWidget);
 
       controller.jumpTo(0.0);
       await tester.pumpAndSettle();
 
       expect(controller.offset, 0);
-      expect(find.text('Tile 100'), findsOneWidget);
-      expect(find.text('Tile 101'), findsOneWidget);
-      expect(find.text('Tile 118'), findsNothing);
-      expect(find.text('Tile 119'), findsNothing);
+      expect(find.text("Tile 100"), findsOneWidget);
+      expect(find.text("Tile 101"), findsOneWidget);
+      expect(find.text("Tile 118"), findsNothing);
+      expect(find.text("Tile 119"), findsNothing);
     });
 
-    testWidgets('replace with shorter children list (with keys)',
+    testWidgets("replace with shorter children list (with keys)",
         (tester) async {
       final configuration = _SliverListConfiguration.generate(
         slivers: 1,
@@ -281,11 +290,11 @@ void main() async {
       await tester.pumpAndSettle();
 
       expect(controller.offset, roughlyEquals(configuration.maxScrollExtent));
-      expect(find.text('Tile 0'), findsNothing);
-      expect(find.text('Tile 1'), findsNothing);
-      expect(find.text('Tile 17'), findsNothing);
-      expect(find.text('Tile 18'), findsOneWidget);
-      expect(find.text('Tile 19'), findsOneWidget);
+      expect(find.text("Tile 0"), findsNothing);
+      expect(find.text("Tile 1"), findsNothing);
+      expect(find.text("Tile 17"), findsNothing);
+      expect(find.text("Tile 18"), findsOneWidget);
+      expect(find.text("Tile 19"), findsOneWidget);
 
       final configuration2 = configuration.copyWith(slivers: [
         configuration.slivers.first.copyWith(
@@ -302,17 +311,17 @@ void main() async {
       expect(frames, 1); // No animation when content shrinks suddenly.
 
       expect(controller.offset, roughlyEquals(configuration2.maxScrollExtent));
-      expect(find.text('Tile 0'), findsNothing);
-      expect(find.text('Tile 1'), findsNothing);
-      expect(find.text('Tile 17'), findsOneWidget);
-      expect(find.text('Tile 18'), findsOneWidget);
-      expect(find.text('Tile 19'), findsNothing);
+      expect(find.text("Tile 0"), findsNothing);
+      expect(find.text("Tile 1"), findsNothing);
+      expect(find.text("Tile 17"), findsOneWidget);
+      expect(find.text("Tile 18"), findsOneWidget);
+      expect(find.text("Tile 19"), findsNothing);
     });
 
-    testWidgets('should layout first child in case of child reordering',
+    testWidgets("should layout first child in case of child reordering",
         (tester) async {
       // Regression test for https://github.com/flutter/flutter/issues/35904.
-      List<String> items = <String>['1', '2'];
+      List<String> items = <String>["1", "2"];
       final ScrollController controller1 = ScrollController();
       addTearDown(controller1.dispose);
       await tester.pumpWidget(
@@ -320,8 +329,8 @@ void main() async {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Tile 1'), findsOneWidget);
-      expect(find.text('Tile 2'), findsOneWidget);
+      expect(find.text("Tile 1"), findsOneWidget);
+      expect(find.text("Tile 2"), findsOneWidget);
 
       items = items.reversed.toList();
       final ScrollController controller2 = ScrollController();
@@ -330,11 +339,11 @@ void main() async {
           .pumpWidget(_buildSliverListRenderWidgetChild(items, controller2));
       await tester.pumpAndSettle();
 
-      expect(find.text('Tile 1'), findsOneWidget);
-      expect(find.text('Tile 2'), findsOneWidget);
+      expect(find.text("Tile 1"), findsOneWidget);
+      expect(find.text("Tile 2"), findsOneWidget);
     });
 
-    testWidgets('should recalculate inaccurate layout offset case 1',
+    testWidgets("should recalculate inaccurate layout offset case 1",
         (tester) async {
       // Regression test for https://github.com/flutter/flutter/issues/42142.
 
@@ -356,16 +365,16 @@ void main() async {
       );
       await tester.pumpAndSettle();
 
-      await tester.drag(find.text('Tile 2'), const Offset(0.0, -1000.0));
+      await tester.drag(find.text("Tile 2"), const Offset(0.0, -1000.0));
       await tester.pumpAndSettle();
 
       // Viewport should be scrolled to the end of list.
       expect(controller.offset, 800.0);
-      expect(find.text('Tile 15'), findsNothing);
-      expect(find.text('Tile 16'), findsOneWidget);
-      expect(find.text('Tile 17'), findsOneWidget);
-      expect(find.text('Tile 18'), findsOneWidget);
-      expect(find.text('Tile 19'), findsOneWidget);
+      expect(find.text("Tile 15"), findsNothing);
+      expect(find.text("Tile 16"), findsOneWidget);
+      expect(find.text("Tile 17"), findsOneWidget);
+      expect(find.text("Tile 18"), findsOneWidget);
+      expect(find.text("Tile 19"), findsOneWidget);
 
       // Prepends item to the list.
       configuration.slivers.first.items.insert(
@@ -385,25 +394,25 @@ void main() async {
       // Scroll offset should stay the same, and the items in viewport should be
       // shifted by one.
       expect(controller.offset, 800.0);
-      expect(find.text('Tile 14'), findsNothing);
-      expect(find.text('Tile 15'), findsOneWidget);
-      expect(find.text('Tile 16'), findsOneWidget);
-      expect(find.text('Tile 17'), findsOneWidget);
-      expect(find.text('Tile 18'), findsOneWidget);
-      expect(find.text('Tile 19'), findsNothing);
+      expect(find.text("Tile 14"), findsNothing);
+      expect(find.text("Tile 15"), findsOneWidget);
+      expect(find.text("Tile 16"), findsOneWidget);
+      expect(find.text("Tile 17"), findsOneWidget);
+      expect(find.text("Tile 18"), findsOneWidget);
+      expect(find.text("Tile 19"), findsNothing);
 
       // Drags back to beginning and newly added item is visible.
-      await tester.drag(find.text('Tile 16'), const Offset(0.0, 1000.0));
+      await tester.drag(find.text("Tile 16"), const Offset(0.0, 1000.0));
       await tester.pumpAndSettle();
       expect(controller.offset, 0.0);
-      expect(find.text('Tile -1'), findsOneWidget);
-      expect(find.text('Tile 0'), findsOneWidget);
-      expect(find.text('Tile 1'), findsOneWidget);
-      expect(find.text('Tile 2'), findsOneWidget);
-      expect(find.text('Tile 3'), findsNothing);
+      expect(find.text("Tile -1"), findsOneWidget);
+      expect(find.text("Tile 0"), findsOneWidget);
+      expect(find.text("Tile 1"), findsOneWidget);
+      expect(find.text("Tile 2"), findsOneWidget);
+      expect(find.text("Tile 3"), findsNothing);
     });
 
-    testWidgets('should recalculate inaccurate layout offset case 2',
+    testWidgets("should recalculate inaccurate layout offset case 2",
         (tester) async {
       // Regression test for https://github.com/flutter/flutter/issues/42142.
       final configuration = _SliverListConfiguration.generate(
@@ -424,16 +433,16 @@ void main() async {
       );
       await tester.pumpAndSettle();
 
-      await tester.drag(find.text('Tile 2'), const Offset(0.0, -1000.0));
+      await tester.drag(find.text("Tile 2"), const Offset(0.0, -1000.0));
       await tester.pumpAndSettle();
 
       // Viewport should be scrolled to the end of list.
       expect(controller.offset, roughlyEquals(805.0));
-      expect(find.text('Tile 15'), findsNothing);
-      expect(find.text('Tile 16'), findsOneWidget);
-      expect(find.text('Tile 17'), findsOneWidget);
-      expect(find.text('Tile 18'), findsOneWidget);
-      expect(find.text('Tile 19'), findsOneWidget);
+      expect(find.text("Tile 15"), findsNothing);
+      expect(find.text("Tile 16"), findsOneWidget);
+      expect(find.text("Tile 17"), findsOneWidget);
+      expect(find.text("Tile 18"), findsOneWidget);
+      expect(find.text("Tile 19"), findsOneWidget);
 
       // Reorders item to the front. This should make item 19 to be first child
       // with layout offset = null.
@@ -457,16 +466,16 @@ void main() async {
       await tester.pumpAndSettle();
       // Scroll offset should stay the same
       expect(controller.offset, 800.0);
-      expect(find.text('Tile 14'), findsNothing);
-      expect(find.text('Tile 15'), findsNothing);
-      expect(find.text('Tile 16'), findsOneWidget);
-      expect(find.text('Tile 17'), findsOneWidget);
-      expect(find.text('Tile 18'), findsOneWidget);
-      expect(find.text('Tile 3'), findsOneWidget);
+      expect(find.text("Tile 14"), findsNothing);
+      expect(find.text("Tile 15"), findsNothing);
+      expect(find.text("Tile 16"), findsOneWidget);
+      expect(find.text("Tile 17"), findsOneWidget);
+      expect(find.text("Tile 18"), findsOneWidget);
+      expect(find.text("Tile 3"), findsOneWidget);
     });
 
     testWidgets(
-        'should start to perform layout from the initial child when there is no valid offset',
+        "should start to perform layout from the initial child when there is no valid offset",
         (tester) async {
       // Regression test for https://github.com/flutter/flutter/issues/66198.
       bool isShow = true;
@@ -483,18 +492,19 @@ void main() async {
                 controller: controller,
                 slivers: <Widget>[
                   SuperSliverList(
-                    extentsPrecalculationPolicy: (_) => true,
+                    extentPrecalculationPolicy:
+                        _SimpleExtentPrecalculatePolicy(precalculate: true),
                     delegate: SliverChildListDelegate(
                       [
                         if (isShow)
                           for (int i = 0; i < 20; i++)
                             SizedBox(
                               height: 50,
-                              child: Text('Tile $i'),
+                              child: Text("Tile $i"),
                             ),
                         const SizedBox(), // Use this widget to occupy the position where the offset is 0 when rebuild
-                        const SizedBox(key: Key('key0'), height: 50.0),
-                        const SizedBox(key: Key('key1'), height: 50.0),
+                        const SizedBox(key: Key("key0"), height: 50.0),
+                        const SizedBox(key: Key("key1"), height: 50.0),
                       ],
                     ),
                   ),
@@ -509,16 +519,16 @@ void main() async {
       await tester.pumpAndSettle();
 
       // Scrolling to the bottom.
-      await tester.drag(find.text('Tile 2'), const Offset(0.0, -1000.0));
+      await tester.drag(find.text("Tile 2"), const Offset(0.0, -1000.0));
       await tester.pumpAndSettle();
 
       // Viewport should be scrolled to the end of list.
       expect(controller.offset, roughlyEquals(900.0));
-      expect(find.text('Tile 17'), findsNothing);
-      expect(find.text('Tile 18'), findsOneWidget);
-      expect(find.text('Tile 19'), findsOneWidget);
-      expect(find.byKey(const Key('key0')), findsOneWidget);
-      expect(find.byKey(const Key('key1')), findsOneWidget);
+      expect(find.text("Tile 17"), findsNothing);
+      expect(find.text("Tile 18"), findsOneWidget);
+      expect(find.text("Tile 19"), findsOneWidget);
+      expect(find.byKey(const Key("key0")), findsOneWidget);
+      expect(find.byKey(const Key("key1")), findsOneWidget);
 
       // Trigger rebuild.
       isShow = false;
@@ -529,13 +539,13 @@ void main() async {
       // SliverList can layout normally without any assert or dead loop.
       // Only the 'SizeBox' show in the viewport.
       expect(controller.offset, 0.0);
-      expect(find.text('Tile 0'), findsNothing);
-      expect(find.text('Tile 19'), findsNothing);
-      expect(find.byKey(const Key('key0')), findsOneWidget);
-      expect(find.byKey(const Key('key1')), findsOneWidget);
+      expect(find.text("Tile 0"), findsNothing);
+      expect(find.text("Tile 19"), findsNothing);
+      expect(find.byKey(const Key("key0")), findsOneWidget);
+      expect(find.byKey(const Key("key1")), findsOneWidget);
     });
 
-    testWidgets('initially empty list', (tester) async {
+    testWidgets("initially empty list", (tester) async {
       await tester.pumpWidget(
         _buildSliverList(
           _SliverListConfiguration.generate(
@@ -557,11 +567,11 @@ void main() async {
         ),
       );
       // Failing this likely means the child manager is not aware of underflow.
-      expect(find.text('Tile 0'), findsOneWidget);
+      expect(find.text("Tile 0"), findsOneWidget);
     });
   });
-  group('Fuzzer', () {
-    testWidgets('layout multiple slivers scrolling down', (tester) async {
+  group("Fuzzer", () {
+    testWidgets("layout multiple slivers scrolling down", (tester) async {
       Future<void> testConfiguration(
         _SliverListConfiguration configuration, {
         required _LayoutMode layoutMode,
@@ -602,7 +612,7 @@ void main() async {
         for (int i = 0; i < fc.iterations; ++i) {
           final seed = seedRandom.nextInt(0xFFFFFFFF);
           resetTestLog();
-          _log.info('Starting test $i with seed $seed');
+          _log.info("Starting test $i with seed $seed");
           final r = math.Random(seed);
           final configuration = _SliverListConfiguration.generate(
             slivers: r.nextInt(fc.maxSlivers),
@@ -621,7 +631,7 @@ void main() async {
       }
     });
 
-    testWidgets('layout multiple slivers scrolling up', (tester) async {
+    testWidgets("layout multiple slivers scrolling up", (tester) async {
       Future<void> testConfiguration(
         _SliverListConfiguration configuration, {
         required _LayoutMode layoutMode,
@@ -692,7 +702,7 @@ void main() async {
         for (int i = 0; i < fc.iterations; ++i) {
           final seed = seedRandom.nextInt(0xFFFFFFFF);
           resetTestLog();
-          _log.info('Starting test $i with seed $seed');
+          _log.info("Starting test $i with seed $seed");
           final r = math.Random(seed);
           final configuration = _SliverListConfiguration.generate(
             slivers: r.nextInt(fc.maxSlivers),
@@ -710,7 +720,7 @@ void main() async {
         }
       }
     });
-    testWidgets('jump to bottom', (tester) async {
+    testWidgets("jump to bottom", (tester) async {
       Future<void> testConfiguration(_SliverListConfiguration configuration,
           {required _LayoutMode layoutMode}) async {
         final ScrollController controller = ScrollController();
@@ -746,7 +756,7 @@ void main() async {
           final seed = seedRandom.nextInt(0xFFFFFFFF);
 
           resetTestLog();
-          _log.info('Starting test $i with seed $seed');
+          _log.info("Starting test $i with seed $seed");
           final r = math.Random(seed);
           final configuration = _SliverListConfiguration.generate(
             slivers: r.nextInt(fc.maxSlivers),
@@ -764,7 +774,7 @@ void main() async {
         }
       }
     });
-    testWidgets('jump to offset', (tester) async {
+    testWidgets("jump to offset", (tester) async {
       Future<void> testConfiguration(
         _SliverListConfiguration configuration, {
         required _LayoutMode layoutMode,
@@ -792,11 +802,11 @@ void main() async {
           if (offset >= 0) {
             final overscroll = offset > controller.position.maxScrollExtent;
 
-            _log.info('Jumping to offset $offset');
+            _log.info("Jumping to offset $offset");
             controller.jumpTo(offset);
             await tester.pump();
 
-            final widget = find.text('Tile ${item.value}');
+            final widget = find.text("Tile ${item.value}");
             expect(widget, findsOneWidget);
             final RenderBox box = tester.renderObject(widget);
             final viewport = tester.renderObject(find.byType(Viewport));
@@ -819,7 +829,7 @@ void main() async {
               expect(position.dy, roughlyEquals(expectedTop));
             }
           } else {
-            _log.info('Skipping jump to offset $offset');
+            _log.info("Skipping jump to offset $offset");
           }
         }
 
@@ -857,7 +867,7 @@ void main() async {
 
           for (final mode in _LayoutMode.values) {
             resetTestLog();
-            _log.info('\n\nStarting test $i with seed $seed layoutMode $mode');
+            _log.info("\n\nStarting test $i with seed $seed layoutMode $mode");
             await testConfiguration(
               configuration,
               layoutMode: mode,
@@ -871,8 +881,8 @@ void main() async {
     });
   });
 
-  group('ExtentController', () {
-    testWidgets('attach / detach', (tester) async {
+  group("ExtentController", () {
+    testWidgets("attach / detach", (tester) async {
       int attached = 0;
       int detached = 0;
       final controller = ExtentController(
@@ -904,7 +914,7 @@ void main() async {
       expect(detached, 1);
       expect(controller.isAttached, false);
     });
-    testWidgets('replace widget', (tester) async {
+    testWidgets("replace widget", (tester) async {
       int attached = 0;
       int detached = 0;
       final controller = ExtentController(
@@ -956,7 +966,7 @@ void main() async {
       expect(detached, 2);
       expect(controller.isAttached, false);
     });
-    testWidgets('replace controller', (tester) async {
+    testWidgets("replace controller", (tester) async {
       int attached1 = 0;
       int detached1 = 0;
       final controller1 = ExtentController(
@@ -1028,7 +1038,7 @@ Widget _buildSliverListRenderWidgetChild(
                   items.map<Widget>((String item) {
                     return Chip(
                       key: Key(item),
-                      label: Text('Tile $item'),
+                      label: Text("Tile $item"),
                     );
                   }).toList(),
                 ),
@@ -1179,14 +1189,16 @@ Widget _buildSliverList(
             for (final sliver in configuration.slivers)
               SuperSliverList(
                 key: sliver.key,
-                extentsPrecalculationPolicy: (_) => preciseLayout,
+                extentPrecalculationPolicy: _SimpleExtentPrecalculatePolicy(
+                  precalculate: preciseLayout,
+                ),
                 extentController: extentController ?? sliver.extentController,
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int i) {
                     return SizedBox(
                       key: ValueKey<int>(sliver.items[i].value),
                       height: sliver.items[i].height,
-                      child: Text('Tile ${sliver.items[i].value}'),
+                      child: Text("Tile ${sliver.items[i].value}"),
                     );
                   },
                   findChildIndexCallback: (Key key) {

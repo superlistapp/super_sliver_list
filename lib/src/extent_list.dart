@@ -1,7 +1,7 @@
-import 'dart:typed_data';
+import "dart:typed_data";
 
-import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
+import "package:collection/collection.dart";
+import "package:flutter/foundation.dart";
 
 class ResizableFloat64List {
   static const _minCapacity = 16;
@@ -234,5 +234,5 @@ class ExtentList {
   }
 
   /// Returns number of estimated extents.
-  int get estimatedExtentsCount => _dirty.length;
+  int get estimatedExtentsCount => _dirtyCount;
 }
