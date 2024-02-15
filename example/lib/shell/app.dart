@@ -1,5 +1,4 @@
 import "package:context_watch/context_watch.dart";
-import "package:example/shell/app_settings.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart"
     show
@@ -14,12 +13,12 @@ import "package:flutter/widgets.dart";
 import "package:provider/provider.dart";
 import "package:super_sliver_list/super_sliver_list.dart";
 
+import "app_settings.dart";
 import "example_page.dart";
 import "header.dart";
 import "routes.dart";
 import "scaffold.dart";
 import "sidebar.dart";
-import "theme.dart";
 
 class ExampleApp extends StatefulWidget {
   const ExampleApp({super.key});
@@ -207,10 +206,7 @@ class ThemeScaffold extends StatelessWidget {
     final typography = Typography.material2018(platform: defaultTargetPlatform);
     return DefaultTextStyle(
       style: typography.englishLike.bodyMedium!.copyWith(color: Colors.black),
-      child: Provider(
-        create: (_) => Theme.defaultTheme(),
-        child: child,
-      ),
+      child: child,
     );
   }
 }

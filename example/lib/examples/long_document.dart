@@ -1,7 +1,7 @@
 import "package:context_watch/context_watch.dart";
 import "package:example/shell/app_settings.dart";
 import "package:example/shell/buttons.dart";
-import "package:example/shell/check_box.dart";
+import "package:example/widgets/check_box.dart";
 import "package:example/shell/example_page.dart";
 import "package:flutter/material.dart" show Icons, Colors;
 import "package:flutter/widgets.dart";

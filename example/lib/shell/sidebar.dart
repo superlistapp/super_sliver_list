@@ -1,13 +1,13 @@
 import "package:context_watch/context_watch.dart";
 import "package:flutter/material.dart" show Colors;
 import "package:pixel_snap/widgets.dart";
-import "package:headless_widgets/headless_widgets.dart";
+import "package:headless_widgets/headless_widgets.dart" as w;
 import "package:provider/provider.dart";
 
 import "../util/intersperse.dart";
+import "../widgets/button.dart";
+import "../widgets/check_box.dart";
 import "app_settings.dart";
-import "buttons.dart";
-import "check_box.dart";
 import "example_page.dart";
 import "routes.dart";
 
@@ -28,6 +28,8 @@ class Sidebar extends StatefulWidget {
 class _SidebarState extends State<Sidebar> {
   bool _rebuildScheduled = false;
 
+  final controller = PixelSnapScrollController();
+
   @override
   Widget build(BuildContext context) {
     final pageWidget =
@@ -45,15 +47,16 @@ class _SidebarState extends State<Sidebar> {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.blueGrey.shade100,
         border: BorderDirectional(
           end: BorderSide(
-            color: Colors.blueGrey.shade400,
+            color: Colors.blueGrey.shade200,
             width: 1,
           ),
         ),
       ),
       child: SingleChildScrollView(
+        controller: controller,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: IntrinsicWidth(
@@ -92,7 +95,7 @@ class _NavigationButton extends StatelessWidget {
     final route = ModalRoute.of(context);
     final selected = route?.settings.name == uri;
 
-    return Button(
+    return w.Button(
       onPressed: () {
         Navigator.pushNamed(context, uri);
       },
@@ -126,15 +129,17 @@ class SidebarOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: sections
-          .intersperse(
-            const SizedBox(
-              height: 8,
-            ),
-          )
-          .toList(growable: false),
+    return FocusTraversalGroup(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: sections
+            .intersperse(
+              const SizedBox(
+                height: 8,
+              ),
+            )
+            .toList(growable: false),
+      ),
     );
   }
 }
@@ -155,18 +160,12 @@ class SidebarSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(12).copyWith(bottom: 0),
           decoration: BoxDecoration(
             color: Colors.blueGrey.shade50,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(8),
               topRight: Radius.circular(8),
-            ),
-            border: BorderDirectional(
-              bottom: BorderSide(
-                color: Colors.white,
-                width: 1,
-              ),
             ),
           ),
           child: DefaultTextStyle(
@@ -179,7 +178,7 @@ class SidebarSection extends StatelessWidget {
           ),
         ),
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: Colors.blueGrey.shade50,
             borderRadius: BorderRadius.only(
@@ -190,7 +189,7 @@ class SidebarSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ...children.intersperse(const SizedBox(height: 8)),
+              ...children.intersperse(const SizedBox(height: 10)),
             ],
           ),
         ),
@@ -208,7 +207,7 @@ class AppSettingsWidget extends StatelessWidget {
     final showSliverList = settings.showSliverList.watch(context);
     final precomputeExtentPolicy =
         settings.precomputeExtentPolicy.watch(context);
-    return SidebarSection(title: Text("Settings"), children: [
+    return SidebarSection(title: Text("Options"), children: [
       CheckBox(
         checked: showSliverList,
         child: const Text(
@@ -220,19 +219,27 @@ class AppSettingsWidget extends StatelessWidget {
       ),
       Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Precompute extents"),
+          SizedBox(height: 2),
+          Text(
+            "Precalculate Extents",
+            style: TextStyle(fontSize: 12),
+          ),
+          SizedBox(
+            height: 6,
+          ),
           SegmentedButton(
             selectedIndex: precomputeExtentPolicy.index,
             onSelected: (selected) {
               settings.precomputeExtentPolicy.value =
                   PrecomputeExtentPolicy.values[selected];
             },
-            children: const [
-              Text("None"),
-              Text("All"),
-              Text("Automatic"),
-            ],
+            children: PrecomputeExtentPolicy.values
+                .map(
+                  (policy) => Text(policy.displayName),
+                )
+                .toList(),
           )
         ],
       ),

@@ -3,7 +3,7 @@ import "dart:math" as math;
 import "package:context_watch/context_watch.dart";
 
 import "package:flutter/services.dart";
-import "package:flutter/widgets.dart";
+import "package:pixel_snap/widgets.dart";
 import "package:flutter/material.dart" show Colors;
 import "package:flutter_lorem/flutter_lorem.dart";
 import "package:provider/provider.dart";
@@ -11,6 +11,8 @@ import "package:super_sliver_list/super_sliver_list.dart";
 
 import "../shell/buttons.dart";
 import "../shell/sidebar.dart";
+import "../widgets/button.dart";
+import "../widgets/jump_widget.dart";
 import "../widgets/labeled_slider.dart";
 import "../widgets/number_picker.dart";
 import "../widgets/slider.dart";
@@ -20,7 +22,7 @@ import "../shell/example_page.dart";
 import "layout_info_overlay.dart";
 
 const _kMaxSlivers = 10;
-const _kItemsPerSliver = [1, 9, 27, 80, 200, 1000, 2500, 7000];
+const _kItemsPerSliver = [1, 9, 27, 80, 200, 1000, 2500, 7000, 20000];
 
 class SuperReadingOrderTraversalPolicy extends ReadingOrderTraversalPolicy {
   @override
@@ -306,120 +308,6 @@ class _ItemListPageState extends ExamplePageState {
   }
 }
 
-class _JumpWidget extends StatefulWidget {
-  const _JumpWidget({
-    super.key,
-    required this.numSlivers,
-    required this.numItemsPerSliver,
-    required this.onJumpRequested,
-  });
-
-  final int numSlivers;
-  final int numItemsPerSliver;
-  final void Function(int sliver, int item, double alignment) onJumpRequested;
-
-  @override
-  State<StatefulWidget> createState() => _JumpWidgetState();
-}
-
-class _JumpWidgetState extends State<_JumpWidget> {
-  int sliver = 0;
-  int item = 0;
-  double alignment = 0;
-
-  @override
-  void didUpdateWidget(covariant _JumpWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (sliver >= widget.numSlivers) {
-      sliver = widget.numSlivers - 1;
-    }
-    if (item >= widget.numItemsPerSliver) {
-      item = widget.numItemsPerSliver - 1;
-    }
-  }
-
-  Widget build(BuildContext context) {
-    return SidebarSection(
-      title: const Text("Jump to Item"),
-      children: [
-        LabeledSlider(
-          label: const Text("Sliver Index"),
-          value: Text("$sliver"),
-          slider: Slider(
-            min: 0,
-            max: widget.numSlivers - 1,
-            value: sliver.toDouble(),
-            onChanged: (value) {
-              final sliver = value.round();
-              if (sliver != this.sliver) {
-                setState(() {
-                  this.sliver = sliver;
-                });
-              }
-            },
-          ),
-        ),
-        LabeledSlider(
-          label: const Text("Item Index"),
-          value: Text("$item"),
-          slider: Slider(
-            min: 0,
-            max: widget.numItemsPerSliver - 1,
-            value: item.toDouble(),
-            onChanged: (value) {
-              final item = value.round();
-              if (item != this.item) {
-                setState(() {
-                  this.item = item;
-                });
-              }
-            },
-          ),
-        ),
-        LabeledSlider(
-          label: const Text("Alignment in Viewport"),
-          value: Text(alignment.toStringAsPrecision(2)),
-          slider: Slider(
-            min: 0,
-            max: 1,
-            value: alignment,
-            onChanged: (value) {
-              if (value != alignment) {
-                setState(() {
-                  alignment = value;
-                });
-              }
-            },
-          ),
-        ),
-        Row(
-          children: [
-            FlatButton(
-              onPressed: () {
-                widget.onJumpRequested(sliver, item, alignment);
-              },
-              child: const Text("Jump"),
-            ),
-            FlatButton(
-              onPressed: () {
-                final random = math.Random();
-                setState(() {
-                  sliver = random.nextInt(widget.numSlivers);
-                  item = random.nextInt(widget.numItemsPerSliver);
-                });
-                print("RANDOM JUMP");
-                widget.onJumpRequested(sliver, item, alignment);
-              },
-              child: const Text("Random jump"),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
 class _SidebarWidget extends StatelessWidget {
   final void Function(int sliver, int item, double alignment) onJumpRequested;
   final _ItemListSettings settings;
@@ -439,7 +327,7 @@ class _SidebarWidget extends StatelessWidget {
       child: SidebarOptions(
         sections: [
           SidebarSection(
-            title: Text("Content"),
+            title: Text("Contents"),
             children: [
               NumberPicker(
                 title: const Text("Slivers"),
@@ -467,7 +355,7 @@ class _SidebarWidget extends StatelessWidget {
               ),
             ],
           ),
-          _JumpWidget(
+          JumpWidget(
             numSlivers: sliverCount,
             numItemsPerSliver: itemPerSliver,
             onJumpRequested: onJumpRequested,

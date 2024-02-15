@@ -43,6 +43,14 @@ class NumberPicker extends StatelessWidget {
           int v = options[value.round()];
           onChanged(v);
         },
+        onKeyboardAction: (action) {
+          final currentIndex = _getIndexForNearestValue();
+          final newIndex =
+              (currentIndex + action.signInt).clamp(0, options.length - 1);
+          if (currentIndex != newIndex) {
+            onChanged(options[newIndex]);
+          }
+        },
       ),
     );
   }

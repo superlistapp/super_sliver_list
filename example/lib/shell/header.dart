@@ -1,9 +1,7 @@
 import "package:flutter/material.dart" show Icons, Colors;
-import "package:flutter/widgets.dart";
-import "package:provider/provider.dart";
+import "package:pixel_snap/widgets.dart";
 
 import "buttons.dart";
-import "theme.dart";
 
 class Header extends StatelessWidget {
   const Header({
@@ -15,10 +13,17 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<Theme>();
     return Container(
       height: 50,
-      decoration: theme.headerDecoration,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.blue.shade400,
+            width: 1,
+          ),
+        ),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

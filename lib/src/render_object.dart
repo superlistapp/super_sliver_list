@@ -120,7 +120,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       final offset = viewport.offset.pixels;
       if (_childScrollOffsetEstimation!.viewportScrollOffset != null &&
           (_childScrollOffsetEstimation!.viewportScrollOffset! - offset).abs() >
-              precisionErrorTolerance) {
+              1.0) {
         _log.fine(
           "Viewport scroll offset changed since estimation. Discarding",
         );

@@ -3,14 +3,18 @@ import "package:super_sliver_list/super_sliver_list.dart";
 
 enum PrecomputeExtentPolicy {
   none,
-  all,
   automatic,
+  all,
+}
+
+extension DisplayName on PrecomputeExtentPolicy {
+  String get displayName => name[0].toUpperCase() + name.substring(1);
 }
 
 class AppSettings {
   final showSliverList = ValueNotifier(true);
   final precomputeExtentPolicy = ValueNotifier(
-    PrecomputeExtentPolicy.automatic,
+    PrecomputeExtentPolicy.none,
   );
   late final ExtentPrecalculationPolicy extentPrecalculationPolicy;
   AppSettings() {

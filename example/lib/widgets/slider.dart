@@ -3,12 +3,27 @@ import "package:headless_widgets/headless_widgets.dart" hide Slider;
 import "package:headless_widgets/headless_widgets.dart" as w show Slider;
 import "package:pixel_snap/widgets.dart";
 
+import "focus_indicator.dart";
+
+export "package:headless_widgets/headless_widgets.dart"
+    show SliderKeyboardAction;
+
+extension Sign on SliderKeyboardAction {
+  double get sign => switch (this) {
+        SliderKeyboardAction.decrease => -1.0,
+        SliderKeyboardAction.increase => 1.0,
+      };
+  int get signInt => switch (this) {
+        SliderKeyboardAction.decrease => -1,
+        SliderKeyboardAction.increase => 1,
+      };
+}
+
 class _TrackClipper extends CustomClipper<Rect> {
   final double value;
   final bool inverse;
 
   _TrackClipper({
-    super.reclip,
     required this.value,
     required this.inverse,
   });
@@ -74,21 +89,37 @@ class Slider extends StatelessWidget {
         PixelSnap.of(context),
       ),
       thumbBuilder: (context, state) {
+        final borderColor = switch (state) {
+          SliderState(enabled: false) => Colors.blue.shade200,
+          SliderState(tracked: true) => Colors.blue.shade400,
+          _ => Colors.blue.shade300,
+        };
         final backgroundColor = switch (state) {
           SliderState(tracked: true) => Colors.blue.shade400,
           SliderState(hovered: true) => Colors.blue.shade50,
           _ => Colors.white,
         };
-        return Container(
-          width: 20,
-          height: 20,
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            border: Border.all(
-              color: Colors.blueGrey.shade300,
-              width: 1,
+        return FocusIndicator(
+          readius: 6,
+          focused: state.focused,
+          child: Container(
+            width: 18,
+            height: 18,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color.lerp(backgroundColor, Colors.white, 0.2)!,
+                  backgroundColor,
+                ],
+              ),
+              border: Border.all(
+                color: borderColor,
+                width: 1,
+              ),
+              borderRadius: BorderRadius.circular(4),
             ),
-            borderRadius: BorderRadius.circular(4),
           ),
         );
       },

@@ -1,6 +1,6 @@
-import "package:example/shell/app.dart";
-import "package:flutter/widgets.dart";
+import "shell/app.dart";
 import "package:logging/logging.dart";
+import "package:pixel_snap/widgets.dart";
 
 void main() {
   Logger.root.onRecord.listen((record) {
@@ -12,5 +12,5 @@ void main() {
   //     print('Timings $timings');
   // });
   Logger("SuperSliverList").level = Level.FINER;
-  runApp(const ExampleApp());
+  runApp(PixelSnapDebugBar(child: const ExampleApp()));
 }
