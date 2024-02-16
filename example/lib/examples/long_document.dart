@@ -12,24 +12,9 @@ import "../widgets/jump_widget.dart";
 import "../widgets/layout_info_overlay.dart";
 import "../widgets/list_header.dart";
 import "../widgets/number_picker.dart";
+import "../widgets/sliver_decoration.dart";
 
 const _kMaxSlivers = 10;
-
-class _SliverDecoration extends StatelessWidget {
-  final Widget sliver;
-
-  const _SliverDecoration({
-    required this.sliver,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverPadding(
-      padding: const EdgeInsets.all(12),
-      sliver: sliver,
-    );
-  }
-}
 
 class LongDocumentPage extends StatefulWidget {
   const LongDocumentPage({super.key});
@@ -87,7 +72,8 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
                   ),
                 ),
                 for (int i = 0; i < sliverCount; ++i)
-                  _SliverDecoration(
+                  SliverDecoration(
+                    index: i,
                     sliver: SuperSliverList(
                       extentController: _extentControllers[i],
                       extentPrecalculationPolicy:
@@ -119,7 +105,8 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
                     ),
                   ),
                   for (int i = 0; i < sliverCount; ++i)
-                    _SliverDecoration(
+                    SliverDecoration(
+                      index: i,
                       sliver: SliverList(
                         delegate: delegate(i),
                       ),
@@ -204,13 +191,13 @@ class _ParagraphWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        padding: const EdgeInsets.symmetric(horizontal: 4.0),
         decoration: BoxDecoration(
           border: Border(
             left: BorderSide(
-              color: Colors.grey.shade300,
+              color: Colors.grey.shade200,
               width: 1,
             ),
           ),

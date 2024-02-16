@@ -14,6 +14,7 @@ import "../widgets/jump_widget.dart";
 import "../widgets/layout_info_overlay.dart";
 import "../widgets/list_header.dart";
 import "../widgets/number_picker.dart";
+import "../widgets/sliver_decoration.dart";
 
 const _kMaxSlivers = 10;
 const _kItemsPerSliver = [1, 9, 27, 80, 200, 1000, 2500, 7000, 20000];
@@ -94,7 +95,8 @@ class _ItemWidgetState extends State<ItemWidget>
             borderRadius: BorderRadius.circular(8),
             color: selected ? Colors.blue : Colors.transparent,
           ),
-          padding: const EdgeInsets.all(10),
+          margin: const EdgeInsets.all(4),
+          padding: const EdgeInsets.all(8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -172,22 +174,6 @@ class _SliverData {
         maxLength: maxLength,
       ));
     }
-  }
-}
-
-class _SliverDecoration extends StatelessWidget {
-  final Widget sliver;
-
-  const _SliverDecoration({
-    required this.sliver,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverPadding(
-      padding: const EdgeInsets.all(12),
-      sliver: sliver,
-    );
   }
 }
 
@@ -289,7 +275,8 @@ class _ItemListPageState extends ExamplePageState {
                     ),
                   ),
                   for (int i = 0; i < _sliverData.length; ++i)
-                    _SliverDecoration(
+                    SliverDecoration(
+                      index: i,
                       sliver: SuperSliverList(
                         extentController: _extentControllers[i],
                         extentPrecalculationPolicy:
@@ -324,7 +311,8 @@ class _ItemListPageState extends ExamplePageState {
                       ),
                     ),
                     for (int i = 0; i < _sliverData.length; ++i)
-                      _SliverDecoration(
+                      SliverDecoration(
+                        index: i,
                         sliver: SliverList(
                           delegate: delegate(i),
                         ),
