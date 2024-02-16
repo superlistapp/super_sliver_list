@@ -31,6 +31,8 @@ class _ExampleAppState extends State<ExampleApp> {
   final GlobalKey<ExamplePageState> _currentPageKey =
       GlobalKey<ExamplePageState>();
 
+  final _shellKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     return ContextWatchRoot(
@@ -54,6 +56,7 @@ class _ExampleAppState extends State<ExampleApp> {
               allowSnapshotting: false,
               pageBuilder: (context, _, __) {
                 return ShellWidget(
+                  key: _shellKey,
                   currentPageKey: _currentPageKey,
                   child: builder(context),
                 );
@@ -90,7 +93,7 @@ class _ShellWidgetState extends State<ShellWidget> {
       behavior: const _ScrollBehavior(),
       child: ThemeScaffold(
         child: LayoutBuilder(builder: (context, constraints) {
-          return constraints.maxWidth < 600
+          return constraints.maxWidth < 700
               ? _NarrowApp(
                   currentPageKey: widget.currentPageKey,
                   sidebarKey: sidebarKey,

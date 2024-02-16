@@ -52,6 +52,11 @@ class ExtentController extends ChangeNotifier {
     _delegate!.invalidateExtent(index);
   }
 
+  void invalidateAllExtents() {
+    assert(_delegate != null, "ExtentController is not attached.");
+    _delegate!.invalidateAllExtents();
+  }
+
   void addItem(int index) {
     assert(_delegate != null, "ExtentController is not attached.");
     _delegate!.addItem(index);
