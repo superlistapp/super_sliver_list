@@ -84,9 +84,9 @@ class ScaffoldState extends State<Scaffold>
               child: SlideTransition(
                 position: Tween<Offset>(
                   begin: const Offset(-1, 0),
-                  end: const Offset(0, 0),
+                  end: Offset.zero,
                 ).animate(animation),
-                child: widget.drawer!,
+                child: widget.drawer,
               ),
             ),
           ]

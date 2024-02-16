@@ -3,12 +3,12 @@ import "package:flutter/foundation.dart";
 import "package:flutter/material.dart"
     show
         Colors,
-        Typography,
+        MaterialState,
+        MaterialStateProperty,
         Scrollbar,
         ScrollbarTheme,
         ScrollbarThemeData,
-        MaterialState,
-        MaterialStateProperty;
+        Typography;
 import "package:flutter/widgets.dart";
 import "package:provider/provider.dart";
 import "package:super_sliver_list/super_sliver_list.dart";
@@ -226,13 +226,11 @@ class _ScrollBehavior extends ScrollBehavior {
     return ScrollbarTheme(
       data: ScrollbarThemeData(
         thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.hovered)) {
-            return Colors.blueGrey.shade400;
+          if (states.contains(MaterialState.hovered) ||
+              states.contains(MaterialState.dragged)) {
+            return Colors.black.withOpacity(0.4);
           }
-          if (states.contains(MaterialState.dragged)) {
-            return Colors.blueGrey.shade600;
-          }
-          return Colors.blueGrey.shade200;
+          return Colors.black.withOpacity(0.1);
         }),
       ),
       child: Scrollbar(

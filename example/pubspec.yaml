@@ -15,17 +15,19 @@ dependencies:
   headless_widgets:
     git:
       url: https://github.com/widgetbakery/headless_widgets.git
-      ref: 18ad55062559aec485c59a383b81569b54f0da09
+      ref: eac8e9d04aaf493d7dec57bd9b0bb26b88a76b43
+  super_sliver_list_example_data:
+    path: data
   provider: ^6.1.1
   context_watch: ^2.0.0-dev.5
   flutter_lorem: ^2.0.0
-  pixel_snap: ^0.1.4
+  pixel_snap: ^0.1.5
   url_launcher: ^6.2.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  lint: ^2.0.0
 
 flutter:
   uses-material-design: true

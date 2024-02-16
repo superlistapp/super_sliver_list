@@ -1,15 +1,35 @@
 import "package:context_watch/context_watch.dart";
-import "package:example/shell/app_settings.dart";
-import "package:example/shell/buttons.dart";
-import "package:example/widgets/check_box.dart";
-import "package:example/shell/example_page.dart";
-import "package:flutter/material.dart" show Icons, Colors;
-import "package:flutter/widgets.dart";
+import "package:flutter/material.dart" show Colors;
+import "package:pixel_snap/widgets.dart";
 import "package:provider/provider.dart";
 import "package:super_sliver_list/super_sliver_list.dart";
+import "package:super_sliver_list_example_data/sherlock.dart" as sherlock;
 
-import "../data/sherlock.dart" as sherlock;
-import "layout_info_overlay.dart";
+import "../shell/app_settings.dart";
+import "../shell/example_page.dart";
+import "../shell/sidebar.dart";
+import "../widgets/jump_widget.dart";
+import "../widgets/layout_info_overlay.dart";
+import "../widgets/list_header.dart";
+import "../widgets/number_picker.dart";
+
+const _kMaxSlivers = 10;
+
+class _SliverDecoration extends StatelessWidget {
+  final Widget sliver;
+
+  const _SliverDecoration({
+    required this.sliver,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.all(12),
+      sliver: sliver,
+    );
+  }
+}
 
 class LongDocumentPage extends StatefulWidget {
   const LongDocumentPage({super.key});
@@ -35,14 +55,11 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
 
   final sliverCount = ValueNotifier(1);
 
-  final removeTrailingItemCount = ValueNotifier(0);
-
   @override
   Widget build(BuildContext context) {
     final options = context.watch<AppSettings>();
     final showSliverList = options.showSliverList.watch(context);
     final sliverCount = this.sliverCount.watch(context);
-    final removeTraling = removeTrailingItemCount.watch(context);
     const paragraphs = sherlock.paragraphs;
     SliverChildBuilderDelegate delegate(int sliver) =>
         SliverChildBuilderDelegate((context, index) {
@@ -52,9 +69,7 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
             sliver: sliver,
             paragraph: paragraph,
           );
-        },
-            childCount: (paragraphs.length - removeTraling)
-                .clamp(0, paragraphs.length));
+        }, childCount: paragraphs.length);
     _ensureExtentContollers(sliverCount);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -65,11 +80,20 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
             child: CustomScrollView(
               controller: _scrollController,
               slivers: [
+                const SliverToBoxAdapter(
+                  child: ListHeader(
+                    title: Text("SuperSliverList"),
+                    primary: true,
+                  ),
+                ),
                 for (int i = 0; i < sliverCount; ++i)
-                  SuperSliverList(
-                    extentController: _extentControllers[i],
-                    extentPrecalculationPolicy: options.extentPrecalculationPolicy,
-                    delegate: delegate(i),
+                  _SliverDecoration(
+                    sliver: SuperSliverList(
+                      extentController: _extentControllers[i],
+                      extentPrecalculationPolicy:
+                          options.extentPrecalculationPolicy,
+                      delegate: delegate(i),
+                    ),
                   ),
               ],
             ),
@@ -77,13 +101,31 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
         ),
         if (showSliverList)
           Expanded(
-            child: CustomScrollView(
-              slivers: [
-                for (int i = 0; i < sliverCount; ++i)
-                  SliverList(
-                    delegate: delegate(i),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(
+                    color: Colors.blueGrey.shade100,
+                    width: 1,
                   ),
-              ],
+                ),
+              ),
+              child: CustomScrollView(
+                slivers: [
+                  const SliverToBoxAdapter(
+                    child: ListHeader(
+                      title: Text("SliverList"),
+                      primary: false,
+                    ),
+                  ),
+                  for (int i = 0; i < sliverCount; ++i)
+                    _SliverDecoration(
+                      sliver: SliverList(
+                        delegate: delegate(i),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
       ],
@@ -94,90 +136,55 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
   Widget? createSidebarWidget() {
     return _SidebarWidget(
       sliverCount: sliverCount,
-      removeTrailingItemCount: removeTrailingItemCount,
-      onInvalidateLayout: () {
-        for (final c in _extentControllers) {
-          for (int i = 0; i < c.numberOfItems; ++i) {
-            c.invalidateExtent(i);
-          }
-        }
+      itemCount: sherlock.paragraphs.length,
+      onJumpRequested: (sliver, item, alignment) {
+        final offset = _extentControllers[sliver].getOffsetToReveal(
+          item,
+          alignment,
+        );
+        _scrollController.jumpTo(
+          offset,
+        );
       },
     );
   }
 }
 
 class _SidebarWidget extends StatelessWidget {
-  final VoidCallback onInvalidateLayout;
   final ValueNotifier<int> sliverCount;
-  final ValueNotifier<int> removeTrailingItemCount;
+  final int itemCount;
+  final void Function(int sliver, int item, double alignment) onJumpRequested;
 
   const _SidebarWidget({
-    super.key,
-    required this.onInvalidateLayout,
     required this.sliverCount,
-    required this.removeTrailingItemCount,
+    required this.itemCount,
+    required this.onJumpRequested,
   });
 
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.watch<AppSettings>();
-
-    return Column(
-      children: [
-        _NumberPicker(value: sliverCount, min: 1, max: 10),
-        _NumberPicker(value: removeTrailingItemCount, min: 0, max: 100),
-        FlatButton(
-            child: Text("Invalidate"),
-            onPressed: () {
-              onInvalidateLayout();
-            })
-      ],
-    );
-  }
-}
-
-class _NumberPicker extends StatelessWidget {
-  final ValueNotifier<int> value;
-  final int min;
-  final int max;
-
-  const _NumberPicker({
-    required this.value,
-    required this.min,
-    required this.max,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        FlatButton(
-          onPressed: () {
-            if (value.value > min) {
-              value.value--;
-            }
-          },
-          child: const Icon(Icons.remove),
+    final sliverCount = this.sliverCount.watch(context);
+    return SidebarOptions(
+      sections: [
+        SidebarSection(
+          title: const Text("Contents"),
+          children: [
+            NumberPicker(
+              title: const Text("Slivers"),
+              options: List.generate(_kMaxSlivers - 1, (index) => index + 1),
+              value: sliverCount,
+              onChanged: (value) {
+                this.sliverCount.value = value;
+              },
+            ),
+          ],
         ),
-        Expanded(
-          child: ValueListenableBuilder<int>(
-            valueListenable: value,
-            builder: (context, value, child) {
-              return Text(
-                "$value",
-                textAlign: TextAlign.center,
-              );
-            },
-          ),
+        JumpWidget(
+          numSlivers: sliverCount,
+          numItemsPerSliver: itemCount,
+          onJumpRequested: onJumpRequested,
         ),
-        FlatButton(
-          onPressed: () {
-            if (value.value < max) {
-              value.value++;
-            }
-          },
-          child: const Icon(Icons.add),
-        ),
+        const AppSettingsWidget(),
       ],
     );
   }
@@ -196,20 +203,32 @@ class _ParagraphWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Sliver $sliver, Paragraph $index",
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey.shade600,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        decoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(
+              color: Colors.grey.shade300,
+              width: 1,
             ),
           ),
-          Text(paragraph),
-        ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Sliver $sliver, Paragraph $index",
+              style: TextStyle(
+                fontSize: 11,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(paragraph),
+          ],
+        ),
       ),
     );
   }

@@ -1,32 +1,27 @@
-import "dart:math" as math;
-
 import "package:context_watch/context_watch.dart";
-
-import "package:flutter/services.dart";
-import "package:pixel_snap/widgets.dart";
 import "package:flutter/material.dart" show Colors;
+import "package:flutter/services.dart";
 import "package:flutter_lorem/flutter_lorem.dart";
+import "package:pixel_snap/widgets.dart";
 import "package:provider/provider.dart";
 import "package:super_sliver_list/super_sliver_list.dart";
 
-import "../shell/buttons.dart";
-import "../shell/sidebar.dart";
-import "../widgets/button.dart";
-import "../widgets/jump_widget.dart";
-import "../widgets/labeled_slider.dart";
-import "../widgets/number_picker.dart";
-import "../widgets/slider.dart";
-import "../util/show_on_screen.dart";
 import "../shell/app_settings.dart";
 import "../shell/example_page.dart";
-import "layout_info_overlay.dart";
+import "../shell/sidebar.dart";
+import "../util/show_on_screen.dart";
+import "../widgets/jump_widget.dart";
+import "../widgets/layout_info_overlay.dart";
+import "../widgets/list_header.dart";
+import "../widgets/number_picker.dart";
 
 const _kMaxSlivers = 10;
 const _kItemsPerSliver = [1, 9, 27, 80, 200, 1000, 2500, 7000, 20000];
 
-class SuperReadingOrderTraversalPolicy extends ReadingOrderTraversalPolicy {
+class _ReadingOrderTraversalPolicy extends ReadingOrderTraversalPolicy {
   @override
   bool inDirection(FocusNode currentNode, TraversalDirection direction) {
+    // For list traversal the history flutter keeps have weird behavior.
     invalidateScopeData(currentNode.nearestScope!);
     return super.inDirection(currentNode, direction);
   }
@@ -35,15 +30,15 @@ class SuperReadingOrderTraversalPolicy extends ReadingOrderTraversalPolicy {
 class _ItemListSettings {
   final sliverCount = ValueNotifier(5);
   final itemsPerSliver = ValueNotifier(1000);
-  final maxLength = ValueNotifier(10);
+  final maxLength = ValueNotifier(6);
 }
 
-class Item extends StatefulWidget {
+class ItemWidget extends StatefulWidget {
   final String text;
   final int sliver;
   final int index;
 
-  const Item({
+  const ItemWidget({
     super.key,
     required this.text,
     required this.sliver,
@@ -51,10 +46,11 @@ class Item extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => _ItemState();
+  State<StatefulWidget> createState() => _ItemWidgetState();
 }
 
-class _ItemState extends State<Item> with AutomaticKeepAliveClientMixin {
+class _ItemWidgetState extends State<ItemWidget>
+    with AutomaticKeepAliveClientMixin {
   late FocusNode _focusNode;
 
   @override
@@ -62,10 +58,8 @@ class _ItemState extends State<Item> with AutomaticKeepAliveClientMixin {
     _focusNode = FocusNode(
       onKeyEvent: (node, event) {
         if (event is KeyDownEvent) {
-          if (event.logicalKey != LogicalKeyboardKey.pageUp &&
-              event.logicalKey != LogicalKeyboardKey.pageDown &&
-              event.logicalKey != LogicalKeyboardKey.home &&
-              event.logicalKey != LogicalKeyboardKey.end) {
+          if (event.logicalKey == LogicalKeyboardKey.arrowUp ||
+              event.logicalKey == LogicalKeyboardKey.arrowDown) {
             final renderObject = context.findRenderObject();
             renderObject!.safeShowOnScreen(context);
           }
@@ -88,6 +82,7 @@ class _ItemState extends State<Item> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final bool selected = _focusNode.hasFocus;
     return GestureDetector(
       onTapDown: (_) {
         _focusNode.requestFocus();
@@ -95,19 +90,28 @@ class _ItemState extends State<Item> with AutomaticKeepAliveClientMixin {
       child: Focus.withExternalFocusNode(
         focusNode: _focusNode,
         child: Container(
-          color: _focusNode.hasFocus ? Colors.blue : Colors.transparent,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: selected ? Colors.blue : Colors.transparent,
+          ),
           padding: const EdgeInsets.all(10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                "Sliver ${widget.sliver}, Paragraph ${widget.index}",
+                "Sliver ${widget.sliver}, Item ${widget.index}",
                 style: TextStyle(
                   fontSize: 11,
-                  color: Colors.grey.shade600,
+                  color: selected ? Colors.white : Colors.grey.shade600,
                 ),
               ),
-              Text(widget.text),
+              const SizedBox(height: 4),
+              Text(
+                widget.text,
+                style: TextStyle(
+                  color: selected ? Colors.white : Colors.black,
+                ),
+              ),
             ],
           ),
         ),
@@ -136,7 +140,6 @@ class _Item {
   final int maxLength;
 
   String get text {
-    // final random = math.Random(index).nextInt(100);
     final length = (Object.hash(index, null) % 20 * maxLength) + 2;
     return _text ??= lorem(paragraphs: 1, words: length);
   }
@@ -172,11 +175,29 @@ class _SliverData {
   }
 }
 
+class _SliverDecoration extends StatelessWidget {
+  final Widget sliver;
+
+  const _SliverDecoration({
+    required this.sliver,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.all(12),
+      sliver: sliver,
+    );
+  }
+}
+
 class _ItemListPageState extends ExamplePageState {
   final _sliverData = <_SliverData>[];
 
   final List<ExtentController> _extentControllers = [];
   late ScrollController _scrollController;
+
+  int? _maxLength;
 
   void _updateSliverData(int sliverCount, int itemsPerSliver, int maxLength) {
     while (_sliverData.length > sliverCount) {
@@ -187,6 +208,12 @@ class _ItemListPageState extends ExamplePageState {
     }
     for (final sliver in _sliverData) {
       sliver.ensureItemCount(itemsPerSliver, maxLength);
+    }
+    if (_maxLength != maxLength) {
+      _maxLength = maxLength;
+      for (final controller in _extentControllers) {
+        controller.invalidateAllExtents();
+      }
     }
   }
 
@@ -235,7 +262,7 @@ class _ItemListPageState extends ExamplePageState {
       final sliver = _sliverData[sliverIndex];
       return SliverChildBuilderDelegate((context, index) {
         final item = sliver.items[index];
-        return Item(
+        return ItemWidget(
           text: item.text,
           sliver: sliverIndex,
           index: index,
@@ -249,15 +276,20 @@ class _ItemListPageState extends ExamplePageState {
       children: [
         Expanded(
           child: FocusTraversalGroup(
-            policy: SuperReadingOrderTraversalPolicy(),
+            policy: _ReadingOrderTraversalPolicy(),
             child: LayoutInfoOverlay(
               extentControllers: _extentControllers,
               child: CustomScrollView(
                 controller: _scrollController,
                 slivers: [
+                  const SliverToBoxAdapter(
+                    child: ListHeader(
+                      title: Text("SuperSliverList"),
+                      primary: true,
+                    ),
+                  ),
                   for (int i = 0; i < _sliverData.length; ++i)
-                    SliverPadding(
-                      padding: const EdgeInsets.all(10),
+                    _SliverDecoration(
                       sliver: SuperSliverList(
                         extentController: _extentControllers[i],
                         extentPrecalculationPolicy:
@@ -272,18 +304,33 @@ class _ItemListPageState extends ExamplePageState {
         ),
         if (showSliverList)
           Expanded(
-            child: FocusTraversalGroup(
-              policy: SuperReadingOrderTraversalPolicy(),
-              child: CustomScrollView(
-                slivers: [
-                  for (int i = 0; i < _sliverData.length; ++i)
-                    SliverPadding(
-                      padding: const EdgeInsets.all(10),
-                      sliver: SliverList(
-                        delegate: delegate(i),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(
+                    color: Colors.blueGrey.shade100,
+                    width: 1,
+                  ),
+                ),
+              ),
+              child: FocusTraversalGroup(
+                policy: _ReadingOrderTraversalPolicy(),
+                child: CustomScrollView(
+                  slivers: [
+                    const SliverToBoxAdapter(
+                      child: ListHeader(
+                        title: Text("SliverList"),
+                        primary: false,
                       ),
                     ),
-                ],
+                    for (int i = 0; i < _sliverData.length; ++i)
+                      _SliverDecoration(
+                        sliver: SliverList(
+                          delegate: delegate(i),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -323,46 +370,44 @@ class _SidebarWidget extends StatelessWidget {
     final itemPerSliver = settings.itemsPerSliver.watch(context);
     final maxLength = settings.maxLength.watch(context);
 
-    return Container(
-      child: SidebarOptions(
-        sections: [
-          SidebarSection(
-            title: Text("Contents"),
-            children: [
-              NumberPicker(
-                title: const Text("Slivers"),
-                options: List.generate(_kMaxSlivers - 1, (index) => index + 1),
-                value: sliverCount,
-                onChanged: (value) {
-                  settings.sliverCount.value = value;
-                },
-              ),
-              NumberPicker(
-                title: const Text("Items per Sliver"),
-                options: _kItemsPerSliver,
-                value: itemPerSliver,
-                onChanged: (value) {
-                  settings.itemsPerSliver.value = value;
-                },
-              ),
-              NumberPicker(
-                title: const Text("Maximum Item Length"),
-                options: List.generate(15, (index) => index + 1),
-                value: maxLength,
-                onChanged: (value) {
-                  settings.maxLength.value = value;
-                },
-              ),
-            ],
-          ),
-          JumpWidget(
-            numSlivers: sliverCount,
-            numItemsPerSliver: itemPerSliver,
-            onJumpRequested: onJumpRequested,
-          ),
-          const AppSettingsWidget(),
-        ],
-      ),
+    return SidebarOptions(
+      sections: [
+        SidebarSection(
+          title: const Text("Contents"),
+          children: [
+            NumberPicker(
+              title: const Text("Slivers"),
+              options: List.generate(_kMaxSlivers - 1, (index) => index + 1),
+              value: sliverCount,
+              onChanged: (value) {
+                settings.sliverCount.value = value;
+              },
+            ),
+            NumberPicker(
+              title: const Text("Items per Sliver"),
+              options: _kItemsPerSliver,
+              value: itemPerSliver,
+              onChanged: (value) {
+                settings.itemsPerSliver.value = value;
+              },
+            ),
+            NumberPicker(
+              title: const Text("Maximum Item Length"),
+              options: List.generate(15, (index) => index + 1),
+              value: maxLength,
+              onChanged: (value) {
+                settings.maxLength.value = value;
+              },
+            ),
+          ],
+        ),
+        JumpWidget(
+          numSlivers: sliverCount,
+          numItemsPerSliver: itemPerSliver,
+          onJumpRequested: onJumpRequested,
+        ),
+        const AppSettingsWidget(),
+      ],
     );
   }
 }

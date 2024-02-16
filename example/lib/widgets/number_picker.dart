@@ -40,7 +40,7 @@ class NumberPicker extends StatelessWidget {
         max: options.length - 1,
         value: _getIndexForNearestValue().toDouble(),
         onChanged: (value) {
-          int v = options[value.round()];
+          final int v = options[value.round()];
           onChanged(v);
         },
         onKeyboardAction: (action) {

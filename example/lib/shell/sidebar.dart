@@ -1,7 +1,7 @@
 import "package:context_watch/context_watch.dart";
 import "package:flutter/material.dart" show Colors;
-import "package:pixel_snap/widgets.dart";
 import "package:headless_widgets/headless_widgets.dart" as w;
+import "package:pixel_snap/widgets.dart";
 import "package:provider/provider.dart";
 
 import "../util/intersperse.dart";
@@ -85,7 +85,6 @@ class _NavigationButton extends StatelessWidget {
   final String title;
 
   const _NavigationButton({
-    super.key,
     required this.uri,
     required this.title,
   });
@@ -103,16 +102,26 @@ class _NavigationButton extends StatelessWidget {
       builder: (context, state, child) {
         final background =
             switch ((selected, state.focused, state.hovered, state.pressed)) {
-          (true, _, _, _) => Colors.blue,
-          (_, _, true, _) => Colors.blue.shade100,
+          (true, _, _, _) => Colors.blue.shade400,
+          (_, _, _, true) => Colors.blue.shade400.withOpacity(0.3),
+          (_, _, true, _) => Colors.blue.shade400.withOpacity(0.2),
           (_, _, _, _) => Colors.transparent,
+        };
+        final textColor = switch ((selected, state.hovered)) {
+          (true, _) => Colors.white,
+          (false, _) => Colors.black,
         };
         return Container(
           decoration: BoxDecoration(
             color: background,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: child!,
+          child: DefaultTextStyle(
+            style: TextStyle(
+              color: textColor,
+            ),
+            child: child!,
+          ),
         );
       },
     );
@@ -163,7 +172,7 @@ class SidebarSection extends StatelessWidget {
           padding: const EdgeInsets.all(12).copyWith(bottom: 0),
           decoration: BoxDecoration(
             color: Colors.blueGrey.shade50,
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(8),
               topRight: Radius.circular(8),
             ),
@@ -181,7 +190,7 @@ class SidebarSection extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: Colors.blueGrey.shade50,
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
               bottomLeft: Radius.circular(8),
               bottomRight: Radius.circular(8),
             ),
@@ -207,7 +216,7 @@ class AppSettingsWidget extends StatelessWidget {
     final showSliverList = settings.showSliverList.watch(context);
     final precomputeExtentPolicy =
         settings.precomputeExtentPolicy.watch(context);
-    return SidebarSection(title: Text("Options"), children: [
+    return SidebarSection(title: const Text("Options"), children: [
       CheckBox(
         checked: showSliverList,
         child: const Text(
@@ -221,12 +230,12 @@ class AppSettingsWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 2),
-          Text(
+          const SizedBox(height: 2),
+          const Text(
             "Precalculate Extents",
             style: TextStyle(fontSize: 12),
           ),
-          SizedBox(
+          const SizedBox(
             height: 6,
           ),
           SegmentedButton(

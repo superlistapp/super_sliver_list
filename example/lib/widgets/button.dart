@@ -3,6 +3,7 @@ import "dart:async";
 import "package:flutter/material.dart" show Colors;
 import "package:headless_widgets/headless_widgets.dart" as w;
 import "package:pixel_snap/widgets.dart";
+import "package:url_launcher/url_launcher.dart";
 
 import "focus_indicator.dart";
 
@@ -140,7 +141,7 @@ class SegmentedButton extends StatelessWidget {
     };
     final first = index == 0;
     final last = index == children.length - 1;
-    final radius = Radius.circular(6.0);
+    const radius = Radius.circular(6.0);
     final borderSide = BorderSide(color: borderColor, width: 1);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
@@ -169,7 +170,7 @@ class SegmentedButton extends StatelessWidget {
       child: FocusIndicator(
         focused: state.focused,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
           child: DefaultTextStyle.merge(
             style: TextStyle(
               height: 1.17,
@@ -212,6 +213,78 @@ class SegmentedButton extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class FlatButton extends StatelessWidget {
+  final Widget child;
+  final VoidCallback? onPressed;
+  final bool selected;
+
+  const FlatButton({
+    super.key,
+    this.onPressed,
+    this.selected = false,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return w.Button(
+      selected: selected ? w.SelectionState.on : w.SelectionState.off,
+      hitTestBehavior: HitTestBehavior.opaque,
+      onPressed: onPressed,
+      builder: buildFlatButton,
+      child: child,
+    );
+  }
+}
+
+Widget buildFlatButton(
+    BuildContext context, w.ButtonState state, Widget? child) {
+  const tint = Colors.black;
+  final background =
+      switch ((state.selected, state.focused, state.hovered, state.pressed)) {
+    (w.SelectionState.on, _, _, _) => tint.withOpacity(0.4),
+    (_, _, _, true) => tint.withOpacity(0.3),
+    (_, _, true, _) => tint.withOpacity(0.15),
+    (_, _, _, _) => Colors.transparent,
+  };
+  return Container(
+    decoration: BoxDecoration(
+      color: background,
+    ),
+    padding: const EdgeInsets.all(4),
+    child: child,
+  );
+}
+
+class LinkButton extends StatelessWidget {
+  final Uri uri;
+
+  const LinkButton({
+    super.key,
+    required this.uri,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return w.Button(
+      onPressed: () => launchUrl(uri),
+      builder: (context, state, child) {
+        final textDecoration = state.hovered || state.pressed
+            ? TextDecoration.underline
+            : TextDecoration.none;
+        return DefaultTextStyle.merge(
+          style: TextStyle(
+            color: Colors.blue,
+            decoration: textDecoration,
+          ),
+          child: child!,
+        );
+      },
+      child: Text(uri.toString()),
     );
   }
 }

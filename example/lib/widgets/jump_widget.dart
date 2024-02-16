@@ -40,6 +40,7 @@ class _JumpWidgetState extends State<JumpWidget> {
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     return SidebarSection(
       title: const Text("Jump to Item"),
@@ -129,7 +130,7 @@ class _JumpWidgetState extends State<JumpWidget> {
               },
               child: const Text("Jump"),
             ),
-            Spacer(),
+            const Spacer(),
             Button(
               onPressed: () {
                 final random = math.Random();

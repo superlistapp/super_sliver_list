@@ -33,7 +33,7 @@ class LabeledSlider extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(
+        const SizedBox(
           height: 4,
         ),
         slider,

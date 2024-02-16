@@ -1,7 +1,8 @@
-import "package:example/examples/item_list.dart";
-import "package:example/examples/long_document.dart";
-import "package:example/shell/example_page.dart";
 import "package:flutter/material.dart";
+
+import "../examples/item_list.dart";
+import "../examples/long_document.dart";
+import "example_page.dart";
 
 class ExamplePage extends StatefulWidget {
   final String name;
@@ -59,16 +60,5 @@ final allRoutes = [
     fullPath: "/example/long-document",
     title: "Long document",
     builder: (key) => LongDocumentPage(key: key),
-  ),
-  // Route(
-  //   fullPath: '/example/merged',
-  //   title: 'Merged',
-  //   builder: (key) => MergedPage(key: key),
-  // ),
-
-  Route(
-    fullPath: "/example/3",
-    title: "Third example",
-    builder: (key) => ExamplePage(key: key, name: "Third example"),
   ),
 ];

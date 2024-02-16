@@ -1,6 +1,6 @@
-import "package:flutter/material.dart" show Icons, Colors;
-import "package:pixel_snap/widgets.dart";
+import "package:flutter/material.dart" show Colors, Icons;
 import "package:headless_widgets/headless_widgets.dart";
+import "package:pixel_snap/widgets.dart";
 
 import "focus_indicator.dart";
 
@@ -103,7 +103,7 @@ class CheckBox extends StatelessWidget {
         const SizedBox(width: 4),
         Flexible(
           child: DefaultTextStyle.merge(
-            style: TextStyle(
+            style: const TextStyle(
               height: 1.17,
             ),
             child: child!,

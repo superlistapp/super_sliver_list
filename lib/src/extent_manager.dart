@@ -122,6 +122,11 @@ class ExtentManager with ChangeNotifier {
     delegate.onMarkNeedsLayout();
   }
 
+  void invalidateAllExtents() {
+    _extentList.markAllDirty();
+    delegate.onMarkNeedsLayout();
+  }
+
   bool get isLocked => _layoutInProgress;
 
   double getOffsetToReveal(int index, double alignment, {Rect? rect}) {

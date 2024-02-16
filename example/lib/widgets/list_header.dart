@@ -1,0 +1,29 @@
+import "package:flutter/material.dart" show Colors;
+import "package:pixel_snap/widgets.dart";
+
+class ListHeader extends StatelessWidget {
+  const ListHeader({
+    super.key,
+    required this.title,
+    required this.primary,
+  });
+
+  final Widget title;
+  final bool primary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: primary ? const Color(0xFFF84F39) : Colors.blueGrey.shade300,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: DefaultTextStyle.merge(
+        style: const TextStyle(
+          fontSize: 14,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+        child: title,
+      ),
+    );
+  }
+}

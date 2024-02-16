@@ -83,7 +83,7 @@ class _LayoutInfoOverlayState extends State<LayoutInfoOverlay> {
               bottom: 0,
               left: 0,
               width: constraints.maxWidth * _currentProgress,
-              height: _currentProgress > 0.01 && _currentProgress < 1 ? 5 : 0,
+              height: _currentProgress > 0.01 && _currentProgress < 1 ? 2 : 0,
               child: Container(
                 color: Colors.blue,
               ),
