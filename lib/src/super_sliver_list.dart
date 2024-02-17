@@ -159,6 +159,12 @@ abstract class ExtentPrecalculationPolicy {
   final _delegates = <ExtentPrecalculationPolicyDelegate>{};
 }
 
+/// Drop-in replacement for [SliverList] that can handle arbitrary large amount
+/// of items with variable extent.
+///
+/// Through [extentController] it [SuperSliverList] also provides a way to
+/// jump to any item in the list, even if the item is not currently visible
+/// or has not been laid out.
 class SuperSliverList extends SliverMultiBoxAdaptorWidget {
   const SuperSliverList({
     super.key,
@@ -169,8 +175,23 @@ class SuperSliverList extends SliverMultiBoxAdaptorWidget {
     this.delayPopulatingCacheArea = true,
   });
 
+  /// When set provides access to extents of individual children.
+  /// [ExtentController] can also be used to jump to a specific item in the list.
   final ExtentController? extentController;
+
+  /// Optional method that can be used to override default estimated extent for
+  /// each item. Initially all extents are estimated and then as the items are laid
+  /// out, either through scrolling or [extentPrecalculationPolicy], the actual
+  /// extents are calculated and the scroll offset is adjusted to account for
+  /// the difference between estimated and actual extents.
   final ExtentEstimationProvider? extentEstimation;
+
+  /// Optional policy that can be used to asynchronously precalculate the extents
+  /// of the items in the list. This can be useful allow precise scrolling on small
+  /// lists where the difference between estimated and actual extents may be noticeable
+  /// when interacting with the scrollbar. For larger lists precalculating extent
+  /// has diminished benefits since the error for each item does not impact the
+  /// overall scroll position as much.
   final ExtentPrecalculationPolicy? extentPrecalculationPolicy;
 
   /// Whether the items in cache area should be built delayed.
