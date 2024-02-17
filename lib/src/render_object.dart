@@ -437,6 +437,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
           "anchored at end: $anchoredAtEnd, "
           "initial extent: ${initialExtent.format()}, "
           "scroll offset: ${constraints.scrollOffset.format()}, "
+          "overlap: ${constraints.overlap}, "
           "remaining paint extent: ${constraints.remainingPaintExtent.format()}, "
           "cache: ${constraints.cacheOrigin.format()} - "
           "${constraints.remainingCacheExtent.format()}, "
@@ -722,12 +723,15 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
             final double distanceFromViewportStart =
                 estimation.precedingScrollExtent +
                     -layoutPass.initialScrollPosition +
-                    estimation.offset;
+                    estimation.offset -
+                    constraints.overlap;
 
             // Use extent during estimation because distanceFromViewportStart is calculated
             // with correction to adjusted for extent difference.
             final distanceFromViewportStartMax =
-                constraints.viewportMainAxisExtent - estimation.extent;
+                constraints.viewportMainAxisExtent -
+                    estimation.extent -
+                    constraints.overlap;
 
             final childAlignmentWithinViewport =
                 (distanceFromViewportStart / distanceFromViewportStartMax)
