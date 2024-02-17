@@ -20,19 +20,28 @@ class AnimateToItem {
   final double alignment;
   final Rect? rect;
   final ScrollPosition position;
-  final Duration duration;
-  final Curve curve;
+  final Duration Function(double estimatedDistance) duration;
+  final Curve Function(double estimatedDistance) curve;
+
+  double lastPosition = 0.0;
 
   void animate() {
+    final start = position.pixels;
+    final estimatedTarget = extentManager.getOffsetToReveal(
+      index,
+      alignment,
+      rect: rect,
+      estimationOnly: true,
+    );
+    final estimatedDistance = (estimatedTarget - start).abs();
     final controller = AnimationController(
       vsync: position.context.vsync,
-      duration: duration,
+      duration: duration(estimatedDistance),
     );
     final animation = CurvedAnimation(
       parent: controller,
-      curve: curve,
+      curve: curve(estimatedDistance),
     );
-    final start = position.pixels;
     animation.addListener(() {
       final value = animation.value;
       final targetPosition = extentManager.getOffsetToReveal(
@@ -42,6 +51,7 @@ class AnimateToItem {
         estimationOnly: value < 1.0,
       );
       final jumpPosition = lerpDouble(start, targetPosition, value)!;
+      lastPosition = jumpPosition;
       position.jumpTo(jumpPosition);
     });
     controller.forward();
