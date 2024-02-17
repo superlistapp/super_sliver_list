@@ -9,7 +9,12 @@ abstract class ExtentManagerDelegate {
 
   void onMarkNeedsLayout();
   double estimateExtentForItem(int index);
-  double getOffsetToReveal(int index, double alignment, {Rect? rect});
+  double getOffsetToReveal(
+    int index,
+    double alignment, {
+    required bool estimationOnly,
+    Rect? rect,
+  });
 }
 
 class ExtentManager with ChangeNotifier {
@@ -129,8 +134,18 @@ class ExtentManager with ChangeNotifier {
 
   bool get isLocked => _layoutInProgress;
 
-  double getOffsetToReveal(int index, double alignment, {Rect? rect}) {
-    return delegate.getOffsetToReveal(index, alignment, rect: rect);
+  double getOffsetToReveal(
+    int index,
+    double alignment, {
+    Rect? rect,
+    required bool estimationOnly,
+  }) {
+    return delegate.getOffsetToReveal(
+      index,
+      alignment,
+      rect: rect,
+      estimationOnly: estimationOnly,
+    );
   }
 
   @override

@@ -12,7 +12,12 @@ class _TestExtentManagerDelegate extends ExtentManagerDelegate {
   }
 
   @override
-  double getOffsetToReveal(int index, double alignment, {Rect? rect}) {
+  double getOffsetToReveal(
+    int index,
+    double alignment, {
+    required bool estimationOnly,
+    Rect? rect,
+  }) {
     return 0;
   }
 

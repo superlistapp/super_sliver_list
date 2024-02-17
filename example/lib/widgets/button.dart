@@ -15,6 +15,7 @@ class Button extends StatelessWidget {
     this.onPressed,
     this.onPressedDown,
     this.keyUpTimeout,
+    this.padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
   });
 
   final Widget child;
@@ -22,6 +23,7 @@ class Button extends StatelessWidget {
   final FutureOr<void> Function()? onPressedDown;
   final bool tapToFocus;
   final Duration? keyUpTimeout;
+  final EdgeInsetsGeometry padding;
 
   Widget _builder(
     BuildContext context,
@@ -54,7 +56,7 @@ class Button extends StatelessWidget {
     return FocusIndicator(
       focused: state.focused,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: padding,
         decoration: BoxDecoration(
           border: Border.fromBorderSide(
             BorderSide(color: borderColor, width: 1),

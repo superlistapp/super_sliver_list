@@ -196,6 +196,11 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
     // estimate the offset, but also remember the index and offset so that
     // we can possibly correct scrollOffset in next performLayout call.
     final index = indexOf(child as RenderBox);
+
+    if (child is _FakeRenderObject && child.needEstimationOnly) {
+      return _extentManager.offsetForIndex(index);
+    }
+
     _childScrollOffsetEstimation = _ChildScrollOffsetEstimation(
       index: index,
       offset: _extentManager.offsetForIndex(index),
@@ -879,11 +884,17 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
     return res;
   }
 
-  double getOffsetToReveal(int index, double alignment, {Rect? rect}) {
+  double getOffsetToReveal(
+    int index,
+    double alignment, {
+    required bool estimationOnly,
+    Rect? rect,
+  }) {
     final renderObject = _FakeRenderObject(
       parent: this,
       index: index,
       extent: _extentManager.getExtent(index),
+      needEstimationOnly: estimationOnly,
     );
     final offset = getViewport()
         ?.getOffsetToReveal(
@@ -893,7 +904,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
         )
         .offset;
 
-    if (offset != null) {
+    if (offset != null && !estimationOnly) {
       final position = getViewport()!.offset as ScrollPosition;
       // Only remember position if it is within scroll extent. Otherwise
       // it will be corrected and it is not possible to check against it.
@@ -919,11 +930,13 @@ class _FakeRenderObject extends RenderBox {
   @override
   final RenderObject parent;
   final double extent;
+  final bool needEstimationOnly;
 
   _FakeRenderObject({
     required this.parent,
     required int index,
     required this.extent,
+    required this.needEstimationOnly,
   }) {
     parentData = SliverMultiBoxAdaptorParentData()..index = index;
   }

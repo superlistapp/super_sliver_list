@@ -1,3 +1,5 @@
+import "dart:ui";
+
 import "package:flutter/rendering.dart";
 import "package:flutter/widgets.dart";
 
@@ -51,6 +53,28 @@ class ExtentController extends ChangeNotifier {
     assert(_delegate != null, "ExtentController is not attached.");
     final offset = getOffsetToReveal(index, alignment, rect: rect);
     scrollController.jumpTo(offset);
+  }
+
+  void animateToItem({
+    required int index,
+    required ScrollController scrollController,
+    required double alignment,
+    required Duration duration,
+    required Curve curve,
+    Rect? rect,
+  }) {
+    assert(_delegate != null, "ExtentController is not attached.");
+    for (final position in scrollController.positions) {
+      _AnimateToItem(
+        extentManager: _delegate!,
+        index: index,
+        alignment: alignment,
+        rect: rect,
+        position: position,
+        curve: curve,
+        duration: duration,
+      ).animate();
+    }
   }
 
   void invalidateExtent(int index) {
@@ -109,7 +133,56 @@ class ExtentController extends ChangeNotifier {
   @visibleForTesting
   double getOffsetToReveal(int index, double alignment, {Rect? rect}) {
     assert(_delegate != null, "ExtentController is not attached.");
-    return _delegate!.getOffsetToReveal(index, alignment, rect: rect);
+    return _delegate!.getOffsetToReveal(
+      index,
+      alignment,
+      rect: rect,
+      estimationOnly: false,
+    );
+  }
+}
+
+class _AnimateToItem {
+  _AnimateToItem({
+    required this.extentManager,
+    required this.index,
+    required this.alignment,
+    required this.rect,
+    required this.position,
+    required this.duration,
+    required this.curve,
+  });
+
+  final ExtentManager extentManager;
+  final int index;
+  final double alignment;
+  final Rect? rect;
+  final ScrollPosition position;
+  final Duration duration;
+  final Curve curve;
+
+  void animate() {
+    final controller = AnimationController(
+      vsync: position.context.vsync,
+      duration: duration,
+    );
+    final animation = CurvedAnimation(
+      parent: controller,
+      curve: curve,
+    );
+    final start = position.pixels;
+    animation.addListener(() {
+      final value = animation.value;
+      final targetPosition = extentManager.getOffsetToReveal(
+        index,
+        alignment,
+        rect: rect,
+        estimationOnly: value < 1.0,
+      );
+      final jumpPosition = lerpDouble(start, targetPosition, value)!;
+      position.jumpTo(jumpPosition);
+    });
+    controller.forward();
   }
 }
 

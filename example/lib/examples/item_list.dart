@@ -336,16 +336,28 @@ class _ItemListPageState extends ExamplePageState {
           alignment: alignment,
         );
       },
+      onAnimateRequested: (sliver, item, alignment) {
+        _extentControllers[sliver].animateToItem(
+          index: item,
+          scrollController: _scrollController,
+          alignment: alignment,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+        );
+      },
     );
   }
 }
 
 class _SidebarWidget extends StatelessWidget {
   final void Function(int sliver, int item, double alignment) onJumpRequested;
+  final void Function(int sliver, int item, double alignment)
+      onAnimateRequested;
   final _ItemListSettings settings;
 
   const _SidebarWidget({
     required this.onJumpRequested,
+    required this.onAnimateRequested,
     required this.settings,
   });
 
@@ -390,6 +402,7 @@ class _SidebarWidget extends StatelessWidget {
           numSlivers: sliverCount,
           numItemsPerSliver: itemPerSliver,
           onJumpRequested: onJumpRequested,
+          onAnimateRequested: onAnimateRequested,
         ),
         const AppSettingsWidget(),
       ],

@@ -1,5 +1,6 @@
 import "dart:math" as math;
 
+import "package:flutter/material.dart" show Icons;
 import "package:pixel_snap/widgets.dart";
 
 import "../shell/sidebar.dart";
@@ -13,11 +14,14 @@ class JumpWidget extends StatefulWidget {
     required this.numSlivers,
     required this.numItemsPerSliver,
     required this.onJumpRequested,
+    required this.onAnimateRequested,
   });
 
   final int numSlivers;
   final int numItemsPerSliver;
   final void Function(int sliver, int item, double alignment) onJumpRequested;
+  final void Function(int sliver, int item, double alignment)
+      onAnimateRequested;
 
   @override
   State<StatefulWidget> createState() => _JumpWidgetState();
@@ -131,8 +135,17 @@ class _JumpWidgetState extends State<JumpWidget> {
               },
               child: const Text("Jump"),
             ),
+            const SizedBox(width: 8),
+            Button(
+              onPressed: () {
+                widget.onAnimateRequested(sliver, item, alignment);
+              },
+              child: const Text("Animate"),
+            ),
+            const SizedBox(width: 8),
             const Spacer(),
             Button(
+              padding: const EdgeInsets.all(4),
               onPressed: () {
                 final random = math.Random();
                 setState(() {
@@ -140,7 +153,10 @@ class _JumpWidgetState extends State<JumpWidget> {
                   item = random.nextInt(widget.numItemsPerSliver);
                 });
               },
-              child: const Text("Randomize"),
+              child: const Icon(
+                Icons.shuffle_rounded,
+                size: 20,
+              ),
             ),
           ],
         ),

@@ -38,8 +38,18 @@ class SuperSliverMultiBoxAdaptorElement extends SliverMultiBoxAdaptorElement
   }
 
   @override
-  double getOffsetToReveal(int index, double alignment, {Rect? rect}) {
-    return renderObject.getOffsetToReveal(index, alignment, rect: rect);
+  double getOffsetToReveal(
+    int index,
+    double alignment, {
+    required bool estimationOnly,
+    Rect? rect,
+  }) {
+    return renderObject.getOffsetToReveal(
+      index,
+      alignment,
+      estimationOnly: estimationOnly,
+      rect: rect,
+    );
   }
 
   ExtentController? _currentController;

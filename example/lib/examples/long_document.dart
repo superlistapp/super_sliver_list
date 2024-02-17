@@ -129,6 +129,15 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
           alignment: alignment,
         );
       },
+      onAnimateRequested: (sliver, item, alignment) {
+        _extentControllers[sliver].animateToItem(
+          index: item,
+          scrollController: _scrollController,
+          alignment: alignment,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+        );
+      },
     );
   }
 }
@@ -137,11 +146,14 @@ class _SidebarWidget extends StatelessWidget {
   final ValueNotifier<int> sliverCount;
   final int itemCount;
   final void Function(int sliver, int item, double alignment) onJumpRequested;
+  final void Function(int sliver, int item, double alignment)
+      onAnimateRequested;
 
   const _SidebarWidget({
     required this.sliverCount,
     required this.itemCount,
     required this.onJumpRequested,
+    required this.onAnimateRequested,
   });
 
   @override
@@ -166,6 +178,7 @@ class _SidebarWidget extends StatelessWidget {
           numSlivers: sliverCount,
           numItemsPerSliver: itemCount,
           onJumpRequested: onJumpRequested,
+          onAnimateRequested: onAnimateRequested,
         ),
         const AppSettingsWidget(),
       ],

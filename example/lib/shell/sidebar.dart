@@ -165,44 +165,36 @@ class SidebarSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12).copyWith(bottom: 0),
-          decoration: BoxDecoration(
-            color: Colors.blueGrey.shade50,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(8),
-              topRight: Radius.circular(8),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.blueGrey.shade50,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12).copyWith(bottom: 0),
+            child: DefaultTextStyle(
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.blueGrey.shade800,
+                fontWeight: FontWeight.bold,
+              ),
+              child: title,
             ),
           ),
-          child: DefaultTextStyle(
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.blueGrey.shade800,
-              fontWeight: FontWeight.bold,
-            ),
-            child: title,
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.blueGrey.shade50,
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(8),
-              bottomRight: Radius.circular(8),
+          Container(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ...children.intersperse(const SizedBox(height: 10)),
+              ],
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ...children.intersperse(const SizedBox(height: 10)),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
