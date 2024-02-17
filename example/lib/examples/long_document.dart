@@ -134,8 +134,8 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
           index: item,
           scrollController: _scrollController,
           alignment: alignment,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOutCubic,
+          duration: (_) => const Duration(milliseconds: 300),
+          curve: (_) => Curves.easeOutCubic,
         );
       },
     );

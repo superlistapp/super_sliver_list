@@ -58,8 +58,8 @@ class ExtentController extends ChangeNotifier {
     required int index,
     required ScrollController scrollController,
     required double alignment,
-    required Duration duration,
-    required Curve curve,
+    required Duration Function(double estimatedDistance) duration,
+    required Curve Function(double estimatedDistance) curve,
     Rect? rect,
   }) {
     assert(_delegate != null, "ExtentController is not attached.");
