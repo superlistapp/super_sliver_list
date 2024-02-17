@@ -18,7 +18,7 @@ jobs:
         working-directory: ./example
       - name: Install Dependencies (example data)
         run: flutter pub get
-        working-directory: ./example
+        working-directory: ./example/data
       - name: Check format
         run: dart format . --output=none --set-exit-if-changed
         working-directory: ./example
