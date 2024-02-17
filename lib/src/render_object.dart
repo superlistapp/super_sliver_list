@@ -53,6 +53,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
     required super.childManager,
     ExtentPrecalculationPolicy? extentPrecalculationPolicy,
     required this.estimateExtent,
+    required this.delayPopulatingCacheArea,
   }) {
     this.extentPrecalculationPolicy = extentPrecalculationPolicy;
   }
@@ -72,6 +73,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
 
   ExtentPrecalculationPolicy? _extentPrecalculationPolicy;
   ExtentEstimationProvider estimateExtent;
+  bool delayPopulatingCacheArea;
 
   bool _shouldPrecalculateExtents(LayoutPass pass) {
     final state = pass.getLayoutState(this);
@@ -82,7 +84,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       contentTotalExtent: position.hasContentDimensions
           ? position.maxScrollExtent - position.minScrollExtent
           : null,
-      numberOfItem: _extentManager.numberOfItems,
+      numberOfItems: _extentManager.numberOfItems,
       estimatedExtentsCount: _extentManager.estimatedExtentsCount,
     );
     state.precalculateExtents ??=
@@ -591,7 +593,8 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       // from empty assume fast scrolling, in which case only the visible area
       // is populated (ignoring cache area) and then in next layout pass the
       // cache area is populated.
-      if (layoutState.didRemoveChildren &&
+      if (delayPopulatingCacheArea &&
+          layoutState.didRemoveChildren &&
           (startOffset != reducedStartOffset ||
               remainingExtent != reducedRemainingExtent)) {
         startOffset = reducedStartOffset;

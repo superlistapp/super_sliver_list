@@ -114,7 +114,7 @@ class ExtentPrecalculationContext {
   ExtentPrecalculationContext({
     required this.viewportMainAxisExtent,
     required this.contentTotalExtent,
-    required this.numberOfItem,
+    required this.numberOfItems,
     required this.estimatedExtentsCount,
   });
 
@@ -125,7 +125,7 @@ class ExtentPrecalculationContext {
   final double? contentTotalExtent;
 
   /// Number of items in the sliver.
-  final int numberOfItem;
+  final int numberOfItems;
 
   /// Number of items in the sliver with estimated extents.
   final int estimatedExtentsCount;
@@ -166,11 +166,19 @@ class SuperSliverList extends SliverMultiBoxAdaptorWidget {
     this.extentPrecalculationPolicy,
     this.extentController,
     this.extentEstimation,
+    this.delayPopulatingCacheArea = true,
   });
 
   final ExtentController? extentController;
   final ExtentEstimationProvider? extentEstimation;
   final ExtentPrecalculationPolicy? extentPrecalculationPolicy;
+
+  /// Whether the items in cache area should be built delayed.
+  /// This is an optimization that kicks in during fast scrolling, when
+  /// all items are being replaced on every frame.
+  /// With [delayPopulatingCacheArea] set to `true`, the items in cache area
+  /// are only built after the scrolling slows down.
+  final bool delayPopulatingCacheArea;
 
   static SuperSliverListLayoutBudget layoutBudget =
       _TimeSuperSliverListLayoutBudget(
@@ -188,6 +196,7 @@ class SuperSliverList extends SliverMultiBoxAdaptorWidget {
       childManager: element,
       extentPrecalculationPolicy: extentPrecalculationPolicy,
       estimateExtent: extentEstimation ?? _defaultEstimateExtent,
+      delayPopulatingCacheArea: delayPopulatingCacheArea,
     );
   }
 
@@ -201,6 +210,7 @@ class SuperSliverList extends SliverMultiBoxAdaptorWidget {
     renderSliverList.extentPrecalculationPolicy = extentPrecalculationPolicy;
     renderSliverList.estimateExtent =
         extentEstimation ?? _defaultEstimateExtent;
+    renderSliverList.delayPopulatingCacheArea = delayPopulatingCacheArea;
   }
 }
 

@@ -51,7 +51,7 @@ class DefaultExtentPrecalculationPolicy extends ExtentPrecalculationPolicy {
         return true;
       case PrecomputeExtentPolicy.automatic:
         final contentDimensions = context.contentTotalExtent ?? 0;
-        return context.numberOfItem < 100 ||
+        return context.numberOfItems < 100 ||
             contentDimensions < context.viewportMainAxisExtent * 10;
     }
   }
