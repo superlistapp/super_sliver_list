@@ -1,4 +1,18 @@
-include: package:flutter_lints/flutter.yaml
+include: package:lint/strict.yaml
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+
+linter:
+  rules:
+    avoid_redundant_argument_values: false
+    prefer_relative_imports: true
+    always_use_package_imports: false
+    parameter_assignments: false
+    require_trailing_commas: false
+    prefer_constructors_over_static_methods: false
+    sort_pub_dependencies: false
+    avoid_setters_without_getters: false
+    prefer_double_quotes: true
+    prefer_single_quotes: false
+
