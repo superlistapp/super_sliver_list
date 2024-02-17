@@ -9,6 +9,7 @@ import "package:flutter/material.dart"
         ScrollbarTheme,
         ScrollbarThemeData,
         Typography;
+import "package:flutter/services.dart";
 import "package:flutter/widgets.dart";
 import "package:provider/provider.dart";
 import "package:super_sliver_list/super_sliver_list.dart";
@@ -39,6 +40,7 @@ class _ExampleAppState extends State<ExampleApp> {
       child: Provider(
         create: (_) => AppSettings(),
         child: WidgetsApp(
+          shortcuts: _platformDefaultShortcuts,
           color: const Color(0xFF000000),
           routes: {
             // Why is this necessary if there is initial route?
@@ -244,3 +246,94 @@ class _ScrollBehavior extends ScrollBehavior {
     );
   }
 }
+
+// Override ridiculous defaults where arrow keys on web drive scrolling instead
+// of focus.
+
+Map<ShortcutActivator, Intent> get _platformDefaultShortcuts {
+  switch (defaultTargetPlatform) {
+    case TargetPlatform.android:
+    case TargetPlatform.fuchsia:
+    case TargetPlatform.linux:
+    case TargetPlatform.windows:
+      return _defaultShortcuts;
+    case TargetPlatform.iOS:
+    case TargetPlatform.macOS:
+      return _defaultAppleOsShortcuts;
+  }
+}
+
+const Map<ShortcutActivator, Intent> _defaultAppleOsShortcuts =
+    <ShortcutActivator, Intent>{
+  // Activation
+  SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+  SingleActivator(LogicalKeyboardKey.numpadEnter): ActivateIntent(),
+  SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+
+  // Dismissal
+  SingleActivator(LogicalKeyboardKey.escape): DismissIntent(),
+
+  // Keyboard traversal
+  SingleActivator(LogicalKeyboardKey.tab): NextFocusIntent(),
+  SingleActivator(LogicalKeyboardKey.tab, shift: true): PreviousFocusIntent(),
+  SingleActivator(LogicalKeyboardKey.arrowLeft):
+      DirectionalFocusIntent(TraversalDirection.left),
+  SingleActivator(LogicalKeyboardKey.arrowRight):
+      DirectionalFocusIntent(TraversalDirection.right),
+  SingleActivator(LogicalKeyboardKey.arrowDown):
+      DirectionalFocusIntent(TraversalDirection.down),
+  SingleActivator(LogicalKeyboardKey.arrowUp):
+      DirectionalFocusIntent(TraversalDirection.up),
+
+  // Scrolling
+  SingleActivator(LogicalKeyboardKey.arrowUp, meta: true):
+      ScrollIntent(direction: AxisDirection.up),
+  SingleActivator(LogicalKeyboardKey.arrowDown, meta: true):
+      ScrollIntent(direction: AxisDirection.down),
+  SingleActivator(LogicalKeyboardKey.arrowLeft, meta: true):
+      ScrollIntent(direction: AxisDirection.left),
+  SingleActivator(LogicalKeyboardKey.arrowRight, meta: true):
+      ScrollIntent(direction: AxisDirection.right),
+  SingleActivator(LogicalKeyboardKey.pageUp):
+      ScrollIntent(direction: AxisDirection.up, type: ScrollIncrementType.page),
+  SingleActivator(LogicalKeyboardKey.pageDown): ScrollIntent(
+      direction: AxisDirection.down, type: ScrollIncrementType.page),
+};
+
+const Map<ShortcutActivator, Intent> _defaultShortcuts =
+    <ShortcutActivator, Intent>{
+  // Activation
+  SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+  SingleActivator(LogicalKeyboardKey.numpadEnter): ActivateIntent(),
+  SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+  SingleActivator(LogicalKeyboardKey.gameButtonA): ActivateIntent(),
+
+  // Dismissal
+  SingleActivator(LogicalKeyboardKey.escape): DismissIntent(),
+
+  // Keyboard traversal.
+  SingleActivator(LogicalKeyboardKey.tab): NextFocusIntent(),
+  SingleActivator(LogicalKeyboardKey.tab, shift: true): PreviousFocusIntent(),
+  SingleActivator(LogicalKeyboardKey.arrowLeft):
+      DirectionalFocusIntent(TraversalDirection.left),
+  SingleActivator(LogicalKeyboardKey.arrowRight):
+      DirectionalFocusIntent(TraversalDirection.right),
+  SingleActivator(LogicalKeyboardKey.arrowDown):
+      DirectionalFocusIntent(TraversalDirection.down),
+  SingleActivator(LogicalKeyboardKey.arrowUp):
+      DirectionalFocusIntent(TraversalDirection.up),
+
+  // Scrolling
+  SingleActivator(LogicalKeyboardKey.arrowUp, control: true):
+      ScrollIntent(direction: AxisDirection.up),
+  SingleActivator(LogicalKeyboardKey.arrowDown, control: true):
+      ScrollIntent(direction: AxisDirection.down),
+  SingleActivator(LogicalKeyboardKey.arrowLeft, control: true):
+      ScrollIntent(direction: AxisDirection.left),
+  SingleActivator(LogicalKeyboardKey.arrowRight, control: true):
+      ScrollIntent(direction: AxisDirection.right),
+  SingleActivator(LogicalKeyboardKey.pageUp):
+      ScrollIntent(direction: AxisDirection.up, type: ScrollIncrementType.page),
+  SingleActivator(LogicalKeyboardKey.pageDown): ScrollIntent(
+      direction: AxisDirection.down, type: ScrollIncrementType.page),
+};
