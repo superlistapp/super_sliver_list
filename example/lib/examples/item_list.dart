@@ -330,12 +330,10 @@ class _ItemListPageState extends ExamplePageState {
     return _SidebarWidget(
       settings: _settings,
       onJumpRequested: (sliver, item, alignment) {
-        final offset = _extentControllers[sliver].getOffsetToReveal(
-          item,
-          alignment,
-        );
-        _scrollController.jumpTo(
-          offset,
+        _extentControllers[sliver].jumpToItem(
+          index: item,
+          scrollController: _scrollController,
+          alignment: alignment,
         );
       },
     );

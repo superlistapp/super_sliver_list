@@ -42,9 +42,15 @@ class ExtentController extends ChangeNotifier {
     return _delegate!.isLocked;
   }
 
-  double getOffsetToReveal(int index, double alignment, {Rect? rect}) {
+  void jumpToItem({
+    required int index,
+    required ScrollController scrollController,
+    required double alignment,
+    Rect? rect,
+  }) {
     assert(_delegate != null, "ExtentController is not attached.");
-    return _delegate!.getOffsetToReveal(index, alignment, rect: rect);
+    final offset = _delegate!.getOffsetToReveal(index, alignment, rect: rect);
+    scrollController.jumpTo(offset);
   }
 
   void invalidateExtent(int index) {
