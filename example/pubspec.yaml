@@ -23,6 +23,7 @@ dependencies:
   flutter_lorem: ^2.0.0
   pixel_snap: ^0.1.5
   url_launcher: ^6.2.4
+  sliver_tools: ^0.2.12
 
 dev_dependencies:
   flutter_test:

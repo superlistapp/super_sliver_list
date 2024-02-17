@@ -15,6 +15,7 @@ import "../widgets/layout_info_overlay.dart";
 import "../widgets/list_header.dart";
 import "../widgets/number_picker.dart";
 import "../widgets/sliver_decoration.dart";
+import "../widgets/sliver_list_disclaimer.dart";
 
 const _kMaxSlivers = 10;
 const _kItemsPerSliver = [1, 9, 27, 80, 200, 1000, 2500, 7000, 20000];
@@ -268,11 +269,9 @@ class _ItemListPageState extends ExamplePageState {
               child: CustomScrollView(
                 controller: _scrollController,
                 slivers: [
-                  const SliverToBoxAdapter(
-                    child: ListHeader(
-                      title: Text("SuperSliverList"),
-                      primary: true,
-                    ),
+                  const ListHeader(
+                    title: Text("SuperSliverList"),
+                    primary: true,
                   ),
                   for (int i = 0; i < _sliverData.length; ++i)
                     SliverDecoration(
@@ -304,12 +303,12 @@ class _ItemListPageState extends ExamplePageState {
                 policy: _ReadingOrderTraversalPolicy(),
                 child: CustomScrollView(
                   slivers: [
-                    const SliverToBoxAdapter(
-                      child: ListHeader(
-                        title: Text("SliverList"),
-                        primary: false,
-                      ),
+                    const ListHeader(
+                      title: Text("SliverList"),
+                      primary: false,
                     ),
+                    if (itemsPerSliver * sliverCount > 5000)
+                      SliverListDisclaimer(),
                     for (int i = 0; i < _sliverData.length; ++i)
                       SliverDecoration(
                         index: i,

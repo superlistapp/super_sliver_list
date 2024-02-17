@@ -587,7 +587,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       final reducedStartOffset = constraints.scrollOffset;
       final reducedRemainingExtent = constraints.remainingPaintExtent;
 
-      // If children were removed from this pass and new children are added
+      // If children were removed during this pass and new children are added
       // from empty assume fast scrolling, in which case only the visible area
       // is populated (ignoring cache area) and then in next layout pass the
       // cache area is populated.

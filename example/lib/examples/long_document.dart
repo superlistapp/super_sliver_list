@@ -13,6 +13,7 @@ import "../widgets/layout_info_overlay.dart";
 import "../widgets/list_header.dart";
 import "../widgets/number_picker.dart";
 import "../widgets/sliver_decoration.dart";
+import "../widgets/sliver_list_disclaimer.dart";
 
 const _kMaxSlivers = 10;
 
@@ -65,11 +66,9 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
             child: CustomScrollView(
               controller: _scrollController,
               slivers: [
-                const SliverToBoxAdapter(
-                  child: ListHeader(
-                    title: Text("SuperSliverList"),
-                    primary: true,
-                  ),
+                const ListHeader(
+                  title: Text("SuperSliverList"),
+                  primary: true,
                 ),
                 for (int i = 0; i < sliverCount; ++i)
                   SliverDecoration(
@@ -98,12 +97,11 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
               ),
               child: CustomScrollView(
                 slivers: [
-                  const SliverToBoxAdapter(
-                    child: ListHeader(
-                      title: Text("SliverList"),
-                      primary: false,
-                    ),
+                  const ListHeader(
+                    title: Text("SliverList"),
+                    primary: false,
                   ),
+                  if (sliverCount > 1) SliverListDisclaimer(),
                   for (int i = 0; i < sliverCount; ++i)
                     SliverDecoration(
                       index: i,
