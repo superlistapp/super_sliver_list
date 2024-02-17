@@ -114,6 +114,7 @@ class _JumpWidgetState extends State<JumpWidget> {
               }
             },
             onChanged: (value) {
+              value = (value * 100.0).round() / 100.0;
               if (value != alignment) {
                 setState(() {
                   alignment = value;
