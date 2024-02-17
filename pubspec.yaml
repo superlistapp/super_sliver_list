@@ -1,6 +1,6 @@
 name: super_sliver_list
 description: "A new Flutter package project."
-version: 0.2.0
+version: 0.2.0-dev.1
 homepage: https://github.com/superlistapp/super_sliver_list
 
 environment:
