@@ -1,0 +1,33 @@
+name: Deploy Example
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: subosito/flutter-action@2783a3f08e1baf891508463f8c6653c258246225 # v2.12.0
+        with:
+          channel: stable
+      - name: Install Dependencies
+        run: flutter pub get
+        working-directory: ./example
+      - name: Build Web
+        run: flutter build web --release --source-maps --base-href=/super_sliver_list/
+        working-directory: ./example
+      - name: Deploy
+        run: |
+          cd example/build/web
+          git init
+          git config user.name "knopp"
+          git config user.email "knopp@github.com"
+          git remote add secure-origin https://username:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git checkout -b gh-pages
+          git add .
+          git commit -m "Deployed Github Pages"
+          git push --force secure-origin gh-pages
