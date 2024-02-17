@@ -49,7 +49,7 @@ class ExtentController extends ChangeNotifier {
     Rect? rect,
   }) {
     assert(_delegate != null, "ExtentController is not attached.");
-    final offset = _delegate!.getOffsetToReveal(index, alignment, rect: rect);
+    final offset = getOffsetToReveal(index, alignment, rect: rect);
     scrollController.jumpTo(offset);
   }
 
@@ -104,6 +104,12 @@ class ExtentController extends ChangeNotifier {
       _delegate = null;
       onDetached?.call();
     }
+  }
+
+  @visibleForTesting
+  double getOffsetToReveal(int index, double alignment, {Rect? rect}) {
+    assert(_delegate != null, "ExtentController is not attached.");
+    return _delegate!.getOffsetToReveal(index, alignment, rect: rect);
   }
 }
 
