@@ -1,8 +1,8 @@
-# SliverList and ListView Supercharged
+# SliverList and ListView - Supercharged
 
 > See the [live example](https://superlistapp.github.io/super_sliver_list/#/) of `SuperSliverList`.
 
-`SuperSliverList`/`SuperListView` are drop in replacement widgets for `SliverList`/`ListView` that aim to address the following `SliverList` issues:
+`SuperSliverList` and `SuperListView` are drop in replacement widgets for `SliverList` and `ListView` that aim to address the following `SliverList` issues:
 
 ### Performance problem with large amount of items with variable extents
 
