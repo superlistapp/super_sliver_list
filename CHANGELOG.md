@@ -1,6 +1,6 @@
 ## 0.2.0-dev.1
 
-This is a major update and complete rewrite of `SuperSliverList`.
+This is a major update and a complete rewrite of `SuperSliverList`.
 * Added `SuperListView` as a convenient drop-in replacement for `ListView`.
 * Added ability to jump / animate to specific item using `ExtentController`.
 * Added ability to asynchronously precompute item extents using `ExtentPrecalculationPolicy`.
