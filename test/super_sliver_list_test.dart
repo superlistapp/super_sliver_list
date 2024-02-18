@@ -5,6 +5,7 @@ import "package:flutter/material.dart";
 import "package:flutter/rendering.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:logging/logging.dart";
+import "package:sliver_tools/sliver_tools.dart";
 import "package:super_sliver_list/super_sliver_list.dart";
 
 // ignore: deprecated_member_use
@@ -47,6 +48,7 @@ class _FuzzerConfiguration {
   final int maxItemHeight;
   final int? minItemHeight;
   final double viewportHeight;
+  final int maxPinnedHeaderHeight;
 
   _FuzzerConfiguration({
     required this.iterations,
@@ -55,12 +57,20 @@ class _FuzzerConfiguration {
     required this.maxItemsPerSliver,
     required this.maxItemHeight,
     required this.viewportHeight,
+    // ignore: unused_element
     this.minItemHeight = 1,
+    this.maxPinnedHeaderHeight = 0,
   });
 
   double nextItemHeight(math.Random random) {
     return random.nextInt(maxItemHeight - (minItemHeight ?? 0)).toDouble() +
         (minItemHeight ?? 0);
+  }
+
+  double nextPinnedHeaderHeight(math.Random random) {
+    return maxPinnedHeaderHeight > 0
+        ? random.nextInt(maxPinnedHeaderHeight).toDouble()
+        : 0;
   }
 
   static const int _kFuzzerIterations = 100;
@@ -73,6 +83,7 @@ class _FuzzerConfiguration {
       maxItemsPerSliver: 10,
       maxItemHeight: 700,
       viewportHeight: 500,
+      maxPinnedHeaderHeight: 40,
     ),
     _FuzzerConfiguration(
       iterations: _kFuzzerIterations,
@@ -81,6 +92,7 @@ class _FuzzerConfiguration {
       maxItemsPerSliver: 100,
       maxItemHeight: 700,
       viewportHeight: 500,
+      maxPinnedHeaderHeight: 50,
     ),
     _FuzzerConfiguration(
       iterations: _kFuzzerIterations,
@@ -89,6 +101,7 @@ class _FuzzerConfiguration {
       maxItemsPerSliver: 30,
       maxItemHeight: 700,
       viewportHeight: 500,
+      maxPinnedHeaderHeight: 50,
     ),
     _FuzzerConfiguration(
       iterations: _kFuzzerIterations,
@@ -98,6 +111,7 @@ class _FuzzerConfiguration {
       maxItemHeight: 300,
       minItemHeight: 1,
       viewportHeight: 500,
+      maxPinnedHeaderHeight: 30,
     ),
     _FuzzerConfiguration(
       iterations: _kFuzzerIterations,
@@ -107,6 +121,7 @@ class _FuzzerConfiguration {
       maxItemHeight: 500,
       minItemHeight: 1,
       viewportHeight: 500,
+      maxPinnedHeaderHeight: 20,
     )
   ];
 }
@@ -175,6 +190,7 @@ void main() async {
         slivers: [
           _Sliver(
             configuration.slivers.first.items.reversed.toList(),
+            pinnedHeaderHeight: 0,
           ),
         ],
         viewportHeight: configuration.viewportHeight,
@@ -738,6 +754,7 @@ void main() async {
             itemHeight: (_, index) => fc.nextItemHeight(r),
             viewportHeight: fc.viewportHeight,
             addGlobalKey: true,
+            pinnedHeaderHeight: (_) => fc.nextPinnedHeaderHeight(r),
           );
           if (configuration.totalExtent == 0) {
             continue;
@@ -828,6 +845,7 @@ void main() async {
             itemHeight: (_, index) => fc.nextItemHeight(r),
             viewportHeight: fc.viewportHeight,
             addGlobalKey: true,
+            pinnedHeaderHeight: (_) => fc.nextPinnedHeaderHeight(r),
           );
           if (configuration.totalExtent == 0) {
             continue;
@@ -882,6 +900,7 @@ void main() async {
             itemHeight: (_, index) => fc.nextItemHeight(r),
             viewportHeight: fc.viewportHeight,
             addGlobalKey: true,
+            pinnedHeaderHeight: (_) => fc.nextPinnedHeaderHeight(r),
           );
           if (configuration.totalExtent == 0) {
             continue;
@@ -924,17 +943,27 @@ void main() async {
             controller.jumpTo(offset);
             await tester.pump();
 
-            final widget = find.text("Tile ${item.value}");
-            expect(widget, findsOneWidget);
-            final RenderBox box = tester.renderObject(widget);
-            final viewport = tester.renderObject(find.byType(Viewport));
-            final transform = box.getTransformTo(viewport);
-            final position = MatrixUtils.transformPoint(transform, Offset.zero);
+            double viewportTop = tester.getTopLeft(find.byType(Viewport)).dy;
+            double viewportHeight = configuration.viewportHeight;
+
+            // Expected top of the content, adjusted for pinned headers.
+            for (int i = 0; i <= sliverIndex; ++i) {
+              final pinnedHeader = find.text("PinnedHeader $i");
+              if (pinnedHeader.evaluate().isNotEmpty) {
+                final height = tester.getBottomLeft(pinnedHeader).dy -
+                    tester.getTopLeft(pinnedHeader).dy;
+                viewportTop += height;
+                viewportHeight -= height;
+              }
+            }
+
+            final positionWithinViewport =
+                tester.getTopLeft(find.text("Tile ${item.value}")).dy -
+                    viewportTop;
 
             // If item height is less than viewport it must not start above the top.
-            if (fuzzerConfiguration.maxItemHeight <=
-                fuzzerConfiguration.viewportHeight) {
-              expect(position.dy >= 0, isTrue);
+            if (fuzzerConfiguration.maxItemHeight <= viewportHeight) {
+              expect(positionWithinViewport >= 0, isTrue);
             }
 
             // When out of bounds we have at least checked that the item is present
@@ -942,9 +971,8 @@ void main() async {
             if (!overscroll &&
                 controller.position.pixels <
                     controller.position.maxScrollExtent) {
-              final expectedTop =
-                  (configuration.viewportHeight - item.height) * alignment;
-              expect(position.dy, roughlyEquals(expectedTop));
+              final expectedTop = (viewportHeight - item.height) * alignment;
+              expect(positionWithinViewport, roughlyEquals(expectedTop));
             }
           } else {
             _log.info("Skipping jump to offset $offset");
@@ -968,6 +996,7 @@ void main() async {
             itemValue: (sliver, index) => sliver * 1000 + index,
             viewportHeight: fc.viewportHeight,
             addGlobalKey: true,
+            pinnedHeaderHeight: (_) => fc.nextPinnedHeaderHeight(r),
           );
           if (configuration.totalExtent == 0) {
             continue;
@@ -1193,27 +1222,32 @@ class _Sliver {
   final List<_SliverItem> items;
   final GlobalKey? key;
   final ExtentController extentController;
+  final double pinnedHeaderHeight;
 
   // ignore: unused_element
   _Sliver(
     this.items, {
     this.key,
     ExtentController? extentController,
+    required this.pinnedHeaderHeight,
   }) : extentController = extentController ?? ExtentController();
 
   _Sliver copyWith({
     List<_SliverItem>? items,
     GlobalKey? key,
     ExtentController? extentController,
+    double? pinnedHeaderHeight,
   }) {
     return _Sliver(
       items ?? this.items,
       key: key ?? this.key,
       extentController: extentController ?? this.extentController,
+      pinnedHeaderHeight: pinnedHeaderHeight ?? this.pinnedHeaderHeight,
     );
   }
 
-  double get height => items.fold(0.0, (v, e) => v + e.height);
+  double get height =>
+      items.fold(0.0, (v, e) => v + e.height) + pinnedHeaderHeight;
 }
 
 class _SliverListConfiguration {
@@ -1236,15 +1270,17 @@ class _SliverListConfiguration {
   }
 
   static int _defaultItemValue(int sliver, int index) => index;
+  static double _defaultPinnedHeaderHeight(int sliver) => 0;
 
-  static _SliverListConfiguration generate({
-    int slivers = 1,
-    required int Function(int sliver) itemsPerSliver,
-    required double Function(int sliver, int index) itemHeight,
-    required double viewportHeight,
-    int Function(int sliver, int index) itemValue = _defaultItemValue,
-    bool addGlobalKey = false,
-  }) {
+  static _SliverListConfiguration generate(
+      {int slivers = 1,
+      required int Function(int sliver) itemsPerSliver,
+      required double Function(int sliver, int index) itemHeight,
+      required double viewportHeight,
+      int Function(int sliver, int index) itemValue = _defaultItemValue,
+      bool addGlobalKey = false,
+      double Function(int sliver) pinnedHeaderHeight =
+          _defaultPinnedHeaderHeight}) {
     final List<_Sliver> sliverList = [];
     for (int i = 0; i < slivers; ++i) {
       final List<_SliverItem> items = [];
@@ -1260,6 +1296,7 @@ class _SliverListConfiguration {
       sliverList.add(_Sliver(
         items,
         key: addGlobalKey ? GlobalKey() : null,
+        pinnedHeaderHeight: pinnedHeaderHeight(i),
       ));
     }
     return _SliverListConfiguration(
@@ -1273,7 +1310,8 @@ class _SliverListConfiguration {
   double get bottomScrollOffsetInitial {
     double initialHeight = 0;
     for (final sliver in slivers) {
-      initialHeight += sliver.items.length * kItemHeightInitial;
+      initialHeight +=
+          sliver.items.length * kItemHeightInitial + sliver.pinnedHeaderHeight;
     }
     return math.max(initialHeight - viewportHeight, 0);
   }
@@ -1298,13 +1336,29 @@ Widget _buildSliverList(
   return Directionality(
     textDirection: TextDirection.ltr,
     child: Center(
-      child: SizedBox(
+      child: Container(
+        color: Colors.blue,
         height: configuration.viewportHeight,
         child: CustomScrollView(
           physics: const ClampingScrollPhysics(),
           controller: controller,
           slivers: <Widget>[
-            for (final sliver in configuration.slivers)
+            for (final (index, sliver) in configuration.slivers.indexed) ...[
+              if (sliver.pinnedHeaderHeight > 0)
+                SliverPinnedHeader(
+                  child: SizedBox(
+                    height: sliver.pinnedHeaderHeight,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.red,
+                          width: 1,
+                        ),
+                      ),
+                      child: Text("PinnedHeader $index"),
+                    ),
+                  ),
+                ),
               SuperSliverList(
                 key: sliver.key,
                 extentPrecalculationPolicy: _SimpleExtentPrecalculatePolicy(
@@ -1316,7 +1370,19 @@ Widget _buildSliverList(
                     return SizedBox(
                       key: ValueKey<int>(sliver.items[i].value),
                       height: sliver.items[i].height,
-                      child: Text("Tile ${sliver.items[i].value}"),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: [
+                              Colors.green,
+                              Colors.yellow,
+                              Colors.white
+                            ][index % 3],
+                            width: 2,
+                          ),
+                        ),
+                        child: Text("Tile ${sliver.items[i].value}"),
+                      ),
                     );
                   },
                   findChildIndexCallback: (Key key) {
@@ -1328,6 +1394,7 @@ Widget _buildSliverList(
                   childCount: sliver.items.length,
                 ),
               ),
+            ],
           ],
         ),
       ),

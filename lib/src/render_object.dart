@@ -45,6 +45,9 @@ class _ChildScrollOffsetEstimation {
 
   /// Whether the entire element or only a rect should be revealed.
   bool revealingRect = false;
+
+  /// Child alignment within viewport.
+  double? alignment;
 }
 
 class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
@@ -725,22 +728,29 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
               layoutPass.initialScrollPosition - currentScrollPosition;
 
           if (!estimation.revealingRect) {
-            final double distanceFromViewportStart =
-                estimation.precedingScrollExtent +
-                    -layoutPass.initialScrollPosition +
-                    estimation.offset -
-                    constraints.overlap;
+            var childAlignmentWithinViewport = estimation.alignment;
 
-            // Use extent during estimation because distanceFromViewportStart is calculated
-            // with correction to adjusted for extent difference.
-            final distanceFromViewportStartMax =
-                constraints.viewportMainAxisExtent -
-                    estimation.extent -
-                    constraints.overlap;
+            // Try to estimate child alignment within viewport - this is used
+            // when calculating scroll offset through viewport.getOffsetToReveal
+            // instead of ExtentManager. Best effort.
+            if (childAlignmentWithinViewport == null) {
+              final double distanceFromViewportStart =
+                  estimation.precedingScrollExtent +
+                      -layoutPass.initialScrollPosition +
+                      estimation.offset -
+                      constraints.overlap;
 
-            final childAlignmentWithinViewport =
-                (distanceFromViewportStart / distanceFromViewportStartMax)
-                    .clamp(0.0, 1.0);
+              // Use extent during estimation because distanceFromViewportStart is calculated
+              // with correction to adjusted for extent difference.
+              final distanceFromViewportStartMax =
+                  constraints.viewportMainAxisExtent -
+                      estimation.extent -
+                      constraints.overlap;
+
+              childAlignmentWithinViewport =
+                  (distanceFromViewportStart / distanceFromViewportStartMax)
+                      .clamp(0.0, 1.0);
+            }
 
             // Depending on child alignment within viewport the scroll offset correction
             // needs to account for extent difference. When child is aligned at the start
@@ -913,6 +923,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
         _childScrollOffsetEstimation?.viewportScrollOffset = offset;
       }
       _childScrollOffsetEstimation?.revealingRect = rect != null;
+      _childScrollOffsetEstimation?.alignment = alignment;
     }
 
     return offset ?? 0.0;
