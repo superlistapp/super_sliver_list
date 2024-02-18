@@ -8,11 +8,11 @@
 
 `SliverList` performance degrades heavily when quickly scrolling through a large amount of items with different extents, requiring workarounds such as using `FixedExtentSliverList` or prototype items. `SuperSliverList` uses different layout algorithm and can handle virtually unlimited number of items with variable extents without any slow-downs.
 
-### Aability to jump or animate to specific item
+#### Ability to jump or animate to specific item
 
 `SliverList` does not provide any way to jump or animate a particular index. There is a [scrollable_positioned_list](https://pub.dev/packages/scrollable_positioned_list) package that provides this functionality, but it comes at a cost, as it requires custom scroll view, does not seem to work properly with Scrollbars, can't be used with with other slivers (like sticky headers) and ultimately is backed by a `SliverList` so it has the same performance issues as mentioned above.
 
-### Smoothe and predictable scrollbar behavior
+#### Smooth and predictable scrollbar behavior
 
 `SliverList` is quite prone to scrollbar erraticaly jumping around when scrolling through a list of items with different extents. With `SuperSliverList` the scrollbar should behave more predictably. See the [Advanced](##advanced) section for more details.
 
