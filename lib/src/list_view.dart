@@ -286,7 +286,7 @@ import "super_sliver_list.dart";
 ///   return Scaffold(
 ///     appBar: AppBar(title: const Text('Empty List Test')),
 ///     body: itemCount > 0
-///       ? ListView.builder(
+///       ? SuperListView.builder(
 ///           itemCount: itemCount,
 ///           itemBuilder: (BuildContext context, int index) {
 ///             return ListTile(
