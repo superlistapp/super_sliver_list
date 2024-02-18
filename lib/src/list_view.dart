@@ -357,7 +357,7 @@ class SuperListView extends BoxScrollView {
     super.restorationId,
     super.clipBehavior,
     this.extentController,
-    this.extentEstimationProvider,
+    this.extentEstimation,
     this.extentPrecalculationPolicy,
     this.delayPopulatingCacheArea = false,
   })  : childrenDelegate = SliverChildListDelegate(
@@ -430,7 +430,7 @@ class SuperListView extends BoxScrollView {
     super.restorationId,
     super.clipBehavior,
     this.extentController,
-    this.extentEstimationProvider,
+    this.extentEstimation,
     this.extentPrecalculationPolicy,
     this.delayPopulatingCacheArea = false,
   })  : assert(itemCount == null || itemCount >= 0),
@@ -520,7 +520,7 @@ class SuperListView extends BoxScrollView {
     super.restorationId,
     super.clipBehavior,
     this.extentController,
-    this.extentEstimationProvider,
+    this.extentEstimation,
     this.extentPrecalculationPolicy,
     this.delayPopulatingCacheArea = false,
   })  : assert(itemCount >= 0),
@@ -573,7 +573,7 @@ class SuperListView extends BoxScrollView {
     super.restorationId,
     super.clipBehavior,
     this.extentController,
-    this.extentEstimationProvider,
+    this.extentEstimation,
     this.extentPrecalculationPolicy,
     this.delayPopulatingCacheArea = false,
   });
@@ -595,7 +595,7 @@ class SuperListView extends BoxScrollView {
   /// out, either through scrolling or [extentPrecalculationPolicy], the actual
   /// extents are calculated and the scroll offset is adjusted to account for
   /// the difference between estimated and actual extents.
-  final ExtentEstimationProvider? extentEstimationProvider;
+  final ExtentEstimationProvider? extentEstimation;
 
   /// Optional policy that can be used to asynchronously precalculate the extents
   /// of the items in the list. This can be useful allow precise scrolling on small
@@ -617,6 +617,9 @@ class SuperListView extends BoxScrollView {
     return SuperSliverList(
       delegate: childrenDelegate,
       extentController: extentController,
+      delayPopulatingCacheArea: delayPopulatingCacheArea,
+      extentEstimation: extentEstimation,
+      extentPrecalculationPolicy: extentPrecalculationPolicy,
     );
   }
 
