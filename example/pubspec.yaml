@@ -17,7 +17,10 @@ dependencies:
       url: https://github.com/widgetbakery/headless_widgets.git
       ref: eac8e9d04aaf493d7dec57bd9b0bb26b88a76b43
   super_sliver_list_example_data:
-    path: data
+    git:
+      url: https://github.com/superlistapp/super_sliver_list.git
+      ref: c9030fbdd3d1be6cdbe9968d0a7d7c66b7988437
+      path: example/data
   provider: ^6.1.1
   context_watch: ^2.0.0-dev.5
   flutter_lorem: ^2.0.0
