@@ -14,6 +14,7 @@ import "package:pixel_snap/widgets.dart";
 import "package:provider/provider.dart";
 import "package:super_sliver_list/super_sliver_list.dart";
 
+import "../util/media_query.dart";
 import "app_settings.dart";
 import "example_page.dart";
 import "header.dart";
@@ -147,9 +148,15 @@ class _NarrowAppState extends State<_NarrowApp> {
                 _scaffoldKey.currentState!.openDrawer(),
           ),
           Expanded(
-            child: ColoredBox(
-              color: Colors.white,
-              child: widget.child,
+            child: MediaQuery.removePadding(
+              context: context,
+              removeLeft: false,
+              removeRight: false,
+              removeTop: true,
+              child: ColoredBox(
+                color: Colors.white,
+                child: widget.child,
+              ),
             ),
           ),
         ],
@@ -176,20 +183,32 @@ class _WideApp extends StatelessWidget {
         children: [
           const Header(),
           Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Sidebar(
-                  key: sidebarKey,
-                  currentPageKey: currentPageKey,
-                ),
-                Expanded(
-                  child: ColoredBox(
-                    color: Colors.white,
-                    child: child,
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  MediaQueryExt.removePaddingDirectional(
+                    context: context,
+                    removeTrailing: true,
+                    child: Sidebar(
+                      key: sidebarKey,
+                      currentPageKey: currentPageKey,
+                    ),
                   ),
-                ),
-              ],
+                  MediaQueryExt.removePaddingDirectional(
+                    removeLeading: true,
+                    context: context,
+                    child: Expanded(
+                      child: ColoredBox(
+                        color: Colors.white,
+                        child: child,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

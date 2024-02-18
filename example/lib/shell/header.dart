@@ -23,51 +23,57 @@ class Header extends StatelessWidget {
           ),
         ),
       ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (openNavigationSidebar != null) ...[
-              AspectRatio(
-                aspectRatio: 1.0,
-                child: FlatButton(
-                  onPressed: openNavigationSidebar,
-                  child: const Icon(Icons.menu),
+      child: SafeArea(
+        left: true,
+        right: true,
+        top: true,
+        bottom: false,
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (openNavigationSidebar != null) ...[
+                AspectRatio(
+                  aspectRatio: 1.0,
+                  child: FlatButton(
+                    onPressed: openNavigationSidebar,
+                    child: const Icon(Icons.menu),
+                  ),
+                ),
+                const Spacer(),
+              ],
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "SuperSliverList",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Color(0xFFF84F39),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      // style: theme.textTheme.headline6!.copyWith(color: Colors.white),
+                    ),
+                    DefaultTextStyle.merge(
+                      style: const TextStyle(
+                        fontSize: 12,
+                      ),
+                      child: LinkButton(
+                        uri: Uri.parse(
+                          "https://github.com/superlistapp/super_sliver_list",
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const Spacer(),
             ],
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "SuperSliverList",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Color(0xFFF84F39),
-                      fontWeight: FontWeight.bold,
-                    ),
-                    // style: theme.textTheme.headline6!.copyWith(color: Colors.white),
-                  ),
-                  DefaultTextStyle.merge(
-                    style: const TextStyle(
-                      fontSize: 12,
-                    ),
-                    child: LinkButton(
-                      uri: Uri.parse(
-                        "https://github.com/superlistapp/super_sliver_list",
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Spacer(),
-          ],
+          ),
         ),
       ),
     );

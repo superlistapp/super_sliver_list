@@ -20,14 +20,32 @@ class ListHeader extends StatelessWidget {
             ? const Color(0xFFF84F39).withOpacity(0.9)
             : Colors.blueGrey.shade300.withOpacity(0.9),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        child: DefaultTextStyle.merge(
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        child: SafeArea(
+          left: false,
+          right: false,
+          bottom: false,
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            child: title,
           ),
-          child: title,
         ),
+      ),
+    );
+  }
+}
+
+class ListFooter extends StatelessWidget {
+  const ListFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: SizedBox(
+        height: MediaQuery.of(context).padding.bottom,
       ),
     );
   }

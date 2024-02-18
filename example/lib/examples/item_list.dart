@@ -259,69 +259,75 @@ class _ItemListPageState extends ExamplePageState {
 
     _ensureExtentContollers(_sliverData.length);
 
-    return Row(
-      children: [
-        Expanded(
-          child: FocusTraversalGroup(
-            policy: _ReadingOrderTraversalPolicy(),
-            child: LayoutInfoOverlay(
-              extentControllers: _extentControllers,
-              child: CustomScrollView(
-                controller: _scrollController,
-                slivers: [
-                  const ListHeader(
-                    title: Text("SuperSliverList"),
-                    primary: true,
-                  ),
-                  for (int i = 0; i < _sliverData.length; ++i)
-                    SliverDecoration(
-                      index: i,
-                      sliver: SuperSliverList(
-                        extentController: _extentControllers[i],
-                        extentPrecalculationPolicy:
-                            options.extentPrecalculationPolicy,
-                        delegate: delegate(i),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        if (showSliverList)
+    return SafeArea(
+      top: false,
+      bottom: false,
+      child: Row(
+        children: [
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  left: BorderSide(
-                    color: Colors.blueGrey.shade100,
-                    width: 1,
-                  ),
-                ),
-              ),
-              child: FocusTraversalGroup(
-                policy: _ReadingOrderTraversalPolicy(),
+            child: FocusTraversalGroup(
+              policy: _ReadingOrderTraversalPolicy(),
+              child: LayoutInfoOverlay(
+                extentControllers: _extentControllers,
                 child: CustomScrollView(
+                  controller: _scrollController,
                   slivers: [
                     const ListHeader(
-                      title: Text("SliverList"),
-                      primary: false,
+                      title: Text("SuperSliverList"),
+                      primary: true,
                     ),
-                    if (itemsPerSliver * sliverCount > 5000)
-                      SliverListDisclaimer(),
                     for (int i = 0; i < _sliverData.length; ++i)
                       SliverDecoration(
                         index: i,
-                        sliver: SliverList(
+                        sliver: SuperSliverList(
+                          extentController: _extentControllers[i],
+                          extentPrecalculationPolicy:
+                              options.extentPrecalculationPolicy,
                           delegate: delegate(i),
                         ),
                       ),
+                    const ListFooter(),
                   ],
                 ),
               ),
             ),
           ),
-      ],
+          if (showSliverList)
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    left: BorderSide(
+                      color: Colors.blueGrey.shade100,
+                      width: 1,
+                    ),
+                  ),
+                ),
+                child: FocusTraversalGroup(
+                  policy: _ReadingOrderTraversalPolicy(),
+                  child: CustomScrollView(
+                    slivers: [
+                      const ListHeader(
+                        title: Text("SliverList"),
+                        primary: false,
+                      ),
+                      if (itemsPerSliver * sliverCount > 5000)
+                        SliverListDisclaimer(),
+                      for (int i = 0; i < _sliverData.length; ++i)
+                        SliverDecoration(
+                          index: i,
+                          sliver: SliverList(
+                            delegate: delegate(i),
+                          ),
+                        ),
+                      const ListFooter(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
