@@ -10,7 +10,7 @@ import "package:flutter/material.dart"
         ScrollbarThemeData,
         Typography;
 import "package:flutter/services.dart";
-import "package:flutter/widgets.dart";
+import "package:pixel_snap/widgets.dart";
 import "package:provider/provider.dart";
 import "package:super_sliver_list/super_sliver_list.dart";
 
@@ -226,6 +226,18 @@ class _ScrollBehavior extends ScrollBehavior {
   }
 
   @override
+  TargetPlatform getPlatform(BuildContext context) {
+    // Cupertino scrollbar has broken overscroll, for now force macOS on
+    // all platforms.
+    final platform = super.getPlatform(context);
+    if (platform == TargetPlatform.iOS) {
+      return TargetPlatform.macOS;
+    } else {
+      return platform;
+    }
+  }
+
+  @override
   Widget buildScrollbar(
       BuildContext context, Widget child, ScrollableDetails details) {
     return ScrollbarTheme(
@@ -238,10 +250,14 @@ class _ScrollBehavior extends ScrollBehavior {
           return Colors.black.withOpacity(0.1);
         }),
       ),
-      child: Scrollbar(
-        controller: details.controller,
-        thumbVisibility: true,
-        child: child,
+      child: MediaQuery(
+        data: MediaQuery.of(context)
+            .copyWith(platformBrightness: Brightness.light),
+        child: Scrollbar(
+          controller: details.controller,
+          thumbVisibility: true,
+          child: child,
+        ),
       ),
     );
   }
