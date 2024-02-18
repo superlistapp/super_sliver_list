@@ -75,22 +75,22 @@ class _MyState extends State<MyWidget> {
 
   void jumpToItem(int index) {
     _extentController.jumpToItem(
-        index: index,
-        scrollController: _scrollController,
-        alignment: 0.5,
+      index: index,
+      scrollController: _scrollController,
+      alignment: 0.5,
     );
   }
 
   void animateToItem(int index) {
-      _extentController.animateToItem(
-          index: index,
-          scrollController: _scrollController,
-          alignment: 0.5,
-          // You can provide duration and curve depending on the estimated
-          // distance between currentPosition and the target item position.
-          duration: (estimatedDistance) => Duration(milliseconds: 250),
-          curve: (estimatedDistance) => Curves.easeInOut,
-      );
+    _extentController.animateToItem(
+      index: index,
+      scrollController: _scrollController,
+      alignment: 0.5,
+      // You can provide duration and curve depending on the estimated
+      // distance between currentPosition and the target item position.
+      duration: (estimatedDistance) => Duration(milliseconds: 250),
+      curve: (estimatedDistance) => Curves.easeInOut,
+    );
   }
 }
 
