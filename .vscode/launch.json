@@ -9,6 +9,9 @@
             "cwd": "example",
             "request": "launch",
             "type": "dart",
+            "toolArgs": [
+                "-v"
+            ]
             // "toolArgs": [
             //     "--local-engine=host_debug_unopt"
             // ]

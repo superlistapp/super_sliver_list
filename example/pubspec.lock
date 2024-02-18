@@ -264,9 +264,11 @@ packages:
   super_sliver_list_example_data:
     dependency: "direct main"
     description:
-      path: data
-      relative: true
-    source: path
+      path: "example/data"
+      ref: c9030fbdd3d1be6cdbe9968d0a7d7c66b7988437
+      resolved-ref: c9030fbdd3d1be6cdbe9968d0a7d7c66b7988437
+      url: "https://github.com/superlistapp/super_sliver_list.git"
+    source: git
     version: "0.0.1"
   term_glyph:
     dependency: transitive
