@@ -57,21 +57,23 @@ class _SidebarState extends State<Sidebar> {
       ),
       child: SingleChildScrollView(
         controller: controller,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: IntrinsicWidth(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ...allRoutes.map(
-                  (route) => _NavigationButton(
-                      uri: route.fullPath, title: route.title),
-                ),
-                const SizedBox(
-                  height: 14,
-                ),
-                if (pageWidget != null) pageWidget,
-              ],
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: IntrinsicWidth(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ...allRoutes.map(
+                    (route) => _NavigationButton(
+                        uri: route.fullPath, title: route.title),
+                  ),
+                  const SizedBox(
+                    height: 14,
+                  ),
+                  if (pageWidget != null) pageWidget,
+                ],
+              ),
             ),
           ),
         ),

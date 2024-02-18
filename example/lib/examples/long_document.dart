@@ -57,63 +57,69 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
           );
         }, childCount: paragraphs.length);
     _ensureExtentContollers(sliverCount);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: LayoutInfoOverlay(
-            extentControllers: _extentControllers,
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                const ListHeader(
-                  title: Text("SuperSliverList"),
-                  primary: true,
-                ),
-                for (int i = 0; i < sliverCount; ++i)
-                  SliverDecoration(
-                    index: i,
-                    sliver: SuperSliverList(
-                      extentController: _extentControllers[i],
-                      extentPrecalculationPolicy:
-                          options.extentPrecalculationPolicy,
-                      delegate: delegate(i),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-        if (showSliverList)
+    return SafeArea(
+      top: false,
+      bottom: false,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  left: BorderSide(
-                    color: Colors.blueGrey.shade100,
-                    width: 1,
-                  ),
-                ),
-              ),
+            child: LayoutInfoOverlay(
+              extentControllers: _extentControllers,
               child: CustomScrollView(
+                controller: _scrollController,
                 slivers: [
                   const ListHeader(
-                    title: Text("SliverList"),
-                    primary: false,
+                    title: Text("SuperSliverList"),
+                    primary: true,
                   ),
-                  if (sliverCount > 1) SliverListDisclaimer(),
                   for (int i = 0; i < sliverCount; ++i)
                     SliverDecoration(
                       index: i,
-                      sliver: SliverList(
+                      sliver: SuperSliverList(
+                        extentController: _extentControllers[i],
+                        extentPrecalculationPolicy:
+                            options.extentPrecalculationPolicy,
                         delegate: delegate(i),
                       ),
                     ),
+                  const ListFooter(),
                 ],
               ),
             ),
           ),
-      ],
+          if (showSliverList)
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    left: BorderSide(
+                      color: Colors.blueGrey.shade100,
+                      width: 1,
+                    ),
+                  ),
+                ),
+                child: CustomScrollView(
+                  slivers: [
+                    const ListHeader(
+                      title: Text("SliverList"),
+                      primary: false,
+                    ),
+                    if (sliverCount > 1) SliverListDisclaimer(),
+                    for (int i = 0; i < sliverCount; ++i)
+                      SliverDecoration(
+                        index: i,
+                        sliver: SliverList(
+                          delegate: delegate(i),
+                        ),
+                      ),
+                    const ListFooter(),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
