@@ -50,7 +50,7 @@ class _ItemListSettings {
   final sliverCount = ValueNotifier(5);
   final itemsPerSliver = ValueNotifier(1000);
   final maxLength = ValueNotifier(6);
-  final stickyHeaders = ValueNotifier(false);
+  final stickyHeaders = ValueNotifier(true);
 }
 
 class ItemWidget extends StatefulWidget {

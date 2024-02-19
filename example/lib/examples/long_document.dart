@@ -41,14 +41,14 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
   }
 
   final sliverCount = ValueNotifier(1);
-  final stickysHeaders = ValueNotifier(false);
+  final stickyHeaders = ValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
     final options = context.watch<AppSettings>();
     final showSliverList = options.showSliverList.watch(context);
     final sliverCount = this.sliverCount.watch(context);
-    final stickysHeaders = this.stickysHeaders.watch(context);
+    final stickyHeaders = this.stickyHeaders.watch(context);
 
     const paragraphs = sherlock.paragraphs;
     SliverChildBuilderDelegate delegate(int sliver) =>
@@ -79,7 +79,7 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
                   ),
                   for (int i = 0; i < sliverCount; ++i)
                     SliverDecoration(
-                      stickyHeader: stickysHeaders,
+                      stickyHeader: stickyHeaders,
                       index: i,
                       sliver: SuperSliverList(
                         extentController: _extentControllers[i],
@@ -113,7 +113,7 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
                     if (sliverCount > 1) SliverListDisclaimer(),
                     for (int i = 0; i < sliverCount; ++i)
                       SliverDecoration(
-                        stickyHeader: stickysHeaders,
+                        stickyHeader: stickyHeaders,
                         index: i,
                         sliver: SliverList(
                           delegate: delegate(i),
@@ -133,7 +133,7 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
   Widget? createSidebarWidget() {
     return _SidebarWidget(
       sliverCount: sliverCount,
-      stickyHeaders: stickysHeaders,
+      stickyHeaders: stickyHeaders,
       itemCount: sherlock.paragraphs.length,
       onJumpRequested: (sliver, item, alignment) {
         _extentControllers[sliver].jumpToItem(
