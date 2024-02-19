@@ -1,11 +1,14 @@
 import "package:flutter/rendering.dart";
 import "package:flutter/widgets.dart";
+import "package:logging/logging.dart";
 
 import "animate_to_item.dart";
 import "element.dart";
 import "extent_manager.dart";
 import "layout_budget.dart";
 import "render_object.dart";
+
+final _log = Logger("SuperSliverList");
 
 class ExtentController extends ChangeNotifier {
   ExtentController({
@@ -51,7 +54,11 @@ class ExtentController extends ChangeNotifier {
   }) {
     assert(_delegate != null, "ExtentController is not attached.");
     final offset = getOffsetToReveal(index, alignment, rect: rect);
-    scrollController.jumpTo(offset);
+    if (offset.isFinite) {
+      scrollController.jumpTo(offset);
+    } else {
+      _log.warning("getOffsetToReveal returned non-finite value.");
+    }
   }
 
   void animateToItem({

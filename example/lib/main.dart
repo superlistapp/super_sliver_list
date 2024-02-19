@@ -10,7 +10,7 @@ void main() {
   });
   hierarchicalLoggingEnabled = true;
   WidgetsFlutterBinding.ensureInitialized();
-  // Logger("SuperSliver").level = Level.FINER;
+  // Logger("SuperSliverList").level = Level.FINER;
 
   // Right now the debug bar doesn't work nicely with safe area so
   // only enable it on desktop platform.

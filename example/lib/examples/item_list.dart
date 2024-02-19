@@ -21,6 +21,22 @@ const _kMaxSlivers = 10;
 const _kItemsPerSliver = [1, 9, 27, 80, 200, 1000, 2500, 7000, 20000];
 
 class _ReadingOrderTraversalPolicy extends ReadingOrderTraversalPolicy {
+  _ReadingOrderTraversalPolicy() : super(requestFocusCallback: _requestFocus);
+
+  static void _requestFocus(
+    FocusNode node, {
+    ScrollPositionAlignmentPolicy? alignmentPolicy,
+    double? alignment,
+    Duration? duration,
+    Curve? curve,
+  }) {
+    if (!node.hasFocus) {
+      node.requestFocus();
+    }
+    final renderObject = node.context!.findRenderObject();
+    renderObject?.safeShowOnScreen(node.context!);
+  }
+
   @override
   bool inDirection(FocusNode currentNode, TraversalDirection direction) {
     // For list traversal the history flutter keeps have weird behavior.
