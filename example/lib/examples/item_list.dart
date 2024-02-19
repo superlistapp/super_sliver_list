@@ -19,7 +19,19 @@ import "../widgets/sliver_decoration.dart";
 import "../widgets/sliver_list_disclaimer.dart";
 
 const _kMaxSlivers = 10;
-const _kItemsPerSliver = [1, 9, 27, 80, 200, 1000, 2500, 7000, 20000];
+const _kItemsPerSliver = [
+  1,
+  5,
+  9,
+  27,
+  80,
+  200,
+  1000,
+  2500,
+  7000,
+  20000,
+  100000
+];
 
 class _ReadingOrderTraversalPolicy extends ReadingOrderTraversalPolicy {
   _ReadingOrderTraversalPolicy() : super(requestFocusCallback: _requestFocus);
@@ -403,7 +415,7 @@ class _SidebarWidget extends StatelessWidget {
           children: [
             NumberPicker(
               title: const Text("Slivers"),
-              options: List.generate(_kMaxSlivers - 1, (index) => index + 1),
+              options: List.generate(_kMaxSlivers, (index) => index + 1),
               value: sliverCount,
               onChanged: (value) {
                 settings.sliverCount.value = value;

@@ -182,7 +182,7 @@ class _SidebarWidget extends StatelessWidget {
           children: [
             NumberPicker(
               title: const Text("Slivers"),
-              options: List.generate(_kMaxSlivers - 1, (index) => index + 1),
+              options: List.generate(_kMaxSlivers, (index) => index + 1),
               value: sliverCount,
               onChanged: (value) {
                 this.sliverCount.value = value;
