@@ -1,6 +1,6 @@
 name: super_sliver_list
 description: "Drop-in replacement for SliverList and ListView that can handle large lists with variable extents and jump/animate to specific items."
-version: 0.2.0-dev.1
+version: 0.2.0-dev.2
 homepage: https://github.com/superlistapp/super_sliver_list
 
 environment:
