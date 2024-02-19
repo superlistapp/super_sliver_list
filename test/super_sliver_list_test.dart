@@ -647,62 +647,62 @@ void main() async {
 
       controller.dispose();
     });
-  });
-  testWidgets("delay populating cache area disabled", (tester) async {
-    final keys = List.generate(50, (index) => GlobalKey());
-    final controller = ScrollController();
-    await tester.pumpWidget(
-      Directionality(
-        textDirection: TextDirection.ltr,
-        child: Center(
-          child: SizedBox(
-            height: 500,
-            child: CustomScrollView(
-              cacheExtent: 200,
-              physics: const ClampingScrollPhysics(),
-              controller: controller,
-              slivers: [
-                SuperSliverList(
-                  delayPopulatingCacheArea: false,
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return SizedBox(
-                        key: keys[index],
-                        height: 100,
-                        child: Text("Tile $index"),
-                      );
-                    },
-                    childCount: keys.length,
+    testWidgets("delay populating cache area disabled", (tester) async {
+      final keys = List.generate(50, (index) => GlobalKey());
+      final controller = ScrollController();
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Center(
+            child: SizedBox(
+              height: 500,
+              child: CustomScrollView(
+                cacheExtent: 200,
+                physics: const ClampingScrollPhysics(),
+                controller: controller,
+                slivers: [
+                  SuperSliverList(
+                    delayPopulatingCacheArea: false,
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return SizedBox(
+                          key: keys[index],
+                          height: 100,
+                          child: Text("Tile $index"),
+                        );
+                      },
+                      childCount: keys.length,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
-    expect(keys[0].currentContext, isNotNull);
+      );
+      expect(keys[0].currentContext, isNotNull);
 
-    // Cache area
-    expect(keys[5].currentContext, isNotNull);
-    expect(keys[6].currentContext, isNotNull);
-    // After cache area
-    expect(keys[7].currentContext, isNull);
+      // Cache area
+      expect(keys[5].currentContext, isNotNull);
+      expect(keys[6].currentContext, isNotNull);
+      // After cache area
+      expect(keys[7].currentContext, isNull);
 
-    // All items replaced, cache area should immediately be populated
-    controller.jumpTo(2000);
-    await tester.pump();
+      // All items replaced, cache area should immediately be populated
+      controller.jumpTo(2000);
+      await tester.pump();
 
-    // Items removed
-    expect(keys[0].currentContext, isNull);
-    expect(keys[6].currentContext, isNull);
-    // Visible content
-    expect(keys[20].currentContext, isNotNull);
-    expect(keys[24].currentContext, isNotNull);
-    // Cache area
-    expect(keys[19].currentContext, isNotNull);
-    expect(keys[25].currentContext, isNotNull);
-    controller.dispose();
+      // Items removed
+      expect(keys[0].currentContext, isNull);
+      expect(keys[6].currentContext, isNull);
+      // Visible content
+      expect(keys[20].currentContext, isNotNull);
+      expect(keys[24].currentContext, isNotNull);
+      // Cache area
+      expect(keys[19].currentContext, isNotNull);
+      expect(keys[25].currentContext, isNotNull);
+      controller.dispose();
+    });
   });
   group("Fuzzer", () {
     testWidgets("layout multiple slivers scrolling down", (tester) async {

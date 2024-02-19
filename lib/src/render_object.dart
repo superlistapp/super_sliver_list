@@ -8,6 +8,7 @@ import "element.dart";
 import "extent_manager.dart";
 import "layout_budget.dart";
 import "layout_pass.dart";
+import "sliver_extensions.dart";
 import "super_sliver_list.dart";
 
 final _log = Logger("SuperSliverList");
@@ -21,6 +22,9 @@ class _ChildScrollOffsetEstimation {
     required this.offset,
     required this.extent,
     required this.precedingScrollExtent,
+    required this.revealingRect,
+    required this.alignment,
+    required this.childObstructionExtent,
   });
 
   /// Index of child for which the offset was estimated.
@@ -40,14 +44,17 @@ class _ChildScrollOffsetEstimation {
   /// for change in preceding sliver extent change during layout.
   final double precedingScrollExtent;
 
-  /// Scroll offset of viewport when estimation was made.
-  double? viewportScrollOffset;
-
   /// Whether the entire element or only a rect should be revealed.
-  bool revealingRect = false;
+  final bool revealingRect;
 
   /// Child alignment within viewport.
-  double? alignment;
+  final double? alignment;
+
+  /// Child obstruction extent when estimation was made.
+  final ChildObstructionExtent childObstructionExtent;
+
+  /// Scroll offset of viewport when estimation was made.
+  double? viewportScrollOffset;
 }
 
 class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
@@ -200,7 +207,14 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
     // we can possibly correct scrollOffset in next performLayout call.
     final index = indexOf(child as RenderBox);
 
-    if (child is _FakeRenderObject && child.needEstimationOnly) {
+    final offsetToRevealContext = OffsetToRevealContext.current();
+
+    assert(
+      offsetToRevealContext == null ||
+          offsetToRevealContext.viewport == getViewport(),
+    );
+
+    if (offsetToRevealContext?.estimationOnly == true) {
       return _extentManager.offsetForIndex(index);
     }
 
@@ -209,7 +223,28 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       offset: _extentManager.offsetForIndex(index),
       extent: _extentManager.getExtent(index),
       precedingScrollExtent: precedingScrollExtent,
+      revealingRect: offsetToRevealContext?.rect != null,
+      alignment: offsetToRevealContext?.alignment,
+      childObstructionExtent: child.getParentChildObstructionExtent(),
     );
+
+    if (offsetToRevealContext != null) {
+      assert(offsetToRevealContext.estimationOnly == false);
+      offsetToRevealContext.registerOffsetResolvedCallback((value) {
+        final offset = value.offset;
+        // Remember the target scroll position. Scroll correction will only be enforced
+        // when the viewport scroll position is the same as when the estimation was made.
+        // This is enforced by [LayoutPass.sanitizeChildScrollOffsetEstimation].
+        final position = getViewport()!.offset as ScrollPosition;
+        // Only remember position if it is within scroll extent. Otherwise
+        // it will be corrected and it is not possible to check against it.
+        if (offset >= position.minScrollExtent &&
+            offset <= position.maxScrollExtent) {
+          _childScrollOffsetEstimation?.viewportScrollOffset = offset;
+        }
+      });
+    }
+
     _log.fine(
       "$_logIdentifier remembering estimated offset ${_childScrollOffsetEstimation!.offset} for child $index (preceding extent ${constraints.precedingScrollExtent})",
     );
@@ -223,9 +258,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
         break;
       }
     }
-    final offset = _childScrollOffsetEstimation!.offset;
-
-    return offset;
+    return _childScrollOffsetEstimation!.offset;
   }
 
   /// Moves the layout offset of this and subsequent children by the given delta.
@@ -758,6 +791,16 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
             // the correction is equal to extent difference.
             final extentDifference = paintExtentOf(c) - estimation.extent;
             correction += extentDifference * childAlignmentWithinViewport;
+
+            // Obstruction extent on this sliver might have been outdated during the estimation
+            // so account of the difference.
+            final obstructionExtentDifference =
+                c.getParentChildObstructionExtent() -
+                    estimation.childObstructionExtent;
+            correction -= obstructionExtentDifference.leading *
+                (1.0 - childAlignmentWithinViewport);
+            correction += obstructionExtentDifference.trailing *
+                childAlignmentWithinViewport;
           }
 
           if (correction.abs() > precisionErrorTolerance) {
@@ -904,29 +947,16 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       parent: this,
       index: index,
       extent: _extentManager.getExtent(index),
-      needEstimationOnly: estimationOnly,
     );
-    final offset = getViewport()
-        ?.getOffsetToReveal(
+    final viewport = getViewport()!;
+    return viewport
+        .getOffsetToRevealExt(
           renderObject,
           alignment,
+          esimationOnly: estimationOnly,
           rect: rect,
         )
         .offset;
-
-    if (offset != null && !estimationOnly) {
-      final position = getViewport()!.offset as ScrollPosition;
-      // Only remember position if it is within scroll extent. Otherwise
-      // it will be corrected and it is not possible to check against it.
-      if (offset >= position.minScrollExtent &&
-          offset <= position.maxScrollExtent) {
-        _childScrollOffsetEstimation?.viewportScrollOffset = offset;
-      }
-      _childScrollOffsetEstimation?.revealingRect = rect != null;
-      _childScrollOffsetEstimation?.alignment = alignment;
-    }
-
-    return offset ?? 0.0;
   }
 
   @override
@@ -941,13 +971,11 @@ class _FakeRenderObject extends RenderBox {
   @override
   final RenderObject parent;
   final double extent;
-  final bool needEstimationOnly;
 
   _FakeRenderObject({
     required this.parent,
     required int index,
     required this.extent,
-    required this.needEstimationOnly,
   }) {
     parentData = SliverMultiBoxAdaptorParentData()..index = index;
   }
