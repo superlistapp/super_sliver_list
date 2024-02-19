@@ -213,11 +213,7 @@ class AppSettingsWidget extends StatelessWidget {
     return SidebarSection(title: const Text("Options"), children: [
       CheckBox(
         checked: showSliverList,
-        child: const Text(
-          "Compare with SliverList",
-          maxLines: 5,
-          overflow: TextOverflow.ellipsis,
-        ),
+        child: const Text("Compare with SliverList"),
         onChanged: (value) => settings.showSliverList.value = value,
       ),
       Column(

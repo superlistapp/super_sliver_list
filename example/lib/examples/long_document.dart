@@ -8,6 +8,7 @@ import "package:super_sliver_list_example_data/sherlock.dart" as sherlock;
 import "../shell/app_settings.dart";
 import "../shell/example_page.dart";
 import "../shell/sidebar.dart";
+import "../widgets/check_box.dart";
 import "../widgets/jump_widget.dart";
 import "../widgets/layout_info_overlay.dart";
 import "../widgets/list_header.dart";
@@ -40,12 +41,15 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
   }
 
   final sliverCount = ValueNotifier(1);
+  final stickysHeaders = ValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
     final options = context.watch<AppSettings>();
     final showSliverList = options.showSliverList.watch(context);
     final sliverCount = this.sliverCount.watch(context);
+    final stickysHeaders = this.stickysHeaders.watch(context);
+
     const paragraphs = sherlock.paragraphs;
     SliverChildBuilderDelegate delegate(int sliver) =>
         SliverChildBuilderDelegate((context, index) {
@@ -75,6 +79,7 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
                   ),
                   for (int i = 0; i < sliverCount; ++i)
                     SliverDecoration(
+                      stickyHeader: stickysHeaders,
                       index: i,
                       sliver: SuperSliverList(
                         extentController: _extentControllers[i],
@@ -108,6 +113,7 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
                     if (sliverCount > 1) SliverListDisclaimer(),
                     for (int i = 0; i < sliverCount; ++i)
                       SliverDecoration(
+                        stickyHeader: stickysHeaders,
                         index: i,
                         sliver: SliverList(
                           delegate: delegate(i),
@@ -127,6 +133,7 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
   Widget? createSidebarWidget() {
     return _SidebarWidget(
       sliverCount: sliverCount,
+      stickyHeaders: stickysHeaders,
       itemCount: sherlock.paragraphs.length,
       onJumpRequested: (sliver, item, alignment) {
         _extentControllers[sliver].jumpToItem(
@@ -150,6 +157,7 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
 
 class _SidebarWidget extends StatelessWidget {
   final ValueNotifier<int> sliverCount;
+  final ValueNotifier<bool> stickyHeaders;
   final int itemCount;
   final void Function(int sliver, int item, double alignment) onJumpRequested;
   final void Function(int sliver, int item, double alignment)
@@ -157,6 +165,7 @@ class _SidebarWidget extends StatelessWidget {
 
   const _SidebarWidget({
     required this.sliverCount,
+    required this.stickyHeaders,
     required this.itemCount,
     required this.onJumpRequested,
     required this.onAnimateRequested,
@@ -165,6 +174,7 @@ class _SidebarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sliverCount = this.sliverCount.watch(context);
+    final stickyHeaders = this.stickyHeaders.watch(context);
     return SidebarOptions(
       sections: [
         SidebarSection(
@@ -177,6 +187,11 @@ class _SidebarWidget extends StatelessWidget {
               onChanged: (value) {
                 this.sliverCount.value = value;
               },
+            ),
+            CheckBox(
+              checked: stickyHeaders,
+              child: const Text("Sticky headers"),
+              onChanged: (value) => this.stickyHeaders.value = value,
             ),
           ],
         ),
