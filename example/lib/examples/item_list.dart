@@ -10,6 +10,7 @@ import "../shell/app_settings.dart";
 import "../shell/example_page.dart";
 import "../shell/sidebar.dart";
 import "../util/show_on_screen.dart";
+import "../widgets/check_box.dart";
 import "../widgets/jump_widget.dart";
 import "../widgets/layout_info_overlay.dart";
 import "../widgets/list_header.dart";
@@ -49,6 +50,7 @@ class _ItemListSettings {
   final sliverCount = ValueNotifier(5);
   final itemsPerSliver = ValueNotifier(1000);
   final maxLength = ValueNotifier(6);
+  final stickyHeaders = ValueNotifier(true);
 }
 
 class ItemWidget extends StatefulWidget {
@@ -251,7 +253,9 @@ class _ItemListPageState extends ExamplePageState {
   Widget build(BuildContext context) {
     final sliverCount = _settings.sliverCount.watch(context);
     final itemsPerSliver = _settings.itemsPerSliver.watch(context);
-    final int maxLength = _settings.maxLength.watch(context);
+    final maxLength = _settings.maxLength.watch(context);
+    final stickyHeaders = _settings.stickyHeaders.watch(context);
+
     _updateSliverData(
       sliverCount,
       itemsPerSliver,
@@ -294,6 +298,7 @@ class _ItemListPageState extends ExamplePageState {
                     ),
                     for (int i = 0; i < _sliverData.length; ++i)
                       SliverDecoration(
+                        stickyHeader: stickyHeaders,
                         index: i,
                         sliver: SuperSliverList(
                           extentController: _extentControllers[i],
@@ -331,6 +336,7 @@ class _ItemListPageState extends ExamplePageState {
                         SliverListDisclaimer(),
                       for (int i = 0; i < _sliverData.length; ++i)
                         SliverDecoration(
+                          stickyHeader: stickyHeaders,
                           index: i,
                           sliver: SliverList(
                             delegate: delegate(i),
@@ -388,6 +394,7 @@ class _SidebarWidget extends StatelessWidget {
     final sliverCount = settings.sliverCount.watch(context);
     final itemPerSliver = settings.itemsPerSliver.watch(context);
     final maxLength = settings.maxLength.watch(context);
+    final stickyHeaders = settings.stickyHeaders.watch(context);
 
     return SidebarOptions(
       sections: [
@@ -417,6 +424,11 @@ class _SidebarWidget extends StatelessWidget {
               onChanged: (value) {
                 settings.maxLength.value = value;
               },
+            ),
+            CheckBox(
+              checked: stickyHeaders,
+              child: const Text("Sticky headers"),
+              onChanged: (value) => settings.stickyHeaders.value = value,
             ),
           ],
         ),
