@@ -115,7 +115,8 @@ class _FuzzerConfiguration {
     ),
     _FuzzerConfiguration(
       iterations: _kFuzzerIterations,
-      maxSlivers: 30,
+      // TODO: Increase once RenderViewport tracks scroll offset corrections per sliver.
+      maxSlivers: 20,
       seed: 256,
       maxItemsPerSliver: 1,
       maxItemHeight: 500,
@@ -586,7 +587,8 @@ void main() async {
       expect(find.text("Tile 0"), findsOneWidget);
     });
     testWidgets("delay populating cache area enabled", (tester) async {
-      final keys = List.generate(50, (index) => GlobalKey());
+      final keys0 = List.generate(50, (index) => GlobalKey());
+      final keys1 = List.generate(1, (index) => GlobalKey());
       final controller = ScrollController();
       await tester.pumpWidget(
         Directionality(
@@ -604,12 +606,25 @@ void main() async {
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
                         return SizedBox(
-                          key: keys[index],
+                          key: keys0[index],
                           height: 100,
                           child: Text("Tile $index"),
                         );
                       },
-                      childCount: keys.length,
+                      childCount: keys0.length,
+                    ),
+                  ),
+                  SuperSliverList(
+                    delayPopulatingCacheArea: true,
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return SizedBox(
+                          key: keys1[index],
+                          height: 100,
+                          child: Text("Tile $index"),
+                        );
+                      },
+                      childCount: keys1.length,
                     ),
                   ),
                 ],
@@ -618,32 +633,38 @@ void main() async {
           ),
         ),
       );
-      expect(keys[0].currentContext, isNotNull);
+      expect(keys0[0].currentContext, isNotNull);
 
       // Cache area
-      expect(keys[5].currentContext, isNotNull);
-      expect(keys[6].currentContext, isNotNull);
+      expect(keys0[5].currentContext, isNotNull);
+      expect(keys0[6].currentContext, isNotNull);
       // After cache area
-      expect(keys[7].currentContext, isNull);
+      expect(keys0[7].currentContext, isNull);
 
       // All items replaced, cache area should not be populated
       controller.jumpTo(2000);
       await tester.pump();
 
       // Items removed
-      expect(keys[0].currentContext, isNull);
-      expect(keys[6].currentContext, isNull);
+      expect(keys0[0].currentContext, isNull);
+      expect(keys0[6].currentContext, isNull);
       // Visible content
-      expect(keys[20].currentContext, isNotNull);
-      expect(keys[24].currentContext, isNotNull);
+      expect(keys0[20].currentContext, isNotNull);
+      expect(keys0[24].currentContext, isNotNull);
       // Cache area
-      expect(keys[19].currentContext, isNull);
-      expect(keys[25].currentContext, isNull);
+      expect(keys0[19].currentContext, isNull);
+      expect(keys0[25].currentContext, isNull);
+
+      // Cache area of next sliver - must not be populated
+      expect(keys1[0].currentContext, isNull);
 
       await tester.pump();
       // Cache area should now be populated
-      expect(keys[19].currentContext, isNotNull);
-      expect(keys[25].currentContext, isNotNull);
+      expect(keys0[19].currentContext, isNotNull);
+      expect(keys0[25].currentContext, isNotNull);
+
+      // Cache area of next sliver - must not be populated
+      expect(keys1[0].currentContext, isNull);
 
       controller.dispose();
     });

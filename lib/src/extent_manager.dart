@@ -92,19 +92,20 @@ class ExtentManager with ChangeNotifier {
   bool _layoutInProgress = false;
   bool _isModified = false;
 
-  void beginLayout() {
+  void performLayout(VoidCallback layout) {
     assert(!_layoutInProgress);
     _layoutInProgress = true;
     _isModified = false;
     _beforeCorrection = 0.0;
     _afterCorrection = 0.0;
-  }
-
-  void endLayout() {
-    assert(_layoutInProgress);
-    _layoutInProgress = false;
-    if (_isModified) {
-      notifyListeners();
+    try {
+      layout();
+    } finally {
+      assert(_layoutInProgress);
+      _layoutInProgress = false;
+      if (_isModified) {
+        notifyListeners();
+      }
     }
   }
 
