@@ -41,22 +41,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
-  context_watch:
+  context_plus:
     dependency: "direct main"
     description:
-      name: context_watch
-      sha256: b5866eb15168c024e60a4530931ec5e6b31ec34cb86d93d488bdf01a605e5c05
+      name: context_plus
+      sha256: "51aa332fa68b8404d279da93e1818ffc55af93c1a27d66c7689f3e288dfc4507"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0-dev.5"
+    version: "1.0.4"
+  context_ref:
+    dependency: transitive
+    description:
+      name: context_ref
+      sha256: "6adcdf51b72a987665ab18813f735e1c7d9e2644b5e76a8c63ed235ed6c793bf"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
+  context_watch:
+    dependency: transitive
+    description:
+      name: context_watch
+      sha256: "846f11cab1d4f111a826fead37c31369b92f0c5351e86f950d457967f07d9749"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.4"
   context_watch_base:
     dependency: transitive
     description:
       name: context_watch_base
-      sha256: feb53887dda91f7cae03a730a49e416931d13b85730506e13ba7bfcc973a8447
+      sha256: edc97e0af2731f99c85e54bcea0be439455cd69838e38ff55b5b4e00eee71d09
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0-dev.5"
+    version: "2.0.2"
   fake_async:
     dependency: transitive
     description:
@@ -161,14 +177,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.0"
-  nested:
-    dependency: transitive
-    description:
-      name: nested
-      sha256: "03bac4c528c64c95c722ec99280375a6f2fc708eec17c7b3f07253b626cd2a20"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
   path:
     dependency: transitive
     description:
@@ -193,14 +201,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
-  provider:
-    dependency: "direct main"
-    description:
-      name: provider
-      sha256: "9a96a0a19b594dbc5bf0f1f27d2bc67d5f95957359b461cd9feb44ed6ae75096"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.1.1"
   rxdart:
     dependency: transitive
     description:

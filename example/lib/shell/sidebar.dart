@@ -1,8 +1,7 @@
-import "package:context_watch/context_watch.dart";
+import "package:context_plus/context_plus.dart";
 import "package:flutter/material.dart" show Colors;
 import "package:headless_widgets/headless_widgets.dart" as w;
 import "package:pixel_snap/widgets.dart";
-import "package:provider/provider.dart";
 
 import "../util/intersperse.dart";
 import "../widgets/button.dart";
@@ -206,10 +205,10 @@ class AppSettingsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settings = context.watch<AppSettings>();
-    final showSliverList = settings.showSliverList.watch(context);
+    final settings = appSettings.of(context);
+    final showSliverList = settings.showSliverList.watchValue(context);
     final precomputeExtentPolicy =
-        settings.precomputeExtentPolicy.watch(context);
+        settings.precomputeExtentPolicy.watch(context).value;
     return SidebarSection(title: const Text("Options"), children: [
       CheckBox(
         checked: showSliverList,
