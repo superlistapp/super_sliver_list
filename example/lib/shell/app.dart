@@ -1,4 +1,4 @@
-import "package:context_watch/context_watch.dart";
+import "package:context_plus/context_plus.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart"
     show
@@ -11,7 +11,6 @@ import "package:flutter/material.dart"
         Typography;
 import "package:flutter/services.dart";
 import "package:pixel_snap/widgets.dart";
-import "package:provider/provider.dart";
 import "package:super_sliver_list/super_sliver_list.dart";
 
 import "../util/media_query.dart";
@@ -37,10 +36,10 @@ class _ExampleAppState extends State<ExampleApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ContextWatchRoot(
-      child: Provider(
-        create: (_) => AppSettings(),
-        child: WidgetsApp(
+    return ContextPlus.root(
+      child: Builder(builder: (context) {
+        appSettings.bind(context, () => AppSettings());
+        return WidgetsApp(
           shortcuts: _platformDefaultShortcuts,
           color: const Color(0xFF000000),
           routes: {
@@ -66,8 +65,8 @@ class _ExampleAppState extends State<ExampleApp> {
               },
             );
           },
-        ),
-      ),
+        );
+      }),
     );
   }
 }

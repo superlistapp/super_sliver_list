@@ -237,7 +237,7 @@ class SuperSliverList extends SliverMultiBoxAdaptorWidget {
   /// of the items in the list. This can be useful allow precise scrolling on small
   /// lists where the difference between estimated and actual extents may be noticeable
   /// when interacting with the scrollbar. For larger lists precalculating extent
-  /// has diminished benefits since the error for each item does not impact the
+  /// has diminishing benefits since the error for each item does not impact the
   /// overall scroll position as much.
   final ExtentPrecalculationPolicy? extentPrecalculationPolicy;
 

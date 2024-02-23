@@ -1,7 +1,6 @@
-import "package:context_watch/context_watch.dart";
+import "package:context_plus/context_plus.dart";
 import "package:flutter/material.dart" show Colors;
 import "package:pixel_snap/widgets.dart";
-import "package:provider/provider.dart";
 import "package:super_sliver_list/super_sliver_list.dart";
 import "package:super_sliver_list_example_data/sherlock.dart" as sherlock;
 
@@ -45,10 +44,10 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
 
   @override
   Widget build(BuildContext context) {
-    final options = context.watch<AppSettings>();
-    final showSliverList = options.showSliverList.watch(context);
-    final sliverCount = this.sliverCount.watch(context);
-    final stickyHeaders = this.stickyHeaders.watch(context);
+    final options = appSettings.of(context);
+    final showSliverList = options.showSliverList.watchValue(context);
+    final sliverCount = this.sliverCount.watchValue(context);
+    final stickyHeaders = this.stickyHeaders.watchValue(context);
 
     const paragraphs = sherlock.paragraphs;
     SliverChildBuilderDelegate delegate(int sliver) =>
@@ -173,8 +172,8 @@ class _SidebarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sliverCount = this.sliverCount.watch(context);
-    final stickyHeaders = this.stickyHeaders.watch(context);
+    final sliverCount = this.sliverCount.watchValue(context);
+    final stickyHeaders = this.stickyHeaders.watchValue(context);
     return SidebarOptions(
       sections: [
         SidebarSection(

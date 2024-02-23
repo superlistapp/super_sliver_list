@@ -1,9 +1,8 @@
-import "package:context_watch/context_watch.dart";
+import "package:context_plus/context_plus.dart";
 import "package:flutter/material.dart" show Colors;
 import "package:flutter/services.dart";
 import "package:flutter_lorem/flutter_lorem.dart";
 import "package:pixel_snap/widgets.dart";
-import "package:provider/provider.dart";
 import "package:super_sliver_list/super_sliver_list.dart";
 
 import "../shell/app_settings.dart";
@@ -58,11 +57,42 @@ class _ReadingOrderTraversalPolicy extends ReadingOrderTraversalPolicy {
   }
 }
 
-class _ItemListSettings {
-  final sliverCount = ValueNotifier(5);
-  final itemsPerSliver = ValueNotifier(1000);
-  final maxLength = ValueNotifier(6);
-  final stickyHeaders = ValueNotifier(true);
+class _ItemListSettings with ChangeNotifier {
+  int _sliverCount = 5;
+  int get sliverCount => _sliverCount;
+  set sliverCount(int value) {
+    if (value != _sliverCount) {
+      _sliverCount = value;
+      notifyListeners();
+    }
+  }
+
+  int _itemsPerSliver = 1000;
+  int get itemsPerSliver => _itemsPerSliver;
+  set itemsPerSliver(int value) {
+    if (value != _itemsPerSliver) {
+      _itemsPerSliver = value;
+      notifyListeners();
+    }
+  }
+
+  int _maxLength = 6;
+  int get maxLength => _maxLength;
+  set maxLength(int value) {
+    if (value != _maxLength) {
+      _maxLength = value;
+      notifyListeners();
+    }
+  }
+
+  bool _stickyHeaders = true;
+  bool get stickyHeaders => _stickyHeaders;
+  set stickyHeaders(bool value) {
+    if (value != _stickyHeaders) {
+      _stickyHeaders = value;
+      notifyListeners();
+    }
+  }
 }
 
 class ItemWidget extends StatefulWidget {
@@ -263,10 +293,11 @@ class _ItemListPageState extends ExamplePageState {
 
   @override
   Widget build(BuildContext context) {
-    final sliverCount = _settings.sliverCount.watch(context);
-    final itemsPerSliver = _settings.itemsPerSliver.watch(context);
-    final maxLength = _settings.maxLength.watch(context);
-    final stickyHeaders = _settings.stickyHeaders.watch(context);
+    final sliverCount = _settings.watchOnly(context, (s) => s.sliverCount);
+    final itemsPerSliver =
+        _settings.watchOnly(context, (s) => s.itemsPerSliver);
+    final maxLength = _settings.watchOnly(context, (s) => s.maxLength);
+    final stickyHeaders = _settings.watchOnly(context, (s) => s.stickyHeaders);
 
     _updateSliverData(
       sliverCount,
@@ -274,8 +305,8 @@ class _ItemListPageState extends ExamplePageState {
       maxLength,
     );
 
-    final options = context.watch<AppSettings>();
-    final showSliverList = options.showSliverList.watch(context);
+    final options = appSettings.of(context);
+    final showSliverList = options.showSliverList.watchValue(context);
 
     SliverChildBuilderDelegate delegate(int sliverIndex) {
       final sliver = _sliverData[sliverIndex];
@@ -403,10 +434,10 @@ class _SidebarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sliverCount = settings.sliverCount.watch(context);
-    final itemPerSliver = settings.itemsPerSliver.watch(context);
-    final maxLength = settings.maxLength.watch(context);
-    final stickyHeaders = settings.stickyHeaders.watch(context);
+    final sliverCount = settings.watchOnly(context, (s) => s.sliverCount);
+    final itemPerSliver = settings.watchOnly(context, (s) => s.itemsPerSliver);
+    final maxLength = settings.watchOnly(context, (s) => s.maxLength);
+    final stickyHeaders = settings.watchOnly(context, (s) => s.stickyHeaders);
 
     return SidebarOptions(
       sections: [
@@ -418,7 +449,7 @@ class _SidebarWidget extends StatelessWidget {
               options: List.generate(_kMaxSlivers, (index) => index + 1),
               value: sliverCount,
               onChanged: (value) {
-                settings.sliverCount.value = value;
+                settings.sliverCount = value;
               },
             ),
             NumberPicker(
@@ -426,7 +457,7 @@ class _SidebarWidget extends StatelessWidget {
               options: _kItemsPerSliver,
               value: itemPerSliver,
               onChanged: (value) {
-                settings.itemsPerSliver.value = value;
+                settings.itemsPerSliver = value;
               },
             ),
             NumberPicker(
@@ -434,13 +465,13 @@ class _SidebarWidget extends StatelessWidget {
               options: List.generate(15, (index) => index + 1),
               value: maxLength,
               onChanged: (value) {
-                settings.maxLength.value = value;
+                settings.maxLength = value;
               },
             ),
             CheckBox(
               checked: stickyHeaders,
               child: const Text("Sticky headers"),
-              onChanged: (value) => settings.stickyHeaders.value = value,
+              onChanged: (value) => settings.stickyHeaders = value,
             ),
           ],
         ),
