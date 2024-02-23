@@ -21,7 +21,6 @@ jobs:
         working-directory: ./example/data
       - name: Check format
         run: dart format . --output=none --set-exit-if-changed
-        working-directory: ./example
       - name: Analyze
         run: flutter analyze
       - name: Test
