@@ -95,10 +95,11 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
           ? position.maxScrollExtent - position.minScrollExtent
           : null,
       numberOfItems: _extentManager.numberOfItems,
-      estimatedExtentsCount: _extentManager.estimatedExtentsCount,
+      numberOfItemsWithEstimatedExtent: _extentManager.numberOfItemsWithEstimatedExtent,
     );
     state.precalculateExtents ??=
-        _extentPrecalculationPolicy?.shouldPrecaculateExtents(context) ?? false;
+        _extentPrecalculationPolicy?.shouldPrecalculateExtents(context) ??
+            false;
     return state.precalculateExtents!;
   }
 

@@ -37,7 +37,7 @@ class _SimpleExtentPrecalculatePolicy extends ExtentPrecalculationPolicy {
   _SimpleExtentPrecalculatePolicy({required this.precalculate});
 
   @override
-  bool shouldPrecaculateExtents(_) => precalculate;
+  bool shouldPrecalculateExtents(_) => precalculate;
 }
 
 class _FuzzerConfiguration {
@@ -869,7 +869,7 @@ void main() async {
           await tester.pumpAndSettle();
         }
         final lastSliver = configuration.slivers.last;
-        final offset = lastSliver.extentController.getOffsetToReveal(
+        final offset = lastSliver.listController.getOffsetToReveal(
           lastSliver.items.length - 1,
           1.0,
         );
@@ -932,7 +932,7 @@ void main() async {
         for (final (sliverIndex, itemIndex) in offsets) {
           final sliver = configuration.slivers[sliverIndex];
           final item = sliver.items[itemIndex];
-          final offset = sliver.extentController.getOffsetToReveal(
+          final offset = sliver.listController.getOffsetToReveal(
             itemIndex,
             alignment,
           );
@@ -1028,11 +1028,11 @@ void main() async {
     });
   });
 
-  group("ExtentController", () {
+  group("ListController", () {
     testWidgets("attach / detach", (tester) async {
       int attached = 0;
       int detached = 0;
-      final controller = ExtentController(
+      final controller = ListController(
         onAttached: () {
           ++attached;
         },
@@ -1048,7 +1048,7 @@ void main() async {
       );
       await tester.pumpWidget(_buildSliverList(
         configuration,
-        extentController: controller,
+        listController: controller,
         preciseLayout: false,
       ));
       await tester.pumpAndSettle();
@@ -1064,7 +1064,7 @@ void main() async {
     testWidgets("replace widget", (tester) async {
       int attached = 0;
       int detached = 0;
-      final controller = ExtentController(
+      final controller = ListController(
         onAttached: () {
           ++attached;
         },
@@ -1081,7 +1081,7 @@ void main() async {
       );
       await tester.pumpWidget(_buildSliverList(
         configuration1,
-        extentController: controller,
+        listController: controller,
         preciseLayout: false,
       ));
       await tester.pumpAndSettle();
@@ -1099,7 +1099,7 @@ void main() async {
 
       await tester.pumpWidget(_buildSliverList(
         configuration2,
-        extentController: controller,
+        listController: controller,
         preciseLayout: false,
       ));
       await tester.pumpAndSettle();
@@ -1116,7 +1116,7 @@ void main() async {
     testWidgets("replace controller", (tester) async {
       int attached1 = 0;
       int detached1 = 0;
-      final controller1 = ExtentController(
+      final controller1 = ListController(
         onAttached: () {
           ++attached1;
         },
@@ -1133,7 +1133,7 @@ void main() async {
       );
       await tester.pumpWidget(_buildSliverList(
         configuration,
-        extentController: controller1,
+        listController: controller1,
         preciseLayout: false,
       ));
       await tester.pumpAndSettle();
@@ -1143,7 +1143,7 @@ void main() async {
 
       int attached2 = 0;
       int detached2 = 0;
-      final controller2 = ExtentController(
+      final controller2 = ListController(
         onAttached: () {
           ++attached2;
         },
@@ -1154,7 +1154,7 @@ void main() async {
 
       await tester.pumpWidget(_buildSliverList(
         configuration,
-        extentController: controller2,
+        listController: controller2,
         preciseLayout: false,
       ));
       await tester.pumpAndSettle();
@@ -1221,27 +1221,27 @@ class _SliverItem {
 class _Sliver {
   final List<_SliverItem> items;
   final GlobalKey? key;
-  final ExtentController extentController;
+  final ListController listController;
   final double pinnedHeaderHeight;
 
   // ignore: unused_element
   _Sliver(
     this.items, {
     this.key,
-    ExtentController? extentController,
+    ListController? listController,
     required this.pinnedHeaderHeight,
-  }) : extentController = extentController ?? ExtentController();
+  }) : listController = listController ?? ListController();
 
   _Sliver copyWith({
     List<_SliverItem>? items,
     GlobalKey? key,
-    ExtentController? extentController,
+    ListController? listController,
     double? pinnedHeaderHeight,
   }) {
     return _Sliver(
       items ?? this.items,
       key: key ?? this.key,
-      extentController: extentController ?? this.extentController,
+      listController: listController ?? this.listController,
       pinnedHeaderHeight: pinnedHeaderHeight ?? this.pinnedHeaderHeight,
     );
   }
@@ -1331,7 +1331,7 @@ Widget _buildSliverList(
   _SliverListConfiguration configuration, {
   required bool preciseLayout,
   ScrollController? controller,
-  ExtentController? extentController,
+  ListController? listController,
 }) {
   return Directionality(
     textDirection: TextDirection.ltr,
@@ -1364,7 +1364,7 @@ Widget _buildSliverList(
                 extentPrecalculationPolicy: _SimpleExtentPrecalculatePolicy(
                   precalculate: preciseLayout,
                 ),
-                extentController: extentController ?? sliver.extentController,
+                listController: listController ?? sliver.listController,
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int i) {
                     return SizedBox(

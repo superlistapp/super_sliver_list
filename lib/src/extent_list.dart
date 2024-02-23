@@ -234,5 +234,5 @@ class ExtentList {
   }
 
   /// Returns number of estimated extents.
-  int get estimatedExtentsCount => _dirtyCount;
+  int get dirtyItemCount => _dirtyCount;
 }

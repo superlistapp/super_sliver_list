@@ -356,7 +356,7 @@ class SuperListView extends BoxScrollView {
     super.keyboardDismissBehavior,
     super.restorationId,
     super.clipBehavior,
-    this.extentController,
+    this.listController,
     this.extentEstimation,
     this.extentPrecalculationPolicy,
     this.delayPopulatingCacheArea = false,
@@ -429,7 +429,7 @@ class SuperListView extends BoxScrollView {
     super.keyboardDismissBehavior,
     super.restorationId,
     super.clipBehavior,
-    this.extentController,
+    this.listController,
     this.extentEstimation,
     this.extentPrecalculationPolicy,
     this.delayPopulatingCacheArea = false,
@@ -519,7 +519,7 @@ class SuperListView extends BoxScrollView {
     super.keyboardDismissBehavior,
     super.restorationId,
     super.clipBehavior,
-    this.extentController,
+    this.listController,
     this.extentEstimation,
     this.extentPrecalculationPolicy,
     this.delayPopulatingCacheArea = false,
@@ -572,7 +572,7 @@ class SuperListView extends BoxScrollView {
     super.keyboardDismissBehavior,
     super.restorationId,
     super.clipBehavior,
-    this.extentController,
+    this.listController,
     this.extentEstimation,
     this.extentPrecalculationPolicy,
     this.delayPopulatingCacheArea = false,
@@ -587,8 +587,8 @@ class SuperListView extends BoxScrollView {
   final SliverChildDelegate childrenDelegate;
 
   /// When set provides access to extents of individual children.
-  /// [ExtentController] can also be used to jump to a specific item in the list.
-  final ExtentController? extentController;
+  /// [ListController] can also be used to jump to a specific item in the list.
+  final ListController? listController;
 
   /// Optional method that can be used to override default estimated extent for
   /// each item. Initially all extents are estimated and then as the items are laid
@@ -616,7 +616,7 @@ class SuperListView extends BoxScrollView {
   Widget buildChildLayout(BuildContext context) {
     return SuperSliverList(
       delegate: childrenDelegate,
-      extentController: extentController,
+      listController: listController,
       delayPopulatingCacheArea: delayPopulatingCacheArea,
       extentEstimation: extentEstimation,
       extentPrecalculationPolicy: extentPrecalculationPolicy,

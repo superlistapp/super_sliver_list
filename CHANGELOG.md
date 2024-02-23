@@ -1,6 +1,10 @@
+## 0.2.0-dev.3
+
+* Renamed `ExtentController` to `ListController`.
+
 ## 0.2.0-dev.2
 
-* Introduced the concept of child obstruction except. This is a property that
+* Introduced the concept of child obstruction extent. This is a property that
   can be set on Sliver geometry and allows for reliable positioning of items
   in slivers that are wrapped in a sticky header sliver.
 * Added sticky headers to example.

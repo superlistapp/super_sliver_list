@@ -3,12 +3,12 @@ import "package:flutter/widgets.dart";
 import "package:super_sliver_list/super_sliver_list.dart";
 
 class LayoutInfoOverlay extends StatefulWidget {
-  final List<ExtentController> extentControllers;
+  final List<ListController> listControllers;
   final Widget child;
 
   const LayoutInfoOverlay({
     super.key,
-    required this.extentControllers,
+    required this.listControllers,
     required this.child,
   });
 
@@ -16,16 +16,16 @@ class LayoutInfoOverlay extends StatefulWidget {
   State<StatefulWidget> createState() => _LayoutInfoOverlayState();
 }
 
-extension on ExtentController {
+extension on ListController {
   double get fractionComplete =>
-      (numberOfItems - estimatedExtentsCount) / numberOfItems;
+      (numberOfItems - numberOfItemsWithEstimatedExtent) / numberOfItems;
 }
 
 class _LayoutInfoOverlayState extends State<LayoutInfoOverlay> {
   @override
   void initState() {
     super.initState();
-    for (final controller in widget.extentControllers) {
+    for (final controller in widget.listControllers) {
       controller.addListener(_update);
     }
   }
@@ -33,7 +33,7 @@ class _LayoutInfoOverlayState extends State<LayoutInfoOverlay> {
   @override
   void dispose() {
     super.dispose();
-    for (final controller in widget.extentControllers) {
+    for (final controller in widget.listControllers) {
       controller.removeListener(_update);
     }
   }
@@ -41,10 +41,10 @@ class _LayoutInfoOverlayState extends State<LayoutInfoOverlay> {
   @override
   void didUpdateWidget(covariant LayoutInfoOverlay oldWidget) {
     super.didUpdateWidget(oldWidget);
-    for (final controller in oldWidget.extentControllers) {
+    for (final controller in oldWidget.listControllers) {
       controller.removeListener(_update);
     }
-    for (final controller in widget.extentControllers) {
+    for (final controller in widget.listControllers) {
       controller.addListener(_update);
     }
   }
@@ -58,10 +58,10 @@ class _LayoutInfoOverlayState extends State<LayoutInfoOverlay> {
       _updateScheduled = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _updateScheduled = false;
-        final progress = widget.extentControllers
+        final progress = widget.listControllers
                 .map((e) => e.isAttached ? e.fractionComplete : 0)
                 .reduce((a, b) => a + b) /
-            widget.extentControllers.length;
+            widget.listControllers.length;
         if (progress != _currentProgress) {
           setState(() {
             _currentProgress = progress;

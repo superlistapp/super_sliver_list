@@ -19,7 +19,7 @@ class SuperSliverMultiBoxAdaptorElement extends SliverMultiBoxAdaptorElement
     required super.replaceMovedChildren,
   }) : super(widget) {
     _extentManager = ExtentManager(delegate: this);
-    _currentController = widget.extentController;
+    _currentController = widget.listController;
     _currentController?.setDelegate(_extentManager);
   }
 
@@ -52,7 +52,7 @@ class SuperSliverMultiBoxAdaptorElement extends SliverMultiBoxAdaptorElement
     );
   }
 
-  ExtentController? _currentController;
+  ListController? _currentController;
 
   @override
   void update(covariant SuperSliverList newWidget) {
@@ -61,9 +61,9 @@ class SuperSliverMultiBoxAdaptorElement extends SliverMultiBoxAdaptorElement
     if (childCountBefore != childCount) {
       renderObject.markNeedsLayout();
     }
-    if (_currentController != newWidget.extentController) {
+    if (_currentController != newWidget.listController) {
       _currentController?.unsetDelegate(_extentManager);
-      _currentController = newWidget.extentController;
+      _currentController = newWidget.listController;
       _currentController?.setDelegate(_extentManager);
     }
   }

@@ -241,7 +241,7 @@ class _SliverData {
 class _ItemListPageState extends ExamplePageState {
   final _sliverData = <_SliverData>[];
 
-  final List<ExtentController> _extentControllers = [];
+  final List<ListController> _listControllers = [];
   late ScrollController _scrollController;
 
   int? _maxLength;
@@ -258,7 +258,7 @@ class _ItemListPageState extends ExamplePageState {
     }
     if (_maxLength != maxLength) {
       _maxLength = maxLength;
-      for (final controller in _extentControllers) {
+      for (final controller in _listControllers) {
         controller.invalidateAllExtents();
       }
     }
@@ -274,18 +274,18 @@ class _ItemListPageState extends ExamplePageState {
   void dispose() {
     super.dispose();
     _scrollController.dispose();
-    for (final controller in _extentControllers) {
+    for (final controller in _listControllers) {
       controller.dispose();
     }
   }
 
   void _ensureExtentContollers(int count) {
-    while (_extentControllers.length > count) {
-      _extentControllers.last.dispose();
-      _extentControllers.removeLast();
+    while (_listControllers.length > count) {
+      _listControllers.last.dispose();
+      _listControllers.removeLast();
     }
-    while (_extentControllers.length < count) {
-      _extentControllers.add(ExtentController());
+    while (_listControllers.length < count) {
+      _listControllers.add(ListController());
     }
   }
 
@@ -331,7 +331,7 @@ class _ItemListPageState extends ExamplePageState {
             child: FocusTraversalGroup(
               policy: _ReadingOrderTraversalPolicy(),
               child: LayoutInfoOverlay(
-                extentControllers: _extentControllers,
+                listControllers: _listControllers,
                 child: CustomScrollView(
                   controller: _scrollController,
                   slivers: [
@@ -344,7 +344,7 @@ class _ItemListPageState extends ExamplePageState {
                         stickyHeader: stickyHeaders,
                         index: i,
                         sliver: SuperSliverList(
-                          extentController: _extentControllers[i],
+                          listController: _listControllers[i],
                           extentPrecalculationPolicy:
                               options.extentPrecalculationPolicy,
                           delegate: delegate(i),
@@ -401,14 +401,14 @@ class _ItemListPageState extends ExamplePageState {
     return _SidebarWidget(
       settings: _settings,
       onJumpRequested: (sliver, item, alignment) {
-        _extentControllers[sliver].jumpToItem(
+        _listControllers[sliver].jumpToItem(
           index: item,
           scrollController: _scrollController,
           alignment: alignment,
         );
       },
       onAnimateRequested: (sliver, item, alignment) {
-        _extentControllers[sliver].animateToItem(
+        _listControllers[sliver].animateToItem(
           index: item,
           scrollController: _scrollController,
           alignment: alignment,
