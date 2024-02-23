@@ -27,15 +27,15 @@ class LongDocumentPage extends StatefulWidget {
 class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
   final _scrollController = ScrollController();
 
-  final List<ExtentController> _extentControllers = [];
+  final List<ListController> _listControllers = [];
 
   void _ensureExtentContollers(int count) {
-    while (_extentControllers.length > count) {
-      _extentControllers.last.dispose();
-      _extentControllers.removeLast();
+    while (_listControllers.length > count) {
+      _listControllers.last.dispose();
+      _listControllers.removeLast();
     }
-    while (_extentControllers.length < count) {
-      _extentControllers.add(ExtentController());
+    while (_listControllers.length < count) {
+      _listControllers.add(ListController());
     }
   }
 
@@ -68,7 +68,7 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
         children: [
           Expanded(
             child: LayoutInfoOverlay(
-              extentControllers: _extentControllers,
+              listControllers: _listControllers,
               child: CustomScrollView(
                 controller: _scrollController,
                 slivers: [
@@ -81,7 +81,7 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
                       stickyHeader: stickyHeaders,
                       index: i,
                       sliver: SuperSliverList(
-                        extentController: _extentControllers[i],
+                        listController: _listControllers[i],
                         extentPrecalculationPolicy:
                             options.extentPrecalculationPolicy,
                         delegate: delegate(i),
@@ -135,14 +135,14 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
       stickyHeaders: stickyHeaders,
       itemCount: sherlock.paragraphs.length,
       onJumpRequested: (sliver, item, alignment) {
-        _extentControllers[sliver].jumpToItem(
+        _listControllers[sliver].jumpToItem(
           index: item,
           scrollController: _scrollController,
           alignment: alignment,
         );
       },
       onAnimateRequested: (sliver, item, alignment) {
-        _extentControllers[sliver].animateToItem(
+        _listControllers[sliver].animateToItem(
           index: item,
           scrollController: _scrollController,
           alignment: alignment,

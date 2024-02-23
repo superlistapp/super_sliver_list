@@ -45,7 +45,7 @@ class DefaultExtentPrecalculationPolicy extends ExtentPrecalculationPolicy {
   }
 
   @override
-  bool shouldPrecaculateExtents(ExtentPrecalculationContext context) {
+  bool shouldPrecalculateExtents(ExtentPrecalculationContext context) {
     final policy = this.policy.value;
     switch (policy) {
       case PrecomputeExtentPolicy.none:

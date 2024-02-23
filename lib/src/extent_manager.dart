@@ -110,7 +110,7 @@ class ExtentManager with ChangeNotifier {
 
   int get numberOfItems => _extentList.length;
 
-  int get estimatedExtentsCount => _extentList.estimatedExtentsCount;
+  int get numberOfItemsWithEstimatedExtent => _extentList.dirtyItemCount;
 
   void addItem(int index) {
     _extentList.insertAt(index, delegate.estimateExtentForItem);

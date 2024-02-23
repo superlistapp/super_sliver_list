@@ -55,7 +55,7 @@ void main() {
       expect(extentList.cleanRangeStart, isNull);
       expect(extentList.cleanRangeEnd, isNull);
       expect(extentList.hasDirtyItems, isFalse);
-      expect(extentList.estimatedExtentsCount, 0.0);
+      expect(extentList.dirtyItemCount, 0.0);
     });
     test("resize", () {
       final extentList = ExtentList();

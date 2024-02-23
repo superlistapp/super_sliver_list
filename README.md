@@ -54,17 +54,17 @@ SuperListView.builder(
 
 ## Jumping and animating to specific item
 
-`ExtentController` can be provided to `SuperSliverList`/`SuperListView` and later used to jump or animate to specific item:
+`ListController` can be provided to `SuperSliverList`/`SuperListView` and used to jump or animate to specific item:
 
 ```dart
 class _MyState extends State<MyWidget> {
-  final _extentController = ExtentController();
+  final _listController = ListController();
   final _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     return SuperListView.builder(
-      extentController: _extentController,
+      listController: _listController,
       controller: _scrollController,
       itemCount: 1000,
       itemBuilder: (context, index) {
@@ -74,7 +74,7 @@ class _MyState extends State<MyWidget> {
   }
 
   void jumpToItem(int index) {
-    _extentController.jumpToItem(
+    _listController.jumpToItem(
       index: index,
       scrollController: _scrollController,
       alignment: 0.5,
@@ -82,7 +82,7 @@ class _MyState extends State<MyWidget> {
   }
 
   void animateToItem(int index) {
-    _extentController.animateToItem(
+    _listController.animateToItem(
       index: index,
       scrollController: _scrollController,
       alignment: 0.5,
@@ -93,7 +93,6 @@ class _MyState extends State<MyWidget> {
     );
   }
 }
-
 ```
 
 ## Advanced
@@ -115,7 +114,7 @@ SuperSliverList(
 
 `SuperSliverList` can, if needed, asynchronously precalculate extents for items. To enfore this, subclass `ExtentPrecalculationPolicy` and provide it to `SuperSliverList`:
 
-In this example the extents are precalculated for lists with less than 100 items:
+In this example the extents are eagerly precalculated for lists with less than 100 items:
 
 ```dart
 class MyPrecalculationPolicy extends ExtentPrecalculationPolicy {
