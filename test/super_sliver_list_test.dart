@@ -586,6 +586,89 @@ void main() async {
       // Failing this likely means the child manager is not aware of underflow.
       expect(find.text("Tile 0"), findsOneWidget);
     });
+    testWidgets("visible range", (tester) async {
+      final list = _SliverListConfiguration.generate(
+        slivers: 3,
+        itemsPerSliver: (_) => 6,
+        itemHeight: (_, __) => 100,
+        viewportHeight: 500,
+        pinnedHeaderHeight: (i) => i == 0 ? 100 : 0,
+      );
+      final controller = ScrollController();
+      await tester.pumpWidget(
+        _buildSliverList(
+          list,
+          controller: controller,
+          preciseLayout: false,
+        ),
+      );
+      expect(list.slivers[0].listController.visibleRange, equals((0, 3)));
+      expect(list.slivers[0].listController.unobstructedVisibleRange,
+          equals((0, 3)));
+      expect(list.slivers[1].listController.visibleRange, isNull);
+
+      controller.jumpTo(100);
+      await tester.pump();
+
+      expect(list.slivers[0].listController.visibleRange, equals((0, 4)));
+      expect(list.slivers[0].listController.unobstructedVisibleRange,
+          equals((1, 4)));
+      expect(list.slivers[1].listController.visibleRange, isNull);
+
+      controller.jumpTo(199);
+      await tester.pump();
+
+      expect(list.slivers[0].listController.visibleRange, equals((0, 5)));
+      expect(list.slivers[0].listController.unobstructedVisibleRange,
+          equals((1, 5)));
+      expect(list.slivers[1].listController.visibleRange, isNull);
+
+      controller.jumpTo(200);
+      await tester.pump();
+
+      expect(list.slivers[0].listController.visibleRange, equals((1, 5)));
+      expect(list.slivers[0].listController.unobstructedVisibleRange,
+          equals((2, 5)));
+      expect(list.slivers[1].listController.visibleRange, isNull);
+
+      controller.jumpTo(299);
+      await tester.pump();
+
+      expect(list.slivers[0].listController.visibleRange, equals((1, 5)));
+      expect(list.slivers[0].listController.unobstructedVisibleRange,
+          equals((2, 5)));
+      expect(list.slivers[1].listController.visibleRange, equals((0, 0)));
+      expect(list.slivers[1].listController.unobstructedVisibleRange,
+          equals((0, 0)));
+
+      controller.jumpTo(300);
+      await tester.pump();
+
+      expect(list.slivers[0].listController.visibleRange, equals((2, 5)));
+      expect(list.slivers[0].listController.unobstructedVisibleRange,
+          equals((3, 5)));
+      expect(list.slivers[1].listController.visibleRange, equals((0, 0)));
+      expect(list.slivers[1].listController.unobstructedVisibleRange,
+          equals((0, 0)));
+
+      controller.jumpTo(600);
+      await tester.pump();
+
+      expect(list.slivers[0].listController.visibleRange, equals((5, 5)));
+      expect(list.slivers[0].listController.unobstructedVisibleRange, isNull);
+      expect(list.slivers[1].listController.visibleRange, equals((0, 3)));
+      expect(list.slivers[1].listController.unobstructedVisibleRange,
+          equals((0, 3)));
+
+      controller.jumpTo(700);
+      await tester.pump();
+
+      expect(list.slivers[0].listController.visibleRange, isNull);
+      expect(list.slivers[0].listController.unobstructedVisibleRange, isNull);
+      expect(list.slivers[1].listController.visibleRange, equals((0, 4)));
+      expect(list.slivers[1].listController.unobstructedVisibleRange,
+          equals((1, 4)));
+    });
     testWidgets("delay populating cache area enabled", (tester) async {
       final keys0 = List.generate(50, (index) => GlobalKey());
       final keys1 = List.generate(1, (index) => GlobalKey());

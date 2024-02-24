@@ -130,6 +130,19 @@ class ListController extends ChangeNotifier {
     }
   }
 
+  /// Returns the range of items indices currently visible in the viewport.
+  (int, int)? get visibleRange {
+    assert(_delegate != null, "ListController is not attached.");
+    return _delegate!.visibleRange;
+  }
+
+  /// Returns range of items indices currently visible in the viewport
+  /// unobstructed by sticky headers or other obstructions.
+  (int, int)? get unobstructedVisibleRange {
+    assert(_delegate != null, "ListController is not attached.");
+    return _delegate!.unobstructedVisibleRange;
+  }
+
   /// Returns the total number of items in the list.
   int get numberOfItems {
     assert(_delegate != null, "ListController is not attached.");
