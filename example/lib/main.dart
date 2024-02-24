@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:flutter/foundation.dart";
 import "package:logging/logging.dart";
 import "package:pixel_snap/widgets.dart";
@@ -6,7 +8,7 @@ import "shell/app.dart";
 
 void main() {
   Logger.root.onRecord.listen((record) {
-    debugPrint("${record.level.name}: ${record.message}");
+    Zone.current.print("${record.level.name}: ${record.message}");
   });
   hierarchicalLoggingEnabled = true;
   WidgetsFlutterBinding.ensureInitialized();
