@@ -896,6 +896,8 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       cacheConsumed = constraints.remainingCacheExtent;
     }
 
+    _updateVisibleChildren(paintExtent: paintExtent);
+
     geometry = SliverGeometry(
       scrollExtent: endScrollOffset,
       paintExtent: paintExtent,
@@ -926,6 +928,51 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       child = childAfter(child);
     }
     return null;
+  }
+
+  void _updateVisibleChildren({required double paintExtent}) {
+    if (paintExtent == 0) {
+      return;
+    }
+
+    final minStart = constraints.scrollOffset;
+    final maxStart = minStart + paintExtent;
+
+    final unobstructedMinStart = minStart + constraints.overlap;
+    final unobstructedMaxStart = maxStart;
+
+    int min = -1;
+    int max = -1;
+    int unobstructedMin = -1;
+    int unobstructedMax = -1;
+    for (var child = firstChild; child != null; child = childAfter(child)) {
+      final data = child.parentData! as SliverMultiBoxAdaptorParentData;
+      final start = data.layoutOffset!;
+      final end = start + paintExtentOf(child);
+      final index = indexOf(child);
+      if (end > minStart && min == -1) {
+        min = index;
+        max = index;
+      } else if (start < maxStart) {
+        max = index;
+      }
+      if (end > unobstructedMinStart && unobstructedMin == -1) {
+        unobstructedMin = index;
+        unobstructedMax = index;
+      } else if (start < unobstructedMaxStart) {
+        unobstructedMax = index;
+      }
+    }
+    if (min != -1) {
+      assert(max != -1);
+      _extentManager.reportVisibleChildren((min, max));
+    }
+
+    if (unobstructedMin != -1) {
+      assert(unobstructedMax != -1);
+      _extentManager.reportUnobstructedVisibleChildren(
+          (unobstructedMin, unobstructedMax));
+    }
   }
 
   void _zeroGeometry() {

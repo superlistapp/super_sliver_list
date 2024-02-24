@@ -92,22 +92,60 @@ class ExtentManager with ChangeNotifier {
   bool _layoutInProgress = false;
   bool _isModified = false;
 
+  bool _didReportVisibleChildren = false;
+  bool _didReportUnobstructedVisibleChildren = false;
+
   void performLayout(VoidCallback layout) {
     assert(!_layoutInProgress);
     _layoutInProgress = true;
     _isModified = false;
+    _didReportVisibleChildren = false;
+    _didReportUnobstructedVisibleChildren = false;
     _beforeCorrection = 0.0;
     _afterCorrection = 0.0;
+
     try {
       layout();
     } finally {
       assert(_layoutInProgress);
+      // Not reporting children means there are no visible children - set the
+      // visible range to null.
+      if (!_didReportVisibleChildren) {
+        reportVisibleChildren(null);
+      }
+      if (!_didReportUnobstructedVisibleChildren) {
+        reportUnobstructedVisibleChildren(null);
+      }
       _layoutInProgress = false;
       if (_isModified) {
         notifyListeners();
       }
     }
   }
+
+  void reportVisibleChildren((int, int)? range) {
+    assert(_layoutInProgress);
+    if (_visibleRange != range) {
+      _visibleRange = range;
+      _isModified = true;
+    }
+    _didReportVisibleChildren = true;
+  }
+
+  void reportUnobstructedVisibleChildren((int, int)? range) {
+    assert(_layoutInProgress);
+    if (_unobstructedVisibleRange != range) {
+      _unobstructedVisibleRange = range;
+      _isModified = true;
+    }
+    _didReportUnobstructedVisibleChildren = true;
+  }
+
+  (int, int)? get visibleRange => _visibleRange;
+  (int, int)? _visibleRange;
+
+  (int, int)? get unobstructedVisibleRange => _unobstructedVisibleRange;
+  (int, int)? _unobstructedVisibleRange;
 
   int get numberOfItems => _extentList.length;
 
