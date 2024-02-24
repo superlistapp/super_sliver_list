@@ -842,7 +842,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
     if (anchoredAtEnd &&
         (crossAxisResizing || layoutState.didAddInitialChild) &&
         _totalExtent() != initialExtent) {
-      _log.info(
+      _log.fine(
           "Adjusting correction for extent change by ${_totalExtent() - initialExtent}");
       scrollCorrection += _totalExtent() - initialExtent;
     }
