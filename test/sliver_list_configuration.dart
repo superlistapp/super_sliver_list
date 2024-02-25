@@ -77,15 +77,15 @@ class SliverListConfiguration {
   static int _defaultItemValue(int sliver, int index) => index;
   static double _defaultPinnedHeaderHeight(int sliver) => 0;
 
-  static SliverListConfiguration generate(
-      {int slivers = 1,
-      required int Function(int sliver) itemsPerSliver,
-      required double Function(int sliver, int index) itemHeight,
-      required double viewportHeight,
-      int Function(int sliver, int index) itemValue = _defaultItemValue,
-      bool addGlobalKey = false,
-      double Function(int sliver) pinnedHeaderHeight =
-          _defaultPinnedHeaderHeight}) {
+  static SliverListConfiguration generate({
+    int slivers = 1,
+    required int Function(int sliver) itemsPerSliver,
+    required double Function(int sliver, int index) itemHeight,
+    required double viewportHeight,
+    int Function(int sliver, int index) itemValue = _defaultItemValue,
+    bool addGlobalKey = false,
+    double Function(int sliver) pinnedHeaderHeight = _defaultPinnedHeaderHeight,
+  }) {
     final List<Sliver> sliverList = [];
     for (int i = 0; i < slivers; ++i) {
       final List<SliverItem> items = [];

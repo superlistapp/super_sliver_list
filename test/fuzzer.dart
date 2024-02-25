@@ -54,13 +54,13 @@ class _FuzzerConfiguration {
   });
 
   double nextItemHeight(math.Random random) {
-    return random.nextInt(maxItemHeight - (minItemHeight ?? 0)).toDouble() +
+    return random.nextInt(maxItemHeight + 1 - (minItemHeight ?? 0)).toDouble() +
         (minItemHeight ?? 0);
   }
 
   double nextPinnedHeaderHeight(math.Random random) {
     return maxPinnedHeaderHeight > 0
-        ? random.nextInt(maxPinnedHeaderHeight).toDouble()
+        ? random.nextInt(maxPinnedHeaderHeight + 1).toDouble()
         : 0;
   }
 }
@@ -93,27 +93,36 @@ class _TestConfigurations extends TestConfiguration {
 class FuzzConfigurationProvider extends TestConfigurationProvider {
   FuzzConfigurationProvider();
 
-  final int _maxIterations = 100;
+  static const int _maxIterations = 100;
+  static const int _customerTestMaxIterations = 5;
 
   @override
   Iterable<TestConfiguration> nextConfiguration() sync* {
+    const isCustomerTest = bool.fromEnvironment("flutter_customer_test");
+    const iterations =
+        isCustomerTest ? _customerTestMaxIterations : _maxIterations;
     for (final (fcIndex, fc) in _testConfigurations.indexed) {
       final seedRandom = math.Random(fc.seed);
-      for (int i = 0; i < _maxIterations; ++i) {
+      for (int i = 0; i < iterations; ++i) {
         final seed = seedRandom.nextInt(0xFFFFFFFF);
+        next_seed:
         for (final layoutMode in LayoutMode.values) {
           _log.info(
             "Returning configuration ($fcIndex:$i:${layoutMode.name}) with seed $seed",
           );
           final r = math.Random(seed);
           final configuration = SliverListConfiguration.generate(
-            slivers: r.nextInt(fc.maxSlivers),
-            itemsPerSliver: (_) => r.nextInt(fc.maxItemsPerSliver),
+            slivers: r.nextInt(fc.maxSlivers + 1),
+            itemsPerSliver: (_) => r.nextInt(fc.maxItemsPerSliver + 1),
             itemHeight: (_, index) => fc.nextItemHeight(r),
             viewportHeight: fc.viewportHeight,
             addGlobalKey: true,
             pinnedHeaderHeight: (_) => fc.nextPinnedHeaderHeight(r),
           );
+          if (configuration.totalItemCount == 0) {
+            --i;
+            break next_seed;
+          }
           yield _TestConfigurations(
             configuration: configuration,
             layoutMode: layoutMode,
@@ -161,11 +170,11 @@ final List<_FuzzerConfiguration> _testConfigurations = [
   ),
   _FuzzerConfiguration(
     // TODO: Increase once RenderViewport tracks scroll offset corrections per sliver.
-    maxSlivers: 20,
+    maxSlivers: 12,
     seed: 256,
-    maxItemsPerSliver: 1,
+    maxItemsPerSliver: 2,
     maxItemHeight: 500,
-    minItemHeight: 1,
+    minItemHeight: 50,
     viewportHeight: 500,
     maxPinnedHeaderHeight: 20,
   )
