@@ -408,6 +408,22 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
     _extentManager.performLayout(_performLayoutInner);
   }
 
+  @override
+  void layout(Constraints constraints, {bool parentUsesSize = false}) {
+    super.layout(constraints, parentUsesSize: parentUsesSize);
+    // It is possible that after requesting scroll offset correction the
+    // constraints during next layout call are same as before, which will skip
+    // performLayout meaning the scrollCorrection gets stuck and viewport will
+    // throw exception. To work around this force layout if there is scroll
+    // offset correction requested.
+    if (geometry?.scrollOffsetCorrection != null &&
+        geometry?.scrollOffsetCorrection != 0) {
+      parent?.invokeLayoutCallback((constraints) {
+        markNeedsLayout();
+      });
+    }
+  }
+
   bool get hasChildScrollOffsetEstimation =>
       _childScrollOffsetEstimation != null;
 
