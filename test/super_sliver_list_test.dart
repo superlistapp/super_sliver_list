@@ -54,7 +54,6 @@ class _TestLayoutBudget extends SuperSliverListLayoutBudget {
 
 void main() async {
   initTestLogging();
-
   setUp(() {
     SuperSliverList.layoutBudget = _TestLayoutBudget();
     resetTestLog();
@@ -734,7 +733,7 @@ void main() async {
           tester: tester,
           configuration: configuration,
           controller: controller,
-          step: 100.0,
+          step: 150.0,
         );
 
         // Ensure all items have been laid out.
@@ -811,7 +810,7 @@ void main() async {
           tester: tester,
           configuration: configuration,
           controller: controller,
-          step: -100.0,
+          step: -150.0,
         );
 
         // Ensure all items have been laid out.
