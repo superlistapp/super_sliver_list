@@ -1,5 +1,7 @@
-## 0.2.0-dev.3
+## 0.2.0
 
+* Added `visibleRange` and `unobstructedVisibleRange` properties to `ListController`.
+* Layout fixes.
 * Renamed `ExtentController` to `ListController`.
 
 ## 0.2.0-dev.2
