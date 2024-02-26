@@ -45,10 +45,10 @@ packages:
     dependency: "direct main"
     description:
       name: context_plus
-      sha256: "51aa332fa68b8404d279da93e1818ffc55af93c1a27d66c7689f3e288dfc4507"
+      sha256: "227b7794ee967a9ed92b2b0ba5d8424fdde464607346e1440319e12360cbf2d1"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.4"
+    version: "2.0.1"
   context_ref:
     dependency: transitive
     description:
@@ -61,18 +61,18 @@ packages:
     dependency: transitive
     description:
       name: context_watch
-      sha256: "846f11cab1d4f111a826fead37c31369b92f0c5351e86f950d457967f07d9749"
+      sha256: d4961b0571f7bc37635e9b4f741e7b2c5f26f72e63565c061d8bcd2a2515e081
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.4"
+    version: "3.0.0"
   context_watch_base:
     dependency: transitive
     description:
       name: context_watch_base
-      sha256: edc97e0af2731f99c85e54bcea0be439455cd69838e38ff55b5b4e00eee71d09
+      sha256: "1921e18d43863ac73e944c6c70faf2199a7e1ce7a6470540440f44a5b494157a"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.2"
+    version: "3.0.0"
   fake_async:
     dependency: transitive
     description:

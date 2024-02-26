@@ -45,9 +45,9 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
   @override
   Widget build(BuildContext context) {
     final options = appSettings.of(context);
-    final showSliverList = options.showSliverList.watchValue(context);
-    final sliverCount = this.sliverCount.watchValue(context);
-    final stickyHeaders = this.stickyHeaders.watchValue(context);
+    final showSliverList = options.showSliverList.watch(context);
+    final sliverCount = this.sliverCount.watch(context);
+    final stickyHeaders = this.stickyHeaders.watch(context);
 
     const paragraphs = sherlock.paragraphs;
     SliverChildBuilderDelegate delegate(int sliver) =>
@@ -172,8 +172,8 @@ class _SidebarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sliverCount = this.sliverCount.watchValue(context);
-    final stickyHeaders = this.stickyHeaders.watchValue(context);
+    final sliverCount = this.sliverCount.watch(context);
+    final stickyHeaders = this.stickyHeaders.watch(context);
     return SidebarOptions(
       sections: [
         SidebarSection(
