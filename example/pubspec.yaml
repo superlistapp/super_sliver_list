@@ -21,7 +21,7 @@ dependencies:
       url: https://github.com/superlistapp/super_sliver_list.git
       ref: c9030fbdd3d1be6cdbe9968d0a7d7c66b7988437
       path: example/data
-  context_plus: ^1.0.4
+  context_plus: ^2.0.1
   flutter_lorem: ^2.0.0
   pixel_snap: ^0.1.5
   url_launcher: ^6.2.4

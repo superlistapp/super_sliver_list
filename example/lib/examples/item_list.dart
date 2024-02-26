@@ -306,7 +306,7 @@ class _ItemListPageState extends ExamplePageState {
     );
 
     final options = appSettings.of(context);
-    final showSliverList = options.showSliverList.watchValue(context);
+    final showSliverList = options.showSliverList.watch(context);
 
     SliverChildBuilderDelegate delegate(int sliverIndex) {
       final sliver = _sliverData[sliverIndex];

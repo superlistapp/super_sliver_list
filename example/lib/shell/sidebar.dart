@@ -206,9 +206,9 @@ class AppSettingsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = appSettings.of(context);
-    final showSliverList = settings.showSliverList.watchValue(context);
+    final showSliverList = settings.showSliverList.watch(context);
     final precomputeExtentPolicy =
-        settings.precomputeExtentPolicy.watch(context).value;
+        settings.precomputeExtentPolicy.watch(context);
     return SidebarSection(title: const Text("Options"), children: [
       CheckBox(
         checked: showSliverList,
