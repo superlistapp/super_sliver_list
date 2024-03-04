@@ -260,7 +260,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.2.0-dev.2"
+    version: "0.2.0"
   super_sliver_list_example_data:
     dependency: "direct main"
     description:

@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  collection: ^1.18.0
+  collection: ^1.17.2
   logging: ^1.2.0
 
 dev_dependencies:
