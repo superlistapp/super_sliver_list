@@ -44,14 +44,28 @@ class AnimateToItem {
     );
     animation.addListener(() {
       final value = animation.value;
-      final targetPosition = extentManager.getOffsetToReveal(
+      var targetPosition = extentManager.getOffsetToReveal(
         index,
         alignment,
         rect: rect,
         estimationOnly: value < 1.0,
       );
+      if (value < 1.0) {
+        // Clamp position during animation to prevent overscroll.
+        targetPosition = targetPosition.clamp(
+          position.minScrollExtent,
+          position.maxScrollExtent,
+        );
+      }
       final jumpPosition = lerpDouble(start, targetPosition, value)!;
       lastPosition = jumpPosition;
+      if ((jumpPosition <= position.minScrollExtent &&
+              position.pixels == position.minScrollExtent) ||
+          (jumpPosition >= position.maxScrollExtent &&
+              position.pixels == position.maxScrollExtent)) {
+        // Do not jump when already at the edge. This prevents scrollbar handle artifacts.
+        return;
+      }
       position.jumpTo(jumpPosition);
     });
     controller.forward();
