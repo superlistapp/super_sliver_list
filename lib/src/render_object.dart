@@ -836,6 +836,23 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
                 childAlignmentWithinViewport;
           }
 
+          final position = getViewport()!.offset as ScrollPosition;
+
+          // Max scroll extent with applied corrections for this layout pass.
+          final maxScrollExtent = position.maxScrollExtent -
+              initialExtent +
+              _totalExtent() +
+              constraints.precedingScrollExtent -
+              estimation.precedingScrollExtent;
+
+          // Try to prevent overscroll.
+          final target = position.pixels + correction;
+          if (target < 0) {
+            correction -= target;
+          } else if (target > maxScrollExtent) {
+            correction -= target - maxScrollExtent;
+          }
+
           if (correction.abs() > precisionErrorTolerance) {
             _log.fine("Scroll offset correction: ${correction.format()} "
                 "(reason: jumping to estimated offset, index ${estimation.index})");

@@ -90,6 +90,15 @@ class ListController extends ChangeNotifier {
     assert(_delegate != null, "ListController is not attached.");
     final offset = getOffsetToReveal(index, alignment, rect: rect);
     if (offset.isFinite) {
+      final minExtent = scrollController.position.minScrollExtent;
+      final maxExtent = scrollController.position.maxScrollExtent;
+      final pixels = scrollController.position.pixels;
+      // If the scroll view is already at the edge don't do anything.
+      // Otherwise this may result in scrollbar handle artifacts.
+      if ((offset <= minExtent && pixels == minExtent) ||
+          (offset >= maxExtent && pixels == maxExtent)) {
+        return;
+      }
       scrollController.jumpTo(offset);
     } else {
       _log.warning("getOffsetToReveal returned non-finite value.");
