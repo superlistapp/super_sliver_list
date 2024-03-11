@@ -157,6 +157,9 @@ class ExtentList {
 
   void markAllDirty() {
     assert(_extents.length == _dirty.length);
+    if (_extents.isEmpty) {
+      return;
+    }
     _dirty.fillRange(0, _dirty.length, true);
     _dirtyCount = _dirty.length;
     _cleanRangeStart = null;

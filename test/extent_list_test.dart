@@ -225,4 +225,8 @@ void main() {
 
     expect(extentList.length, equals(1));
   });
+  test("markAllDirty empty", () {
+    final list = ExtentList();
+    list.markAllDirty();
+  });
 }
