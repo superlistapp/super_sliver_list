@@ -10,11 +10,10 @@
             "request": "launch",
             "type": "dart",
             "toolArgs": [
-                "-v"
+                // "--local-web-sdk=wasm_debug_unopt",
+                // "--web-renderer=canvaskit",
+                //     "--local-engine=host_debug_unopt"
             ]
-            // "toolArgs": [
-            //     "--local-engine=host_debug_unopt"
-            // ]
         },
         {
             "name": "example (profile mode)",
@@ -28,7 +27,12 @@
             "cwd": "example",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "release",
+            "toolArgs": [
+                "--local-web-sdk=wasm_release",
+                "--web-renderer=canvaskit",
+                //     "--local-engine=host_debug_unopt"
+            ]
         }
     ]
 }

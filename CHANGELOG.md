@@ -1,3 +1,7 @@
+## 0.2.2
+
+* Fixed exception when calling markAllDirty on empty list.
+
 ## 0.2.1
 
 * Prevent overscroll when jumping and animating to items at the edge with alignment that would otherwise cause overscroll. For example jumping to the first item with `alignment: 1.0` or jumping to the last item with `alignment: 0.0` should no longer cause overscroll.
