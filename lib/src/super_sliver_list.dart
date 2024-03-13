@@ -296,8 +296,8 @@ class ExtentPrecalculationContext {
     required this.numberOfItemsWithEstimatedExtent,
   });
 
-  /// The main axis extent of the viewport.
-  final double viewportMainAxisExtent;
+  /// The main axis extent of the viewport. May not be available initially.
+  final double? viewportMainAxisExtent;
 
   /// The main axis extent of the content. May not be available initially.
   final double? contentTotalExtent;

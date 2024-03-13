@@ -488,6 +488,24 @@ void main() async {
       // Failing this likely means the child manager is not aware of underflow.
       expect(find.text("Tile 0:0"), findsOneWidget);
     });
+    testWidgets("shrinkWrap", (tester) async {
+      final list = SliverListConfiguration.generate(
+        slivers: 3,
+        itemsPerSliver: (_) => 1,
+        itemHeight: (_, __) => 10,
+        viewportHeight: 500,
+        pinnedHeaderHeight: (i) => i == 0 ? 100 : 0,
+      );
+      await tester.pumpWidget(
+        _buildSliverList(
+          list,
+          preciseLayout: false,
+          shrinkWrap: true,
+        ),
+      );
+      final frames = await tester.pumpAndSettle();
+      expect(frames, 1);
+    });
     testWidgets("visible range", (tester) async {
       final list = SliverListConfiguration.generate(
         slivers: 3,
@@ -1161,6 +1179,7 @@ Widget _buildSliverList(
   required bool preciseLayout,
   ScrollController? controller,
   ListController? listController,
+  bool shrinkWrap = false,
 }) {
   return Directionality(
     textDirection: TextDirection.ltr,
@@ -1169,6 +1188,7 @@ Widget _buildSliverList(
         color: Colors.blue,
         height: configuration.viewportHeight,
         child: CustomScrollView(
+          shrinkWrap: shrinkWrap,
           physics: const ClampingScrollPhysics(),
           controller: controller,
           slivers: <Widget>[

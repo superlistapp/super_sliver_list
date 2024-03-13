@@ -53,10 +53,10 @@ class LayoutPass {
 final _viewportToLayoutPass = Expando<LayoutPass>();
 
 extension RenderSliverLayoutPass on RenderSliver {
-  RenderViewport? getViewport() {
+  RenderViewportBase? getViewport() {
     RenderObject? parent = this.parent;
     while (parent != null) {
-      if (parent is RenderViewport) {
+      if (parent is RenderViewportBase) {
         return parent;
       }
       parent = parent.parent;

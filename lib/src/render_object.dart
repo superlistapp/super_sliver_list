@@ -90,7 +90,8 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
     final viewport = getViewport()!;
     final position = viewport.offset as ScrollPosition;
     final context = ExtentPrecalculationContext(
-      viewportMainAxisExtent: position.viewportDimension,
+      viewportMainAxisExtent:
+          position.hasViewportDimension ? position.viewportDimension : null,
       contentTotalExtent: position.hasContentDimensions
           ? position.maxScrollExtent - position.minScrollExtent
           : null,
@@ -129,7 +130,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
 
   _ChildScrollOffsetEstimation? _childScrollOffsetEstimation;
 
-  void sanitizeChildScrollOffsetEstimation(RenderViewport viewport) {
+  void sanitizeChildScrollOffsetEstimation(RenderViewportBase viewport) {
     if (_childScrollOffsetEstimation != null) {
       final offset = viewport.offset.pixels;
       if (_childScrollOffsetEstimation!.viewportScrollOffset != null &&
