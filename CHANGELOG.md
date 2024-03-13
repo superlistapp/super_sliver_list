@@ -1,3 +1,8 @@
+## 0.3.0
+
+* Fixed layout exception for shrink-wrapped lists.
+* BREAKING: ExtentPrecalculationContext.viewportMainAxisExtent is now nullable
+
 ## 0.2.2
 
 * Fixed exception when calling markAllDirty on empty list.
