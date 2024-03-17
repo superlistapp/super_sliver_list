@@ -384,6 +384,7 @@ class SuperSliverList extends SliverMultiBoxAdaptorWidget {
     this.listController,
     this.extentEstimation,
     this.delayPopulatingCacheArea = true,
+    this.layoutKeptAliveChildren = false,
   });
 
   /// When set provides access to extents of individual children.
@@ -412,6 +413,11 @@ class SuperSliverList extends SliverMultiBoxAdaptorWidget {
   /// are only built after the scrolling slows down.
   final bool delayPopulatingCacheArea;
 
+  /// Whether children with keepAlive should be laid out.
+  /// Setting this to `true` ensures that layout for kept alive children is
+  /// maintained and proper paint transform is applied.
+  final bool layoutKeptAliveChildren;
+
   static SuperSliverListLayoutBudget layoutBudget =
       _TimeSuperSliverListLayoutBudget(
     budget: const Duration(milliseconds: 3),
@@ -429,6 +435,7 @@ class SuperSliverList extends SliverMultiBoxAdaptorWidget {
       extentPrecalculationPolicy: extentPrecalculationPolicy,
       estimateExtent: extentEstimation ?? _defaultEstimateExtent,
       delayPopulatingCacheArea: delayPopulatingCacheArea,
+      layoutKeptAliveChildren: layoutKeptAliveChildren,
     );
   }
 
@@ -443,6 +450,7 @@ class SuperSliverList extends SliverMultiBoxAdaptorWidget {
     renderSliverList.estimateExtent =
         extentEstimation ?? _defaultEstimateExtent;
     renderSliverList.delayPopulatingCacheArea = delayPopulatingCacheArea;
+    renderSliverList.layoutKeptAliveChildren = layoutKeptAliveChildren;
   }
 }
 
