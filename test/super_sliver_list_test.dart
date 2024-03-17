@@ -52,6 +52,34 @@ class _TestLayoutBudget extends SuperSliverListLayoutBudget {
   }
 }
 
+class _KeepAliveWidget extends StatefulWidget {
+  const _KeepAliveWidget({
+    super.key,
+    this.wantKeepAlive = false,
+    required this.child,
+  });
+
+  final bool wantKeepAlive;
+  final Widget child;
+
+  @override
+  State<StatefulWidget> createState() => _KeepAliveWidgetState();
+}
+
+class _KeepAliveWidgetState extends State<_KeepAliveWidget>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    // https://github.com/flutter/flutter/issues/145291
+    updateKeepAlive();
+    return widget.child;
+  }
+
+  @override
+  bool get wantKeepAlive => widget.wantKeepAlive;
+}
+
 void main() async {
   initTestLogging();
   setUp(() {
@@ -63,7 +91,7 @@ void main() async {
     });
   });
 
-  group("SliverList", () {
+  group("SuperSliverList", () {
     testWidgets("reverse children (with keys)", (tester) async {
       final configuration = SliverListConfiguration.generate(
         slivers: 1,
@@ -588,6 +616,85 @@ void main() async {
       expect(list.slivers[1].listController.visibleRange, equals((0, 4)));
       expect(list.slivers[1].listController.unobstructedVisibleRange,
           equals((1, 4)));
+    });
+    testWidgets("kept alive widgets are laid out", (tester) async {
+      final key1 = GlobalKey();
+      final key2 = GlobalKey();
+      final controller = ScrollController();
+      Widget build(double width) {
+        return Directionality(
+          textDirection: TextDirection.ltr,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              height: 500,
+              width: width,
+              child: CustomScrollView(
+                physics: const ClampingScrollPhysics(),
+                controller: controller,
+                slivers: [
+                  SuperSliverList(
+                    layoutKeptAliveChildren: true,
+                    delayPopulatingCacheArea: false,
+                    delegate: SliverChildListDelegate([
+                      _KeepAliveWidget(
+                        key: key1,
+                        wantKeepAlive: true,
+                        child: AspectRatio(
+                          aspectRatio: 5.0,
+                          child: Container(),
+                        ),
+                      ),
+                      _KeepAliveWidget(
+                        key: key2,
+                        wantKeepAlive: true,
+                        child: AspectRatio(
+                          aspectRatio: 5.0,
+                          child: Container(),
+                        ),
+                      ),
+                      for (int i = 0; i < 100; ++i) const SizedBox(height: 100)
+                    ]),
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
+      await tester.pumpWidget(build(500));
+      {
+        final renderBox = key2.currentContext!.findRenderObject()! as RenderBox;
+        expect(renderBox.size, equals(const Size(500, 100)));
+        final position = renderBox.localToGlobal(Offset.zero);
+        expect(position, equals(const Offset(0, 100)));
+      }
+      controller.jumpTo(1000);
+      await tester.pump();
+      {
+        final renderBox = key2.currentContext!.findRenderObject()! as RenderBox;
+        final parentData = renderBox.parent!.parent!.parentData!
+            as SliverMultiBoxAdaptorParentData;
+        expect(parentData.keepAlive, isTrue);
+        expect(renderBox.size, equals(const Size(500, 100)));
+        final position = renderBox.localToGlobal(Offset.zero);
+        expect(position, equals(const Offset(0, -900)));
+      }
+      await tester.pumpWidget(build(600));
+      expect(
+          controller.position.pixels, 1040); // Correction for kept alive items
+      controller.jumpTo(1000); // undo scroll offset correction
+      {
+        final renderBox = key2.currentContext!.findRenderObject()! as RenderBox;
+        final parentData = renderBox.parent!.parent!.parentData!
+            as SliverMultiBoxAdaptorParentData;
+        expect(parentData.keepAlive, isTrue);
+        expect(renderBox.size, equals(const Size(600, 120)));
+        final position = renderBox.localToGlobal(Offset.zero);
+        // Shifted slightly because the item before is 20px taller.
+        expect(position, equals(const Offset(0, -920)));
+      }
     });
     testWidgets("delay populating cache area enabled", (tester) async {
       final keys0 = List.generate(50, (index) => GlobalKey());
