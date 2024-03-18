@@ -229,4 +229,34 @@ void main() {
     final list = ExtentList();
     list.markAllDirty();
   });
+  test("offsetForIndex", () {
+    final extentList = ExtentList();
+
+    extentList.resize(3, (_) => 100.0);
+    extentList.setExtent(0, 50);
+    extentList.setExtent(1, 70);
+    extentList.setExtent(2, 80);
+
+    expect(extentList.offsetForIndex(0), equals(0));
+    expect(extentList.offsetForIndex(1), equals(50));
+    expect(extentList.offsetForIndex(2), equals(120));
+  });
+  test("indexForOffset", () {
+    final extentList = ExtentList();
+    expect(extentList.indexForOffset(0), equals(null));
+    expect(extentList.indexForOffset(100), equals(null));
+
+    extentList.resize(3, (_) => 100.0);
+    extentList.setExtent(0, 50);
+    extentList.setExtent(1, 70);
+    extentList.setExtent(2, 80);
+
+    expect(extentList.indexForOffset(0), equals(0));
+    expect(extentList.indexForOffset(49), equals(0));
+    expect(extentList.indexForOffset(50), equals(1));
+    expect(extentList.indexForOffset(119), equals(1));
+    expect(extentList.indexForOffset(120), equals(2));
+    expect(extentList.indexForOffset(200), equals(null));
+    expect(extentList.indexForOffset(500), equals(null));
+  });
 }

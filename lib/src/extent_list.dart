@@ -3,6 +3,8 @@ import "dart:typed_data";
 import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
 
+import "fenwick_tree.dart";
+
 class ResizableFloat64List {
   static const _minCapacity = 16;
 
@@ -94,6 +96,14 @@ class ExtentList {
   int? _cleanRangeStart;
   int? _cleanRangeEnd;
 
+  // Cached FenwickTree for fast offsetForIndex and indexForOffset. This is
+  // created on demand and invalidated when the extent list length changes. The
+  // assumption is that modifications to individual extents (which can be
+  // reflected in the FenwickTree) are more frequent than changes to the length
+  // of the list (which require rebuilding the FenwickTree next time
+  // offsetForIndex or indexForOffset is called).
+  FenwickTree? _fenwickTree;
+
   void setExtent(int index, double extent, {bool isEstimation = false}) {
     assert(_extents.length == _dirty.length);
     assert(index >= 0 && index < _extents.length && index < _dirty.length);
@@ -108,9 +118,10 @@ class ExtentList {
       _cleanRangeEnd = index;
     }
 
-    _totalExtent -= _extents[index];
+    final delta = extent - _extents[index];
     _extents[index] = extent;
-    _totalExtent += extent;
+    _totalExtent += delta;
+    _fenwickTree?.update(index, delta);
   }
 
   /// Returns index of first item in range of items with valid extents.
@@ -188,6 +199,7 @@ class ExtentList {
     _dirty.removeAt(index);
     _cleanRangeStart = null;
     _cleanRangeEnd = null;
+    _fenwickTree = null;
   }
 
   void insertAt(int index, double Function(int index) defaultExtent) {
@@ -199,6 +211,7 @@ class ExtentList {
     ++_dirtyCount;
     _cleanRangeStart = null;
     _cleanRangeEnd = null;
+    _fenwickTree = null;
   }
 
   void resize(int newSize, double Function(int index) defaultExtent) {
@@ -234,6 +247,30 @@ class ExtentList {
     if (_cleanRangeEnd != null && _cleanRangeEnd! >= newSize) {
       _cleanRangeEnd = newSize - 1;
     }
+    _fenwickTree = null;
+  }
+
+  FenwickTree _getOrBuildFenwickTree() {
+    if (_fenwickTree == null) {
+      _fenwickTree = FenwickTree(size: _extents.length);
+      for (var i = 0; i < _extents.length; ++i) {
+        _fenwickTree!.update(i, _extents[i]);
+      }
+    }
+    return _fenwickTree!;
+  }
+
+  double offsetForIndex(int index) {
+    final tree = _getOrBuildFenwickTree();
+    return tree.query(index);
+  }
+
+  int? indexForOffset(double offset) {
+    if (offset >= _totalExtent) {
+      return null;
+    }
+    final tree = _getOrBuildFenwickTree();
+    return tree.inverseQuery(offset);
   }
 
   /// Returns number of estimated extents.

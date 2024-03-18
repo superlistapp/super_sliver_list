@@ -66,23 +66,12 @@ class ExtentManager with ChangeNotifier {
   final _extentList = ExtentList();
 
   int? indexForOffset(double offset) {
-    for (int index = 0; index < _extentList.length; ++index) {
-      final extent = _extentList[index];
-      if (offset < extent) {
-        return index;
-      }
-      offset -= extent;
-    }
-    return null;
+    return _extentList.indexForOffset(offset);
   }
 
   double offsetForIndex(int index) {
     assert(index >= 0 && index < _extentList.length);
-    double offset = 0;
-    for (int i = 0; i < index; ++i) {
-      offset += _extentList[i];
-    }
-    return offset;
+    return _extentList.offsetForIndex(index);
   }
 
   (double, bool) extentForIndex(int index) {
