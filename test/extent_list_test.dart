@@ -274,4 +274,13 @@ void main() {
     expect(extentList.indexForOffset(200), equals(null));
     expect(extentList.indexForOffset(500), equals(null));
   });
+  test("floating point rounding", () {
+    final el = ExtentList();
+    el.resize(2, (index) => 10.0);
+    el.setExtent(0, 0.1);
+    el.setExtent(1, 0.1);
+    el.setExtent(0, 0.0);
+    el.setExtent(1, 0.0);
+    expect(el.totalExtent, 0.0);
+  });
 }

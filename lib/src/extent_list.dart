@@ -1,5 +1,3 @@
-import "dart:typed_data";
-
 import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
 
@@ -105,7 +103,18 @@ class ExtentList {
   final _extents = ResizableFloat64List();
   final _dirty = BoolList.empty(growable: true);
   int _dirtyCount = 0;
-  double _totalExtent = 0.0;
+
+  double get _totalExtent => __totalExtent;
+  set _totalExtent(double value) {
+    __totalExtent = value;
+    // Floating point is not associative, we need to make sure that we don't
+    // end up with a negative total extent.
+    if (__totalExtent.abs() < precisionErrorTolerance) {
+      __totalExtent = 0.0;
+    }
+  }
+
+  double __totalExtent = 0.0;
 
   int? _cleanRangeStart;
   int? _cleanRangeEnd;
