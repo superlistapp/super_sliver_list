@@ -47,6 +47,13 @@ void main() {
       expect(list[0], equals(10));
       expect(list[299], equals(10));
     });
+    test("resizeWithDefault", () {
+      final list = ResizableFloat64List();
+      list.resizeWithDefault(300, 10);
+      expect(list.length, equals(300));
+      expect(list[0], equals(10));
+      expect(list[299], equals(10));
+    });
   });
   group("ExtentList", () {
     test("empty", () {
@@ -75,7 +82,7 @@ void main() {
       expect(extentList.hasDirtyItems, isFalse);
       expect(extentList.totalExtent, equals(100));
 
-      extentList.resize(4, (_) => 150.0);
+      extentList.resize(4, (i) => i == null ? 0 : 150.0);
       expect(extentList.hasDirtyItems, isTrue);
       expect(extentList.totalExtent, equals(400));
 
@@ -83,6 +90,14 @@ void main() {
       extentList.setExtent(3, 80);
       expect(extentList.hasDirtyItems, isFalse);
       expect(extentList.totalExtent, equals(100 + 70 + 80));
+
+      extentList.resize(100, (index) => 50);
+      expect(extentList.totalExtent, equals(5050));
+      expect(extentList.dirtyItemCount, 96);
+
+      extentList.resize(10, (index) => 50);
+      expect(extentList.totalExtent, equals(550));
+      expect(extentList.dirtyItemCount, 6);
     });
     test("cleanRange", () {
       final extentList = ExtentList();

@@ -280,7 +280,7 @@ class ListController extends ChangeNotifier {
 }
 
 typedef ExtentEstimationProvider = double Function(
-  int index,
+  int? index,
   double crossAxisExtent,
 );
 
@@ -396,6 +396,11 @@ class SuperSliverList extends SliverMultiBoxAdaptorWidget {
   /// out, either through scrolling or [extentPrecalculationPolicy], the actual
   /// extents are calculated and the scroll offset is adjusted to account for
   /// the difference between estimated and actual extents.
+  ///
+  /// The item index argument is nullable. If all estimated items have same extent,
+  /// the implementation should return non-zero extent for the `null` index. This saves
+  /// calls to extent estimation provider for large lists.
+  /// If each item has different extent, return zero for the `null` index.
   final ExtentEstimationProvider? extentEstimation;
 
   /// Optional policy that can be used to asynchronously precalculate the extents
@@ -484,6 +489,6 @@ class _TimeSuperSliverListLayoutBudget extends SuperSliverListLayoutBudget {
   final Duration budget;
 }
 
-double _defaultEstimateExtent(int index, double crossAxisExtent) {
+double _defaultEstimateExtent(int? index, double crossAxisExtent) {
   return 100.0;
 }

@@ -8,7 +8,7 @@ abstract class ExtentManagerDelegate {
   const ExtentManagerDelegate();
 
   void onMarkNeedsLayout();
-  double estimateExtentForItem(int index);
+  double estimateExtentForItem(int? index);
   double getOffsetToReveal(
     int index,
     double alignment, {
