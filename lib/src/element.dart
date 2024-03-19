@@ -33,7 +33,7 @@ class SuperSliverMultiBoxAdaptorElement extends SliverMultiBoxAdaptorElement
   }
 
   @override
-  double estimateExtentForItem(int index) {
+  double estimateExtentForItem(int? index) {
     return renderObject.estimateExtentForItem(index);
   }
 

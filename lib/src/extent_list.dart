@@ -33,6 +33,20 @@ class ResizableFloat64List {
     _maybeTrim();
   }
 
+  void resizeWithDefault(int newSize, double defaultValue) {
+    assert(newSize >= 0);
+    if (newSize == _length) {
+      return;
+    }
+    _ensureCapacity(newSize);
+    final list = _list;
+    for (var i = _length; i < newSize; ++i) {
+      list[i] = defaultValue;
+    }
+    _length = newSize;
+    _maybeTrim();
+  }
+
   void insert(int index, double element) {
     _ensureCapacity(_length + 1);
     if (index < _length) {
@@ -214,24 +228,44 @@ class ExtentList {
     _fenwickTree = null;
   }
 
-  void resize(int newSize, double Function(int index) defaultExtent) {
+  void resize(int newSize, double Function(int? index) defaultExtent) {
     assert(_extents.length == _dirty.length);
     final prevSize = _extents.length;
     final prevExtents = _extents;
 
     if (newSize < prevSize) {
-      for (var i = newSize; i < prevSize; ++i) {
-        _totalExtent -= prevExtents[i];
-        _dirtyCount -= _dirty[i] ? 1 : 0;
+      if (prevSize - newSize < newSize) {
+        for (var i = newSize; i < prevSize; ++i) {
+          _totalExtent -= prevExtents[i];
+          _dirtyCount -= _dirty[i] ? 1 : 0;
+        }
+      } else {
+        // In this case it's less work to count the extent and dirty items
+        // from scratch.
+        _totalExtent = 0;
+        _dirtyCount = 0;
+        for (var i = 0; i < newSize; ++i) {
+          _totalExtent += _extents[i];
+          _dirtyCount += _dirty[i] ? 1 : 0;
+        }
       }
     }
 
     double addedDefaultExtent = 0.0;
-    _extents.resize(newSize, (index) {
-      final extent = defaultExtent(index);
-      addedDefaultExtent += extent;
-      return extent;
-    });
+    final sameExtent = defaultExtent(null);
+    if (sameExtent > 0) {
+      _extents.resizeWithDefault(newSize, sameExtent);
+      if (newSize > prevSize) {
+        addedDefaultExtent = (newSize - prevSize) * sameExtent;
+      }
+    } else {
+      _extents.resize(newSize, (index) {
+        final extent = defaultExtent(index);
+        addedDefaultExtent += extent;
+        return extent;
+      });
+    }
+
     _dirty.length = newSize;
 
     if (newSize > prevSize) {
@@ -251,12 +285,7 @@ class ExtentList {
   }
 
   FenwickTree _getOrBuildFenwickTree() {
-    if (_fenwickTree == null) {
-      _fenwickTree = FenwickTree(size: _extents.length);
-      for (var i = 0; i < _extents.length; ++i) {
-        _fenwickTree!.update(i, _extents[i]);
-      }
-    }
+    _fenwickTree ??= FenwickTree.fromList(list: _extents._list);
     return _fenwickTree!;
   }
 

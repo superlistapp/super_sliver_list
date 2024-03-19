@@ -1,3 +1,5 @@
+import "dart:typed_data";
+
 import "package:super_sliver_list/src/fenwick_tree.dart";
 import "package:test/test.dart";
 
@@ -37,12 +39,51 @@ void main() {
     expect(tree.query(6), 17);
     expect(tree.query(10), 31);
   });
+  test("FenwickTree from list", () {
+    final list = Float64List(10);
+    list[0] = 2;
+    list[1] = 1;
+    list[2] = 3;
+    list[3] = 4;
+    list[4] = 5;
+    list[5] = 1;
+    list[6] = 2;
+    list[7] = 3;
+    list[8] = 4;
+    list[9] = 5;
+    final tree = FenwickTree.fromList(list: list);
+    expect(tree.query(0), 0);
+    expect(tree.query(3), 6);
+    expect(tree.query(5), 15);
+    expect(tree.query(6), 16);
+    expect(tree.query(9), 25);
+    expect(tree.query(10), 30);
+  });
   test("large FenwickTree", () {
     const size = 10000000;
     final tree = FenwickTree(size: size);
     for (var i = 0; i < size; ++i) {
       tree.update(i, i.toDouble());
     }
+    double total = 0;
+    for (var i = 0; i < size; ++i) {
+      expect(tree.query(i), total);
+      total += i;
+    }
+    tree.update(0, 100);
+    total = 0;
+    for (var i = 0; i < size; ++i) {
+      expect(tree.query(i), total);
+      total += i == 0 ? 100 : i;
+    }
+  });
+  test("large FenwickTree from list", () {
+    const size = 10000000;
+    final list = Float64List(size);
+    for (var i = 0; i < size; ++i) {
+      list[i] = i.toDouble();
+    }
+    final tree = FenwickTree.fromList(list: list);
     double total = 0;
     for (var i = 0; i < size; ++i) {
       expect(tree.query(i), total);

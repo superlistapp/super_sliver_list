@@ -439,7 +439,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
     });
   }
 
-  double estimateExtentForItem(int index) {
+  double estimateExtentForItem(int? index) {
     return estimateExtent(index, constraints.crossAxisExtent);
   }
 
