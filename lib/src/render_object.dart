@@ -734,9 +734,12 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
           childScrollOffset(firstVisible)! - firstVisibleLayoutOffset!;
     }
 
+    // Start offset with applied scroll correction.
+    var correctedStartOffset = startOffset + scrollCorrection;
+
     // Adding preceding children.
     while ((indexOf(firstChild!) > 0 &&
-            childScrollOffset(firstChild!)! > startOffset + scrollCorrection) ||
+            childScrollOffset(firstChild!)! > correctedStartOffset) ||
         (_childScrollOffsetEstimation != null &&
             indexOf(firstChild!) > _childScrollOffsetEstimation!.index)) {
       final prevOffset = childScrollOffset(firstChild!)!;
@@ -761,6 +764,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
               constraints.viewportMainAxisExtent) {
         scrollCorrection += correction;
       }
+      correctedStartOffset += correction;
     }
 
     // Additional correction: first child is not at the very beginning

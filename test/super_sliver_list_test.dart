@@ -516,6 +516,7 @@ void main() async {
       // Failing this likely means the child manager is not aware of underflow.
       expect(find.text("Tile 0:0"), findsOneWidget);
     });
+
     testWidgets("shrinkWrap", (tester) async {
       final list = SliverListConfiguration.generate(
         slivers: 3,
@@ -534,6 +535,7 @@ void main() async {
       final frames = await tester.pumpAndSettle();
       expect(frames, 1);
     });
+
     testWidgets("visible range", (tester) async {
       final list = SliverListConfiguration.generate(
         slivers: 3,
@@ -617,6 +619,7 @@ void main() async {
       expect(list.slivers[1].listController.unobstructedVisibleRange,
           equals((1, 4)));
     });
+
     testWidgets("kept alive widgets are laid out", (tester) async {
       final key1 = GlobalKey();
       final key2 = GlobalKey();
@@ -696,6 +699,7 @@ void main() async {
         expect(position, equals(const Offset(0, -920)));
       }
     });
+
     testWidgets("delay populating cache area enabled", (tester) async {
       final keys0 = List.generate(50, (index) => GlobalKey());
       final keys1 = List.generate(1, (index) => GlobalKey());
@@ -778,6 +782,7 @@ void main() async {
 
       controller.dispose();
     });
+
     testWidgets("delay populating cache area disabled", (tester) async {
       final keys = List.generate(50, (index) => GlobalKey());
       final controller = ScrollController();
@@ -833,6 +838,31 @@ void main() async {
       expect(keys[19].currentContext, isNotNull);
       expect(keys[25].currentContext, isNotNull);
       controller.dispose();
+    });
+
+    testWidgets("does not exceed layout cycles", (tester) async {
+      final configuration = SliverListConfiguration.generate(
+        slivers: 1,
+        itemsPerSliver: (_) => 50,
+        itemHeight: (_, __) => 30,
+        viewportHeight: 500,
+      );
+      final ScrollController controller =
+          ScrollController(initialScrollOffset: 0);
+      addTearDown(controller.dispose);
+
+      await tester.pumpWidget(_buildSliverList(
+        configuration,
+        preciseLayout: false,
+        controller: controller,
+        extentEstimation: (_, __) => 200,
+        delayPopulatingCacheArea: false,
+      ));
+      await tester.pumpAndSettle();
+
+      // This must not cause maximum layout cycle exceeded exception.
+      controller.jumpTo(controller.position.maxScrollExtent);
+      await tester.pumpAndSettle();
     });
   });
   group("Fuzzer", () {
@@ -1287,6 +1317,8 @@ Widget _buildSliverList(
   ScrollController? controller,
   ListController? listController,
   bool shrinkWrap = false,
+  ExtentEstimationProvider? extentEstimation,
+  bool delayPopulatingCacheArea = true,
 }) {
   return Directionality(
     textDirection: TextDirection.ltr,
@@ -1321,7 +1353,9 @@ Widget _buildSliverList(
                 extentPrecalculationPolicy: _SimpleExtentPrecalculatePolicy(
                   precalculate: preciseLayout,
                 ),
+                extentEstimation: extentEstimation,
                 listController: listController ?? sliver.listController,
+                delayPopulatingCacheArea: delayPopulatingCacheArea,
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int i) {
                     return SizedBox(
