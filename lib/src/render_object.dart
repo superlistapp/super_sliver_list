@@ -734,9 +734,12 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
           childScrollOffset(firstVisible)! - firstVisibleLayoutOffset!;
     }
 
+    // Start offset with applied scroll correction.
+    var correctedStartOffset = startOffset + scrollCorrection;
+
     // Adding preceding children.
     while ((indexOf(firstChild!) > 0 &&
-            childScrollOffset(firstChild!)! > startOffset + scrollCorrection) ||
+            childScrollOffset(firstChild!)! > correctedStartOffset) ||
         (_childScrollOffsetEstimation != null &&
             indexOf(firstChild!) > _childScrollOffsetEstimation!.index)) {
       final prevOffset = childScrollOffset(firstChild!)!;
@@ -751,6 +754,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       final correction = paintExtentOf(box) - previousExtent;
       _log.finest(
         "Adding preceding child with index ${indexOf(box)} "
+        "extent: ${paintExtentOf(box)} "
         "(${correction.format()} correction)",
       );
       _shiftLayoutOffsets(childAfter(box), correction);
@@ -760,6 +764,16 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
           constraints.remainingPaintExtent ==
               constraints.viewportMainAxisExtent) {
         scrollCorrection += correction;
+      }
+
+      // If start offset is 0, we must end up at initial item, so do not correct the
+      // start offset.
+      // If start offset > 0 we care about filling up the cache area, so correct the
+      // offset depending on the extent of the child. TODO(knopp): It might be enough
+      // to just ensure that we have a single completely hidden child in the cache
+      // area. See https://github.com/flutter/flutter/issues/128601
+      if (startOffset > 0) {
+        correctedStartOffset += correction;
       }
     }
 
