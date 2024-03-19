@@ -1,3 +1,10 @@
+## 0.4.0
+
+* BREAKING: Changed signature of `ExtentEstimationProvider` where the `index` is now nullable.
+* Added `layoutKeptAliveChildren` argument to `SuperSliverList`.
+* Improved performance with very large lists (millions of items).
+* Bugfixes
+
 ## 0.3.0
 
 * Fixed layout exception for shrink-wrapped lists.
