@@ -1,3 +1,8 @@
+## 0.4.1
+
+* Fix missing propagation of `rect` inside `RenderViewportExt.getOffsetToRevealExt`.
+* Add missing constructors in `SuperSliverList` to have `SliverList` parity.
+
 ## 0.4.0
 
 * BREAKING: Changed signature of `ExtentEstimationProvider` where the `index` is now nullable.
