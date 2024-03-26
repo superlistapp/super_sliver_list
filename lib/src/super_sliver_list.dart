@@ -1,3 +1,5 @@
+import "dart:math" as math;
+
 import "package:flutter/rendering.dart";
 import "package:flutter/widgets.dart";
 import "package:logging/logging.dart";
@@ -386,6 +388,104 @@ class SuperSliverList extends SliverMultiBoxAdaptorWidget {
     this.delayPopulatingCacheArea = true,
     this.layoutKeptAliveChildren = false,
   });
+
+  /// Creates a SuperSliverList from widget builder.
+  ///
+  /// See [SliverList.builder] for details.
+  SuperSliverList.builder({
+    super.key,
+    required NullableIndexedWidgetBuilder itemBuilder,
+    ChildIndexGetter? findChildIndexCallback,
+    int? itemCount,
+    this.extentPrecalculationPolicy,
+    this.listController,
+    this.extentEstimation,
+    this.delayPopulatingCacheArea = true,
+    this.layoutKeptAliveChildren = false,
+    bool addAutomaticKeepAlives = true,
+    bool addRepaintBoundaries = true,
+    bool addSemanticIndexes = true,
+  }) : super(
+          delegate: SliverChildBuilderDelegate(
+            itemBuilder,
+            findChildIndexCallback: findChildIndexCallback,
+            childCount: itemCount,
+            addAutomaticKeepAlives: addAutomaticKeepAlives,
+            addRepaintBoundaries: addRepaintBoundaries,
+            addSemanticIndexes: addSemanticIndexes,
+          ),
+        );
+
+  /// Creates a SuperSliverList from widget builder separated by separator
+  /// widgets.
+  ///
+  /// See [SliverList.separated] for details.
+  SuperSliverList.separated({
+    super.key,
+    required NullableIndexedWidgetBuilder itemBuilder,
+    ChildIndexGetter? findChildIndexCallback,
+    required NullableIndexedWidgetBuilder separatorBuilder,
+    this.extentPrecalculationPolicy,
+    this.listController,
+    this.extentEstimation,
+    this.delayPopulatingCacheArea = true,
+    this.layoutKeptAliveChildren = false,
+    int? itemCount,
+    bool addAutomaticKeepAlives = true,
+    bool addRepaintBoundaries = true,
+    bool addSemanticIndexes = true,
+  }) : super(
+          delegate: SliverChildBuilderDelegate(
+            (BuildContext context, int index) {
+              final int itemIndex = index ~/ 2;
+              final Widget? widget;
+              if (index.isEven) {
+                widget = itemBuilder(context, itemIndex);
+              } else {
+                widget = separatorBuilder(context, itemIndex);
+                assert(() {
+                  if (widget == null) {
+                    throw FlutterError("separatorBuilder cannot return null.");
+                  }
+                  return true;
+                }());
+              }
+              return widget;
+            },
+            findChildIndexCallback: findChildIndexCallback,
+            childCount:
+                itemCount == null ? null : math.max(0, itemCount * 2 - 1),
+            addAutomaticKeepAlives: addAutomaticKeepAlives,
+            addRepaintBoundaries: addRepaintBoundaries,
+            addSemanticIndexes: addSemanticIndexes,
+            semanticIndexCallback: (Widget _, int index) {
+              return index.isEven ? index ~/ 2 : null;
+            },
+          ),
+        );
+
+  /// Creates a SuperSliverList from list of child widgets.
+  ///
+  /// See [SliverList.list] for details.
+  SuperSliverList.list({
+    super.key,
+    required List<Widget> children,
+    this.extentPrecalculationPolicy,
+    this.listController,
+    this.extentEstimation,
+    this.delayPopulatingCacheArea = true,
+    this.layoutKeptAliveChildren = false,
+    bool addAutomaticKeepAlives = true,
+    bool addRepaintBoundaries = true,
+    bool addSemanticIndexes = true,
+  }) : super(
+          delegate: SliverChildListDelegate(
+            children,
+            addAutomaticKeepAlives: addAutomaticKeepAlives,
+            addRepaintBoundaries: addRepaintBoundaries,
+            addSemanticIndexes: addSemanticIndexes,
+          ),
+        );
 
   /// When set provides access to extents of individual children.
   /// [ListController] can also be used to jump to a specific item in the list.
