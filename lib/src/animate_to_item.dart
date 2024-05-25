@@ -16,7 +16,7 @@ class AnimateToItem {
   });
 
   final ExtentManager extentManager;
-  final int index;
+  final ValueGetter<int> index;
   final double alignment;
   final Rect? rect;
   final ScrollPosition position;
@@ -28,7 +28,7 @@ class AnimateToItem {
   void animate() {
     final start = position.pixels;
     final estimatedTarget = extentManager.getOffsetToReveal(
-      index,
+      index(),
       alignment,
       rect: rect,
       estimationOnly: true,
@@ -45,7 +45,7 @@ class AnimateToItem {
     animation.addListener(() {
       final value = animation.value;
       var targetPosition = extentManager.getOffsetToReveal(
-        index,
+        index(),
         alignment,
         rect: rect,
         estimationOnly: value < 1.0,

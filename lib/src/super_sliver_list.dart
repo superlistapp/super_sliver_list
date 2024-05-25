@@ -110,6 +110,10 @@ class ListController extends ChangeNotifier {
   /// Animates the position of the scroll view such that the item at [index] is
   /// revealed in the viewport.
   ///
+  /// The index getter will be called repeatedly on every animation tick, which
+  /// allows for accommodating index changes when items are inserted or removed
+  /// during the animation.
+  ///
   /// The optional [rect] parameter describes which area of that target item
   /// should be revealed in the viewport. If omitted, the entire item
   /// will be revealed (subject to the constraints of the viewport).
@@ -120,7 +124,7 @@ class ListController extends ChangeNotifier {
   /// the middle of the viewport. If the value is 1.0, the item will be
   /// positioned at the trailing edge of the viewport.
   void animateToItem({
-    required int index,
+    required ValueGetter<int> index,
     required ScrollController scrollController,
     required double alignment,
     required Duration Function(double estimatedDistance) duration,
