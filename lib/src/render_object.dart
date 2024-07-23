@@ -538,8 +538,8 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
           "remaining paint extent: ${constraints.remainingPaintExtent.format()}, "
           "cache: ${constraints.cacheOrigin.format()} - "
           "${constraints.remainingCacheExtent.format()}, "
-          "preceding: ${constraints.precedingScrollExtent.format()}",
-      ")",
+          "preceding: ${constraints.precedingScrollExtent.format()}"
+          ")",
     );
 
     // Scroll offset including cache area.
