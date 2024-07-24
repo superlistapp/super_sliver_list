@@ -530,15 +530,15 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
 
     _log.fine(
       "Laying out $_logIdentifier "
-          "("
-          "anchored at end: $anchoredAtEnd, "
-          "initial extent: ${initialExtent.format()}, "
-          "scroll offset: ${constraints.scrollOffset.format()}, "
-          "overlap: ${constraints.overlap}, "
-          "remaining paint extent: ${constraints.remainingPaintExtent.format()}, "
-          "cache: ${constraints.cacheOrigin.format()} - "
-          "${constraints.remainingCacheExtent.format()}, "
-          "preceding: ${constraints.precedingScrollExtent.format()}",
+      "("
+      "anchored at end: $anchoredAtEnd, "
+      "initial extent: ${initialExtent.format()}, "
+      "scroll offset: ${constraints.scrollOffset.format()}, "
+      "overlap: ${constraints.overlap}, "
+      "remaining paint extent: ${constraints.remainingPaintExtent.format()}, "
+      "cache: ${constraints.cacheOrigin.format()} - "
+      "${constraints.remainingCacheExtent.format()}, "
+      "preceding: ${constraints.precedingScrollExtent.format()}"
       ")",
     );
 
