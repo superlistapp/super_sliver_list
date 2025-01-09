@@ -254,7 +254,7 @@ class ListController extends ChangeNotifier {
     super.dispose();
   }
 
-  /// Keeps tarck of created [AnimateToItem] so we could later dispose
+  /// Keeps track of created [AnimateToItem] so we could later dispose
   /// [AnimationController]s and animations in case list controller is suddenly
   /// unattached. 
   final List<AnimateToItem> _runningAnimations = [];
