@@ -51,6 +51,8 @@ class ExtentManager with ChangeNotifier {
   int? get cleanRangeEnd => _extentList.cleanRangeEnd;
 
   @pragma("vm:prefer-inline")
+  @pragma("wasm:prefer-inline")
+  @pragma("dart2js:prefer-inline")
   double getExtent(int index) => _extentList[index];
 
   void resize(

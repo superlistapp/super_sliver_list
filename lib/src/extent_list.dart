@@ -7,12 +7,16 @@ class ResizableFloat64List {
   static const _minCapacity = 16;
 
   @pragma("vm:prefer-inline")
+  @pragma("wasm:prefer-inline")
+  @pragma("dart2js:prefer-inline")
   double operator [](int index) {
     assert(index >= 0 && index < _length);
     return _list[index];
   }
 
   @pragma("vm:prefer-inline")
+  @pragma("wasm:prefer-inline")
+  @pragma("dart2js:prefer-inline")
   void operator []=(int index, double value) {
     assert(index >= 0 && index < _length);
     _list[index] = value;
@@ -172,6 +176,8 @@ class ExtentList {
   int get length => _extents.length;
 
   @pragma("vm:prefer-inline")
+  @pragma("wasm:prefer-inline")
+  @pragma("dart2js:prefer-inline")
   double operator [](int index) {
     assert(_extents.length == _dirty.length);
     assert(index >= 0 && index < _extents.length);
@@ -179,6 +185,8 @@ class ExtentList {
   }
 
   @pragma("vm:prefer-inline")
+  @pragma("wasm:prefer-inline")
+  @pragma("dart2js:prefer-inline")
   bool isDirty(int index) {
     assert(_extents.length == _dirty.length);
     assert(index >= 0 && index < _extents.length);
