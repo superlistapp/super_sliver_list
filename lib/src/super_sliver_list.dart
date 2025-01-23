@@ -280,9 +280,9 @@ class ListController extends ChangeNotifier {
     if (_delegate == delegate) {
       _delegate?.removeListener(notifyListeners);
       _delegate = null;
-      // destructuring is needed to copy list, because it can be modified from
-      // callback that can be called in AnimateToItem .dispose
-      for (final controller in [ ..._runningAnimations, ]) {
+      // because list can be modified from callback that can be called from
+      // [AnimateToItem.dispose] we must iterate over copy
+      for (final controller in _runningAnimations.toList()) {
         controller.dispose();
       }
       _runningAnimations.clear();
