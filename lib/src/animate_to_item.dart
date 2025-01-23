@@ -13,6 +13,7 @@ class AnimateToItem {
     required this.position,
     required this.duration,
     required this.curve,
+    required this.whenCompleteOrCancel,
   });
 
   final ExtentManager extentManager;
@@ -22,10 +23,27 @@ class AnimateToItem {
   final ScrollPosition position;
   final Duration Function(double estimatedDistance) duration;
   final Curve Function(double estimatedDistance) curve;
+  final void Function() whenCompleteOrCancel;
 
   double lastPosition = 0.0;
 
+  late AnimationController _controller;
+  late CurvedAnimation _animation;
+
+  bool _mustDispose = false;
+
+  void dispose() {
+    if (_mustDispose) {
+      _mustDispose = false;
+      _controller.dispose();
+      _animation.dispose();
+      whenCompleteOrCancel();
+    }
+  }
+
   void animate() {
+    _mustDispose = true;
+
     final index = this.index();
     if (index == null) {
       return;
@@ -38,25 +56,19 @@ class AnimateToItem {
       estimationOnly: true,
     );
     final estimatedDistance = (estimatedTarget - start).abs();
-    final controller = AnimationController(
+    _controller = AnimationController(
       vsync: position.context.vsync,
       duration: duration(estimatedDistance),
     );
-    controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        controller.dispose();
-      }
-    });
-    final animation = CurvedAnimation(
-      parent: controller,
+    _animation = CurvedAnimation(
+      parent: _controller,
       curve: curve(estimatedDistance),
     );
-    animation.addListener(() {
-      final value = animation.value;
+    _animation.addListener(() {
+      final value = _animation.value;
       final index = this.index();
       if (index == null) {
-        controller.stop();
-        controller.dispose();
+        dispose();
         return;
       }
       var targetPosition = extentManager.getOffsetToReveal(
@@ -83,6 +95,6 @@ class AnimateToItem {
       }
       position.jumpTo(jumpPosition);
     });
-    controller.forward();
+    _controller.forward().whenCompleteOrCancel(dispose);
   }
 }
