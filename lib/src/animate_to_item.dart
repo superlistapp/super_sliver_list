@@ -1,3 +1,4 @@
+import "dart:async";
 import "dart:ui";
 
 import "package:flutter/widgets.dart";
@@ -13,7 +14,7 @@ class AnimateToItem {
     required this.position,
     required this.duration,
     required this.curve,
-  });
+  }) : _completer = Completer<void>();
 
   final ExtentManager extentManager;
   final ValueGetter<int?> index;
@@ -22,13 +23,15 @@ class AnimateToItem {
   final ScrollPosition position;
   final Duration Function(double estimatedDistance) duration;
   final Curve Function(double estimatedDistance) curve;
+  
+  final Completer<void> _completer;
 
   double lastPosition = 0.0;
 
-  void animate() {
+  Future<void> animate() {
     final index = this.index();
     if (index == null) {
-      return;
+      return Future<void>.value();
     }
     final start = position.pixels;
     final estimatedTarget = extentManager.getOffsetToReveal(
@@ -44,6 +47,7 @@ class AnimateToItem {
     );
     controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
+        _completer.complete();
         controller.dispose();
       }
     });
@@ -56,6 +60,7 @@ class AnimateToItem {
       final index = this.index();
       if (index == null) {
         controller.stop();
+        _completer.complete();
         controller.dispose();
         return;
       }
@@ -84,5 +89,6 @@ class AnimateToItem {
       position.jumpTo(jumpPosition);
     });
     controller.forward();
+    return _completer.future;
   }
 }
