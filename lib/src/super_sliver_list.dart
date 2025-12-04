@@ -124,26 +124,28 @@ class ListController extends ChangeNotifier {
   /// edge of the viewport. If the value is 0.5, the item will be positioned in
   /// the middle of the viewport. If the value is 1.0, the item will be
   /// positioned at the trailing edge of the viewport.
-  void animateToItem({
+  Future<void> animateToItem({
     required ValueGetter<int?> index,
     required ScrollController scrollController,
     required double alignment,
     required Duration Function(double estimatedDistance) duration,
     required Curve Function(double estimatedDistance) curve,
     Rect? rect,
-  }) {
+  }) async {
     assert(_delegate != null, "ListController is not attached.");
-    for (final position in scrollController.positions) {
-      AnimateToItem(
-        extentManager: _delegate!,
-        index: index,
-        alignment: alignment,
-        rect: rect,
-        position: position,
-        curve: curve,
-        duration: duration,
-      ).animate();
-    }
+
+    await Future.wait([
+      for (final position in scrollController.positions)
+        AnimateToItem(
+          extentManager: _delegate!,
+          index: index,
+          alignment: alignment,
+          rect: rect,
+          position: position,
+          curve: curve,
+          duration: duration,
+        ).animate(),
+    ]);
   }
 
   /// Returns the range of items indices currently visible in the viewport.

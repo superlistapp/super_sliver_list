@@ -25,10 +25,10 @@ class AnimateToItem {
 
   double lastPosition = 0.0;
 
-  void animate() {
+  TickerFuture animate() {
     final index = this.index();
     if (index == null) {
-      return;
+      return TickerFuture.complete();
     }
     final start = position.pixels;
     final estimatedTarget = extentManager.getOffsetToReveal(
@@ -83,6 +83,6 @@ class AnimateToItem {
       }
       position.jumpTo(jumpPosition);
     });
-    controller.forward();
+    return controller.forward();
   }
 }

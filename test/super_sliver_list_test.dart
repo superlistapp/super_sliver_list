@@ -1279,6 +1279,150 @@ void main() async {
       expect(detached2, 0);
       expect(controller2.isAttached, isTrue);
     });
+    testWidgets("jumpToItem", (tester) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      final listController = ListController();
+      addTearDown(listController.dispose);
+      final configuration = SliverListConfiguration.generate(
+        slivers: 1,
+        itemsPerSliver: (_) => 20,
+        itemHeight: (_, __) => 300,
+        viewportHeight: 500,
+      );
+      await tester.pumpWidget(_buildSliverList(
+        configuration,
+        controller: controller,
+        listController: listController,
+        preciseLayout: true,
+      ));
+      await tester.pumpAndSettle();
+      expect(listController.isAttached, isTrue);
+
+      listController.jumpToItem(
+        index: 10,
+        scrollController: controller,
+        alignment: 0.0
+      );
+      await tester.pump();
+      expect(listController.visibleRange?.$1, 10);
+      expect(controller.offset, 3000);
+    });
+    testWidgets("animateToItem", (tester) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      final listController = ListController();
+      addTearDown(listController.dispose);
+      final configuration = SliverListConfiguration.generate(
+        slivers: 1,
+        itemsPerSliver: (_) => 20,
+        itemHeight: (_, __) => 300,
+        viewportHeight: 500,
+      );
+      await tester.pumpWidget(_buildSliverList(
+        configuration,
+        controller: controller,
+        listController: listController,
+        preciseLayout: true,
+      ));
+      await tester.pumpAndSettle();
+      expect(listController.isAttached, isTrue);
+
+      const duration = Duration(milliseconds: 500);
+      const curve = Curves.linear;
+      listController.animateToItem(
+        index: () => 10,
+        scrollController: controller,
+        alignment: 0.0,
+        duration: (_) => duration,
+        curve: (_) => curve,
+      );
+      await tester.pump();
+      await tester.pump(duration ~/ 2);
+      expect(controller.offset, curve.transform(0.5) * 3000);
+      await tester.pumpAndSettle();
+      expect(listController.visibleRange?.$1, 10);
+      expect(controller.offset, 3000);
+    });
+    testWidgets("animateToItem returns future that completes when animation completes", (tester) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      final listController = ListController();
+      addTearDown(listController.dispose);
+      final configuration = SliverListConfiguration.generate(
+        slivers: 1,
+        itemsPerSliver: (_) => 20,
+        itemHeight: (_, __) => 300,
+        viewportHeight: 500,
+      );
+      await tester.pumpWidget(_buildSliverList(
+        configuration,
+        controller: controller,
+        listController: listController,
+        preciseLayout: true,
+      ));
+      await tester.pumpAndSettle();
+      expect(listController.isAttached, isTrue);
+
+      const duration = Duration(milliseconds: 500);
+      const curve = Curves.linear;
+      var animationComplete = false;
+      listController.animateToItem(
+        index: () => 10,
+        scrollController: controller,
+        alignment: 0.0,
+        duration: (_) => duration,
+        curve: (_) => curve,
+      ).whenComplete(() {
+        animationComplete = true;
+      });
+      await tester.pump();
+      await tester.pump(duration ~/ 2);
+      expect(animationComplete, false);
+      await tester.pumpAndSettle();
+      expect(animationComplete, true);
+    });
+    testWidgets("animateToItem future does not complete when animation canceled", (tester) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      final listController = ListController();
+      addTearDown(listController.dispose);
+      final configuration = SliverListConfiguration.generate(
+        slivers: 1,
+        itemsPerSliver: (_) => 20,
+        itemHeight: (_, __) => 300,
+        viewportHeight: 500,
+      );
+      await tester.pumpWidget(_buildSliverList(
+        configuration,
+        controller: controller,
+        listController: listController,
+        preciseLayout: true,
+      ));
+      await tester.pumpAndSettle();
+      expect(listController.isAttached, isTrue);
+
+      const duration = Duration(milliseconds: 500);
+      const curve = Curves.linear;
+      int? index = 10;
+      var animationComplete = false;
+      listController.animateToItem(
+        index: () => index,
+        scrollController: controller,
+        alignment: 0.0,
+        duration: (_) => duration,
+        curve: (_) => curve,
+      ).whenComplete(() {
+        animationComplete = true;
+      });
+      await tester.pump();
+      await tester.pump(duration ~/ 2);
+      expect(animationComplete, false);
+      index = null;
+      await tester.pumpAndSettle();
+      expect(animationComplete, false);
+      expect(controller.offset, lessThan(3000));
+    });
   });
 }
 
