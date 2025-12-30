@@ -13,6 +13,7 @@ class AnimateToItem {
     required this.position,
     required this.duration,
     required this.curve,
+    required this.canceler,
   });
 
   final ExtentManager extentManager;
@@ -22,6 +23,7 @@ class AnimateToItem {
   final ScrollPosition position;
   final Duration Function(double estimatedDistance) duration;
   final Curve Function(double estimatedDistance) curve;
+  final Listenable canceler;
 
   double lastPosition = 0.0;
 
@@ -42,21 +44,27 @@ class AnimateToItem {
       vsync: position.context.vsync,
       duration: duration(estimatedDistance),
     );
-    controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        controller.dispose();
-      }
-    });
     final animation = CurvedAnimation(
       parent: controller,
       curve: curve(estimatedDistance),
     );
+    void dispose() {
+      controller.dispose();
+      animation.dispose();
+      canceler.removeListener(dispose);
+    }
+
+    canceler.addListener(dispose);
+    controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        dispose();
+      }
+    });
     animation.addListener(() {
       final value = animation.value;
       final index = this.index();
       if (index == null) {
-        controller.stop();
-        controller.dispose();
+        dispose();
         return;
       }
       var targetPosition = extentManager.getOffsetToReveal(

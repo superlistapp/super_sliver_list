@@ -1279,6 +1279,162 @@ void main() async {
       expect(detached2, 0);
       expect(controller2.isAttached, isTrue);
     });
+    testWidgets("animations canceled when ListController detached", (tester) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+
+      int attached = 0;
+      int detached = 0;
+      final listController = ListController(
+        onAttached: () {
+          ++attached;
+        },
+        onDetached: () {
+          ++detached;
+        },
+      );
+      addTearDown(listController.dispose);
+      final configuration = SliverListConfiguration.generate(
+        slivers: 1,
+        itemsPerSliver: (_) => 20,
+        itemHeight: (_, __) => 300,
+        viewportHeight: 500,
+        addGlobalKey: true,
+      );
+      await tester.pumpWidget(_buildSliverList(
+        configuration,
+        controller: controller,
+        listController: listController,
+        preciseLayout: false,
+      ));
+      await tester.pumpAndSettle();
+      expect(attached, 1);
+      expect(detached, 0);
+      expect(listController.isAttached, isTrue);
+
+      listController.animateToItem(
+        index: () => 10,
+        scrollController: controller,
+        alignment: 0.0,
+        duration: (estimatedDistance) => const Duration(milliseconds: 1000),
+        curve: (estimatedDistance) => Curves.linear,
+      );
+
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // will throw if there are any leaked Tickers
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(attached, 1);
+      expect(detached, 1);
+      expect(listController.isAttached, false);
+    });
+    testWidgets("animations canceled when new animation started", (tester) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      final listController = ListController();
+      addTearDown(listController.dispose);
+      final configuration = SliverListConfiguration.generate(
+        slivers: 1,
+        itemsPerSliver: (_) => 20,
+        itemHeight: (_, __) => 300,
+        viewportHeight: 500,
+        addGlobalKey: true,
+      );
+      await tester.pumpWidget(_buildSliverList(
+        configuration,
+        controller: controller,
+        listController: listController,
+        preciseLayout: true,
+      ));
+      await tester.pumpAndSettle();
+
+      final offsets = <double>[];
+      controller.addListener(() {
+        offsets.add(controller.offset);
+      });
+
+      listController.animateToItem(
+        index: () => 10,
+        scrollController: controller,
+        alignment: 0.0,
+        duration: (estimatedDistance) => const Duration(milliseconds: 1000),
+        curve: (estimatedDistance) => Curves.linear,
+      );
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      listController.animateToItem(
+        index: () => 0,
+        scrollController: controller,
+        alignment: 0.0,
+        duration: (estimatedDistance) => const Duration(milliseconds: 1000),
+        curve: (estimatedDistance) => Curves.linear,
+      );
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // half way to 10, half way back to 0, back to 0
+      // without cancellation, first animation keeps running
+      // and offsets instead is
+      // [1500.0, 3000.0, 750.0, 3000.0, 750.0, 3000.0, 0.0]
+      expect(offsets, [1500.0, 750.0, 0.0]);
+    });
+    testWidgets("animations canceled when jumpToItem called", (tester) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      final listController = ListController();
+      addTearDown(listController.dispose);
+      final configuration = SliverListConfiguration.generate(
+        slivers: 1,
+        itemsPerSliver: (_) => 20,
+        itemHeight: (_, __) => 300,
+        viewportHeight: 500,
+        addGlobalKey: true,
+      );
+      await tester.pumpWidget(_buildSliverList(
+        configuration,
+        controller: controller,
+        listController: listController,
+        preciseLayout: true,
+      ));
+      await tester.pumpAndSettle();
+
+      final offsets = <double>[];
+      controller.addListener(() {
+        offsets.add(controller.offset);
+      });
+
+      listController.animateToItem(
+        index: () => 10,
+        scrollController: controller,
+        alignment: 0.0,
+        duration: (estimatedDistance) => const Duration(milliseconds: 1000),
+        curve: (estimatedDistance) => Curves.linear,
+      );
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      listController.jumpToItem(
+        index: 0,
+        scrollController: controller,
+        alignment: 0.0,
+      );
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // half way to 10, back to 0
+      // without cancellation, first animation keeps running
+      // and offsets instead is
+      // [1500.0, 0.0, 1500.0, 3000.0]
+      expect(offsets, [1500.0, 0.0]);
+    });
   });
 }
 
