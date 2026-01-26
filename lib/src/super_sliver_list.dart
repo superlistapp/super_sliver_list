@@ -171,6 +171,12 @@ class ListController extends ChangeNotifier {
     return _delegate!.numberOfItemsWithEstimatedExtent;
   }
 
+  /// Returns the offset of the item at [index].
+  double offsetForIndex(int index) {
+    assert(_delegate != null, "ListController is not attached.");
+    return _delegate!.offsetForIndex(index);
+  }
+
   /// Returns the extent of the item at [index].
   ///
   /// If `isEstimated` is `true`, the returned extent is an estimate and may not
