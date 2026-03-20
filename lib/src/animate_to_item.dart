@@ -1,8 +1,7 @@
-import "dart:ui";
+import 'dart:ui';
+import 'package:flutter/widgets.dart';
 
-import "package:flutter/widgets.dart";
-
-import "extent_manager.dart";
+import 'extent_manager.dart';
 
 class AnimateToItem {
   AnimateToItem({
@@ -26,63 +25,113 @@ class AnimateToItem {
   double lastPosition = 0.0;
 
   void animate() {
-    final index = this.index();
-    if (index == null) {
+    final targetIndex = index();
+    if (targetIndex == null) return;
+
+    final scrollContext = position.context;
+    final buildContext = scrollContext.storageContext;
+
+    if (!buildContext.mounted) return;
+
+    double estimatedTarget;
+    try {
+      estimatedTarget = extentManager.getOffsetToReveal(
+        targetIndex,
+        alignment,
+        rect: rect,
+        estimationOnly: true,
+      );
+    } catch (_) {
       return;
     }
+
     final start = position.pixels;
-    final estimatedTarget = extentManager.getOffsetToReveal(
-      index,
-      alignment,
-      rect: rect,
-      estimationOnly: true,
-    );
     final estimatedDistance = (estimatedTarget - start).abs();
+
     final controller = AnimationController(
-      vsync: position.context.vsync,
+      vsync: scrollContext.vsync,
       duration: duration(estimatedDistance),
     );
+
+    var finished = false;
+
+    void finish() {
+      if (finished) return;
+      finished = true;
+      controller.stop();
+      controller.dispose();
+    }
+
     controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        controller.dispose();
+      if (status == AnimationStatus.completed ||
+          status == AnimationStatus.dismissed) {
+        finish();
       }
     });
+
     final animation = CurvedAnimation(
       parent: controller,
       curve: curve(estimatedDistance),
     );
+
     animation.addListener(() {
-      final value = animation.value;
-      final index = this.index();
-      if (index == null) {
-        controller.stop();
-        controller.dispose();
+      if (finished) return;
+
+      final currentContext = position.context.storageContext;
+      if (!currentContext.mounted) {
+        finish();
         return;
       }
-      var targetPosition = extentManager.getOffsetToReveal(
-        index,
-        alignment,
-        rect: rect,
-        estimationOnly: value < 1.0,
-      );
-      if (value < 1.0) {
-        // Clamp position during animation to prevent overscroll.
+
+      final currentIndex = index();
+      if (currentIndex == null) {
+        finish();
+        return;
+      }
+
+      double targetPosition;
+      try {
+        targetPosition = extentManager.getOffsetToReveal(
+          currentIndex,
+          alignment,
+          rect: rect,
+          estimationOnly: animation.value < 1.0,
+        );
+      } catch (_) {
+        finish();
+        return;
+      }
+
+      if (animation.value < 1.0) {
         targetPosition = targetPosition.clamp(
           position.minScrollExtent,
           position.maxScrollExtent,
         );
       }
-      final jumpPosition = lerpDouble(start, targetPosition, value)!;
-      lastPosition = jumpPosition;
-      if ((jumpPosition <= position.minScrollExtent &&
-              position.pixels == position.minScrollExtent) ||
-          (jumpPosition >= position.maxScrollExtent &&
-              position.pixels == position.maxScrollExtent)) {
-        // Do not jump when already at the edge. This prevents scrollbar handle artifacts.
+
+      final jumpPosition = lerpDouble(start, targetPosition, animation.value);
+      if (jumpPosition == null) {
+        finish();
         return;
       }
-      position.jumpTo(jumpPosition);
+
+      lastPosition = jumpPosition;
+
+      final atMin = position.pixels == position.minScrollExtent;
+      final atMax = position.pixels == position.maxScrollExtent;
+
+      if ((jumpPosition <= position.minScrollExtent && atMin) ||
+          (jumpPosition >= position.maxScrollExtent && atMax)) {
+        return;
+      }
+
+      try {
+        position.jumpTo(jumpPosition);
+      } catch (_) {
+        finish();
+      }
     });
+
     controller.forward();
   }
 }
