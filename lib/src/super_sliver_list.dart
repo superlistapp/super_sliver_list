@@ -274,7 +274,15 @@ class ListController extends ChangeNotifier {
     }
   }
 
-  @visibleForTesting
+  /// Returns the scroll offset at which the item at [index] would sit at
+  /// [alignment] within the viewport, where 0.0 is the leading edge and 1.0 the
+  /// trailing edge.
+  ///
+  /// Together with the current scroll offset this gives an item's position,
+  /// which is needed to answer questions such as "which is the topmost item not
+  /// hidden behind a header?". [visibleRange] reports indices only, and
+  /// [unobstructedVisibleRange] is derived from `SliverConstraints.overlap`,
+  /// which a floating header does not produce — so neither can answer it.
   double getOffsetToReveal(int index, double alignment, {Rect? rect}) {
     assert(_delegate != null, "ListController is not attached.");
     return _delegate!.getOffsetToReveal(
