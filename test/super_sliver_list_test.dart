@@ -700,6 +700,60 @@ void main() async {
       }
     });
 
+    testWidgets("kept alive widget is measured in place", (tester) async {
+      final key = GlobalKey();
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      Widget build(double width) {
+        return Directionality(
+          textDirection: TextDirection.ltr,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              height: 500,
+              width: width,
+              child: CustomScrollView(
+                controller: controller,
+                slivers: [
+                  SuperSliverList(
+                    layoutKeptAliveChildren: true,
+                    extentPrecalculationPolicy:
+                        _SimpleExtentPrecalculatePolicy(precalculate: true),
+                    delegate: SliverChildListDelegate([
+                      for (int i = 0; i < 30; ++i) const SizedBox(height: 100),
+                      _KeepAliveWidget(
+                        wantKeepAlive: true,
+                        child: SizedBox(key: key, height: 100),
+                      ),
+                    ]),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
+      await tester.pumpWidget(build(500));
+      controller.jumpTo(controller.position.maxScrollExtent);
+      await tester.pump();
+      final element = key.currentContext! as Element;
+
+      // The kept alive item is now just past the cache area, so it is the next
+      // item to be measured once the cross axis resize dirties all extents.
+      controller.jumpTo(2200);
+      await tester.pump();
+      final parentData = element.renderObject!.parent!.parent!.parentData!
+          as SliverMultiBoxAdaptorParentData;
+      expect(parentData.keptAlive, isTrue);
+
+      await tester.pumpWidget(build(400));
+      await tester.pumpAndSettle();
+
+      expect(key.currentContext, same(element));
+      expect(element.mounted, isTrue);
+    });
+
     testWidgets("delay populating cache area enabled", (tester) async {
       final keys0 = List.generate(50, (index) => GlobalKey());
       final keys1 = List.generate(1, (index) => GlobalKey());

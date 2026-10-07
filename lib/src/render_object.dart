@@ -375,6 +375,24 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
 
     final childCount = childManager.childCount;
 
+    // Items that already have a render object (e.g. kept alive) are laid out
+    // in place. Measuring them through a temporary child would build a second
+    // copy of the item and steal its GlobalKeys from the live one.
+    final existingChildren = <int, RenderBox>{};
+    visitChildren((child) {
+      final box = child as RenderBox;
+      existingChildren[indexOf(box)] = box;
+    });
+
+    double measureExtentForItem(int index) {
+      final child = existingChildren[index];
+      if (child == null) {
+        return childManager.measureExtentForItem(index, constraints);
+      }
+      child.layout(constraints.asBoxConstraints(), parentUsesSize: true);
+      return paintExtentOf(child);
+    }
+
     budget.beginLayout();
 
     while (precalculateExtents &&
@@ -397,7 +415,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       if (start > 0 && allowScrollOffsetCorrection) {
         final index = start - 1;
         invokeLayoutCallback((_) {
-          final extent = childManager.measureExtentForItem(index, constraints);
+          final extent = measureExtentForItem(index);
           final prevExtent = _extentManager.getExtent(index);
           _extentManager.setExtent(index, extent);
           correction += extent - prevExtent;
@@ -407,7 +425,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       if (end < childCount - 1) {
         final index = end + 1;
         invokeLayoutCallback((_) {
-          final extent = childManager.measureExtentForItem(index, constraints);
+          final extent = measureExtentForItem(index);
           _extentManager.setExtent(index, extent);
         });
       }
