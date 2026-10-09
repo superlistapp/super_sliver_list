@@ -1,14 +1,7 @@
 import "package:context_plus/context_plus.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart"
-    show
-        Colors,
-        MaterialState,
-        MaterialStateProperty,
-        Scrollbar,
-        ScrollbarTheme,
-        ScrollbarThemeData,
-        Typography;
+    show Colors, Scrollbar, ScrollbarTheme, ScrollbarThemeData, Typography;
 import "package:flutter/services.dart";
 import "package:pixel_snap/widgets.dart";
 import "package:super_sliver_list/super_sliver_list.dart";
@@ -260,9 +253,9 @@ class _ScrollBehavior extends ScrollBehavior {
       BuildContext context, Widget child, ScrollableDetails details) {
     return ScrollbarTheme(
       data: ScrollbarThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.hovered) ||
-              states.contains(MaterialState.dragged)) {
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.hovered) ||
+              states.contains(WidgetState.dragged)) {
             return Colors.black.withOpacity(0.4);
           }
           return Colors.black.withOpacity(0.1);

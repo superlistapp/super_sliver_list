@@ -409,7 +409,7 @@ class _ItemListPageState extends ExamplePageState {
       },
       onAnimateRequested: (sliver, item, alignment) {
         _listControllers[sliver].animateToItem(
-          index: item,
+          index: () => item,
           scrollController: _scrollController,
           alignment: alignment,
           duration: (_) => const Duration(milliseconds: 300),

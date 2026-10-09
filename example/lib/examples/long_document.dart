@@ -143,7 +143,7 @@ class _LogDocumentPageState extends ExamplePageState<LongDocumentPage> {
       },
       onAnimateRequested: (sliver, item, alignment) {
         _listControllers[sliver].animateToItem(
-          index: item,
+          index: () => item,
           scrollController: _scrollController,
           alignment: alignment,
           duration: (_) => const Duration(milliseconds: 300),
