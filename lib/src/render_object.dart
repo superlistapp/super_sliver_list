@@ -321,30 +321,34 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
     return _currentLayoutBudget!;
   }
 
+  /// Lays out existing [child] and returns its extent along the main axis.
+  double layoutChildInPlace(RenderBox child, SliverConstraints constraints) {
+    child.layout(constraints.asBoxConstraints(), parentUsesSize: true);
+    return paintExtentOf(child);
+  }
+
   double _layoutKeptAliveChildren() {
-    if (!layoutKeptAliveChildren) {
-      return 0.0;
-    }
     double correction = 0.0;
-    final firstChildIndex = firstChild != null ? indexOf(firstChild!) : -1;
-    // First step - layout all kept alive children.
-    visitChildren((child_) {
-      final child = child_ as RenderBox;
-      final data = child.parentData! as SliverMultiBoxAdaptorParentData;
-      if (data.keptAlive) {
-        final index = indexOf(child);
-        final constraints = this.constraints.asBoxConstraints();
-        final prevExtent = _extentManager.getExtent(index);
-        child.layout(constraints, parentUsesSize: true);
-        final extentAfter = paintExtentOf(child);
-        _extentManager.setExtent(index, extentAfter);
-        if (index < firstChildIndex) {
-          correction += extentAfter - prevExtent;
+    if (layoutKeptAliveChildren) {
+      final firstChildIndex = firstChild != null ? indexOf(firstChild!) : -1;
+      // First step - layout all kept alive children.
+      visitChildren((child_) {
+        final child = child_ as RenderBox;
+        final data = child.parentData! as SliverMultiBoxAdaptorParentData;
+        if (data.keptAlive) {
+          final index = indexOf(child);
+          final prevExtent = _extentManager.getExtent(index);
+          final extentAfter = layoutChildInPlace(child, constraints);
+          _extentManager.setExtent(index, extentAfter);
+          if (index < firstChildIndex) {
+            correction += extentAfter - prevExtent;
+          }
         }
-      }
-    });
+      });
+    }
     // Second step - update layout offset. This is done after all children have
-    // been laid out.
+    // been laid out. It runs even when kept alive children are not laid out
+    // here, because extent precalculation may have laid them out in place.
     visitChildren((child_) {
       final child = child_ as RenderBox;
       final data = child.parentData! as SliverMultiBoxAdaptorParentData;
@@ -375,24 +379,6 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
 
     final childCount = childManager.childCount;
 
-    // Items that already have a render object (e.g. kept alive) are laid out
-    // in place. Measuring them through a temporary child would build a second
-    // copy of the item and steal its GlobalKeys from the live one.
-    final existingChildren = <int, RenderBox>{};
-    visitChildren((child) {
-      final box = child as RenderBox;
-      existingChildren[indexOf(box)] = box;
-    });
-
-    double measureExtentForItem(int index) {
-      final child = existingChildren[index];
-      if (child == null) {
-        return childManager.measureExtentForItem(index, constraints);
-      }
-      child.layout(constraints.asBoxConstraints(), parentUsesSize: true);
-      return paintExtentOf(child);
-    }
-
     budget.beginLayout();
 
     while (precalculateExtents &&
@@ -415,7 +401,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       if (start > 0 && allowScrollOffsetCorrection) {
         final index = start - 1;
         invokeLayoutCallback((_) {
-          final extent = measureExtentForItem(index);
+          final extent = childManager.measureExtentForItem(index, constraints);
           final prevExtent = _extentManager.getExtent(index);
           _extentManager.setExtent(index, extent);
           correction += extent - prevExtent;
@@ -425,7 +411,7 @@ class RenderSuperSliverList extends RenderSliverMultiBoxAdaptor
       if (end < childCount - 1) {
         final index = end + 1;
         invokeLayoutCallback((_) {
-          final extent = measureExtentForItem(index);
+          final extent = childManager.measureExtentForItem(index, constraints);
           _extentManager.setExtent(index, extent);
         });
       }
