@@ -700,6 +700,127 @@ void main() async {
       }
     });
 
+    for (final layoutKeptAliveChildren in [true, false]) {
+      testWidgets(
+          "kept alive widget after clean range is measured in place "
+          "(layoutKeptAliveChildren: $layoutKeptAliveChildren)",
+          (tester) async {
+        final key = GlobalKey();
+        final controller = ScrollController();
+        addTearDown(controller.dispose);
+        Widget build(double width) {
+          return Directionality(
+            textDirection: TextDirection.ltr,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                height: 500,
+                width: width,
+                child: CustomScrollView(
+                  controller: controller,
+                  slivers: [
+                    SuperSliverList(
+                      layoutKeptAliveChildren: layoutKeptAliveChildren,
+                      extentPrecalculationPolicy:
+                          _SimpleExtentPrecalculatePolicy(precalculate: true),
+                      delegate: SliverChildListDelegate([
+                        for (int i = 0; i < 30; ++i)
+                          const SizedBox(height: 100),
+                        _KeepAliveWidget(
+                          wantKeepAlive: true,
+                          child: SizedBox(key: key, height: 100),
+                        ),
+                      ]),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        await tester.pumpWidget(build(500));
+        controller.jumpTo(controller.position.maxScrollExtent);
+        await tester.pump();
+        final element = key.currentContext! as Element;
+
+        // The kept alive item is now just past the cache area, so it is the
+        // next item to be measured once the cross axis resize dirties all
+        // extents.
+        controller.jumpTo(2200);
+        await tester.pump();
+        final parentData = element.renderObject!.parent!.parent!.parentData!
+            as SliverMultiBoxAdaptorParentData;
+        expect(parentData.keptAlive, isTrue);
+
+        await tester.pumpWidget(build(400));
+        await tester.pumpAndSettle();
+
+        expect(key.currentContext, same(element));
+        expect(element.mounted, isTrue);
+      });
+    }
+
+    testWidgets("kept alive widget before clean range is measured in place",
+        (tester) async {
+      final key = GlobalKey();
+      final key20 = GlobalKey();
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      Widget build(double width) {
+        return Directionality(
+          textDirection: TextDirection.ltr,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              height: 500,
+              width: width,
+              child: CustomScrollView(
+                controller: controller,
+                slivers: [
+                  SuperSliverList(
+                    extentPrecalculationPolicy:
+                        _SimpleExtentPrecalculatePolicy(precalculate: true),
+                    delegate: SliverChildListDelegate([
+                      // Height is width / 5, so the cross axis resize changes
+                      // its extent and requires a scroll offset correction.
+                      _KeepAliveWidget(
+                        wantKeepAlive: true,
+                        child: AspectRatio(key: key, aspectRatio: 5),
+                      ),
+                      for (int i = 1; i < 31; ++i)
+                        SizedBox(key: i == 20 ? key20 : null, height: 100),
+                    ]),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
+      await tester.pumpWidget(build(500));
+      final element = key.currentContext! as Element;
+
+      // Item 20 is at the top of the viewport.
+      controller.jumpTo(2000);
+      await tester.pump();
+      final parentData = element.renderObject!.parent!.parent!.parentData!
+          as SliverMultiBoxAdaptorParentData;
+      expect(parentData.keptAlive, isTrue);
+      expect(tester.getTopLeft(find.byKey(key20)).dy, 0);
+
+      await tester.pumpWidget(build(400));
+      await tester.pumpAndSettle();
+
+      expect(key.currentContext, same(element));
+      expect(element.mounted, isTrue);
+      // Item 0 shrank from 100 to 80, which is corrected for, so item 20
+      // stays at the top of the viewport.
+      expect(controller.position.pixels, 1980);
+      expect(tester.getTopLeft(find.byKey(key20)).dy, 0);
+    });
+
     testWidgets("delay populating cache area enabled", (tester) async {
       final keys0 = List.generate(50, (index) => GlobalKey());
       final keys1 = List.generate(1, (index) => GlobalKey());
