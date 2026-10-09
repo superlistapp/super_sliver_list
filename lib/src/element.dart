@@ -77,14 +77,36 @@ class SuperSliverMultiBoxAdaptorElement extends SliverMultiBoxAdaptorElement
 
   @override
   double measureExtentForItem(int index, SliverConstraints constraints) {
+    // Items that already have a render object (e.g. kept alive) are laid out
+    // in place. Measuring them through a temporary child would build a second
+    // copy of the item and steal its GlobalKeys from the live one.
+    final existingChild = _renderBoxForIndex(index);
+    if (existingChild != null) {
+      return renderObject.layoutChildInPlace(existingChild, constraints);
+    }
     _createTemporaryChild(index);
-    final renderObject = _tempRenderObject! as RenderBox;
-    renderObject.layout(constraints.asBoxConstraints(), parentUsesSize: true);
+    final tempRenderObject = _tempRenderObject! as RenderBox;
+    tempRenderObject.layout(
+      constraints.asBoxConstraints(),
+      parentUsesSize: true,
+    );
     final extent = constraints.axis == Axis.vertical
-        ? renderObject.size.height
-        : renderObject.size.width;
+        ? tempRenderObject.size.height
+        : tempRenderObject.size.width;
     removeTempElement();
     return extent;
+  }
+
+  /// Looked up on every call, since building a temporary child can replace
+  /// render objects of other children.
+  RenderBox? _renderBoxForIndex(int index) {
+    RenderBox? result;
+    visitChildren((child) {
+      if (child.slot == index) {
+        result = child.renderObject as RenderBox?;
+      }
+    });
+    return result;
   }
 
   late final ExtentManager _extentManager;
