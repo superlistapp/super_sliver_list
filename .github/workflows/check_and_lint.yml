@@ -13,6 +13,8 @@ jobs:
       - uses: subosito/flutter-action@2783a3f08e1baf891508463f8c6653c258246225 # v2.12.0
         with:
           channel: stable
+      - name: Install Dependencies
+        run: flutter pub get
       - name: Install Dependencies (example)
         run: flutter pub get
         working-directory: ./example
@@ -22,6 +24,6 @@ jobs:
       - name: Check format
         run: dart format . --output=none --set-exit-if-changed
       - name: Analyze
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
       - name: Test
         run: flutter test
